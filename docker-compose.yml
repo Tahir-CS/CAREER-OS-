@@ -1,0 +1,58 @@
+version: '3.8' # The version of the docker-compose syntax
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. PostgreSQL Database
+  # This stores our relational data (users, jobs) and our AI vector embeddings.
+  # ---------------------------------------------------------------------------
+  postgres:
+    # We use a custom image "ankane/pgvector" instead of standard "postgres"
+    # because it comes with the AI pgvector extension pre-installed.
+    image: ankane/pgvector:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: careeros
+    ports:
+      # Maps your computer's port 5432 to the container's port 5432
+      # This allows your Node backend (running on your PC) to connect to the DB.
+      - "5432:5432"
+    volumes:
+      # We map a named volume "postgres_data" to the container's storage folder.
+      # This ensures if you restart docker, your database isn't wiped clean!
+      - postgres_data:/var/lib/postgresql/data
+
+  # ---------------------------------------------------------------------------
+  # 2. Redis In-Memory Store
+  # This powers our BullMQ job queues, caching, and rate limiting.
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:alpine # 'alpine' means a super lightweight, tiny version of Linux
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # ---------------------------------------------------------------------------
+  # 3. MinIO (S3-Compatible Storage)
+  # This is where we store the uploaded Resumes locally without paying AWS.
+  # ---------------------------------------------------------------------------
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000" # API Port (How our Node backend talks to it to upload files)
+      - "9001:9001" # Web Console Port (A UI you can open in your browser)
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password123
+    # The command that runs when the container starts
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+
+# Here we declare the volumes we used above. Docker will create these folders
+# somewhere safely on your hard drive to persist the data.
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

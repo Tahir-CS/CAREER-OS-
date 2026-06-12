@@ -1,0 +1,28 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ----------------------------------------------------
+// This table tracks the background progress of every resume
+// ----------------------------------------------------
+model AnalysisJob {
+  id          String   @id @default(uuid()) // A unique ticket number (Job ID)
+  
+  // State machine: PENDING -> ANALYZING -> COMPLETED
+  status      String   @default("PENDING") 
+  
+  // We no longer save files to the hard drive. 
+  // We save them to S3/MinIO and just store the URL here!
+  resumeUrl   String   
+  
+  // Once the Worker finishes, it dumps the massive Gemini JSON result here
+  feedback    Json?    
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
