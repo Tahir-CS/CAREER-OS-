@@ -1,96 +1,76 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-import { extractTextFromPDF, extractTextFromDOCX } from '../utils/fileExtractor.js';
-import { buildAnalysisPrompt } from '../utils/promptBuilder.js';
+import { PrismaClient } from '@prisma/client';
+import { analysisQueue } from '../config/queue.js';
 import { generatePDFFeedback } from '../utils/pdfGenerator.js';
-import { parseGeminiAnalysisResponse } from '../utils/geminiResponseParser.js';
-import dotenv from 'dotenv';
-dotenv.config();
 
-const geminiApiKey = process.env.GEMINI_API_KEY;
-if (!geminiApiKey) {
-  console.warn('GEMINI_API_KEY is not set. Resume analysis is unavailable.');
-}
+// We initialize our Prisma ORM client to talk to PostgreSQL
+const prisma = new PrismaClient();
 
-// Initialize Gemini AI
-const genAI = geminiApiKey ? new GoogleGenerativeAI(geminiApiKey) : null;
-
-// Use a free, widely available model (gemini-1.5-flash is typically free and fast)
-const model = genAI ? genAI.getGenerativeModel({ model: 'models/gemini-1.5-flash' }) : null;
-// In-memory storage for feedback (replace with a database in production)
-const feedbackStore = new Map();
-
+/**
+ * NEW ARCHITECTURE: EVENT-DRIVEN POST ENDPOINT
+ * This endpoint no longer calls the Gemini API directly. 
+ * It only saves the file location to the DB and pushes a Job to the Queue.
+ * It returns the Job ID in milliseconds.
+ */
 export const analyzeResume = async (req, res) => {
   try {
-    if (!model) {
-      return res.status(503).json({
-        success: false,
-        message: 'Resume analysis service is temporarily unavailable.'
-      });
-    }
-
     const file = req.file;
-    const jobDescription = req.body.jobDescription;
 
     if (!file) {
       return res.status(400).json({ success: false, message: 'No file uploaded' });
     }
 
-    // Extract text based on file type
-    let resumeText;
-    if (file.mimetype === 'application/pdf') {
-      resumeText = await extractTextFromPDF(file.path);
-    } else {
-      resumeText = await extractTextFromDOCX(file.path);
-    }
+    // Since we are using multer-s3, the file object automatically contains 
+    // the 'location' URL pointing to our MinIO bucket!
+    const s3FileLocation = file.location || file.path; 
 
-    // Build and send prompt to Gemini
-    const prompt = buildAnalysisPrompt(resumeText, jobDescription);
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const rawResponseText = response.text();
-
-    let analysis;
-    try {
-      analysis = parseGeminiAnalysisResponse(rawResponseText);
-    } catch (parseError) {
-      console.error('Error parsing Gemini response:', parseError);
-      return res.status(502).json({
-        success: false,
-        message: 'AI service returned an unexpected response format. Please try again.'
-      });
-    }
-
-    // Store feedback
-    const feedbackId = Date.now().toString();
-    feedbackStore.set(feedbackId, {
-      analysis,
-      resumeText,
-      jobDescription,
-      timestamp: new Date()
+    // 1. Create a "PENDING" job in PostgreSQL
+    const newJob = await prisma.analysisJob.create({
+      data: {
+        resumeUrl: s3FileLocation,
+        status: 'PENDING'
+      }
     });
 
-    res.json({
+    // 2. Push this Job ID to our Redis Queue
+    // The Worker process is listening to this exact queue.
+    await analysisQueue.add('process-resume', {
+      jobId: newJob.id,
+      jobDescription: req.body.jobDescription || ''
+    });
+
+    // 3. Immediately return the Job ID to the Frontend so it can start listening
+    res.status(200).json({
       success: true,
-      feedbackId,
-      analysis
+      message: 'Resume analysis queued successfully!',
+      jobId: newJob.id,
+      status: newJob.status
     });
 
   } catch (error) {
-    console.error('Error analyzing resume:', error);
+    // PRODUCTION LOGGING PREP: In Phase 6, we will send this error to Sentry.io
+    console.error('[API Error] Failed to queue resume analysis:', error);
     res.status(500).json({
       success: false,
-      message: 'Error analyzing resume',
+      message: 'Failed to queue resume analysis due to a server error.',
       error: error.message
     });
   }
 };
 
+/**
+ * UPDATED GET ENDPOINT
+ * This now pulls the status and feedback directly from PostgreSQL instead of a volatile JS Map.
+ */
 export const getFeedback = async (req, res) => {
   try {
     const { id } = req.params;
-    const feedback = feedbackStore.get(id);
+    
+    // Fetch the job from PostgreSQL
+    const job = await prisma.analysisJob.findUnique({
+      where: { id: id }
+    });
 
-    if (!feedback) {
+    if (!job) {
       return res.status(404).json({
         success: false,
         message: 'Feedback not found'
@@ -99,11 +79,12 @@ export const getFeedback = async (req, res) => {
 
     res.json({
       success: true,
-      feedback: feedback.analysis
+      status: job.status,
+      feedback: job.feedback // This will be null if status is still PENDING or ANALYZING
     });
 
   } catch (error) {
-    console.error('Error retrieving feedback:', error);
+    console.error('[API Error] Error retrieving feedback:', error);
     res.status(500).json({
       success: false,
       message: 'Error retrieving feedback',
@@ -115,23 +96,28 @@ export const getFeedback = async (req, res) => {
 export const downloadFeedback = async (req, res) => {
   try {
     const { id } = req.params;
-    const feedback = feedbackStore.get(id);
+    
+    const job = await prisma.analysisJob.findUnique({
+      where: { id: id }
+    });
 
-    if (!feedback) {
+    // Ensure the job exists and is COMPLETED before generating a PDF
+    if (!job || job.status !== 'COMPLETED' || !job.feedback) {
       return res.status(404).json({
         success: false,
-        message: 'Feedback not found'
+        message: 'Feedback not ready or not found.'
       });
     }
 
-    const pdfBuffer = await generatePDFFeedback(feedback);
+    // We pass the JSON feedback to the PDF Generator
+    const pdfBuffer = await generatePDFFeedback({ analysis: job.feedback });
     
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=resume-feedback-${id}.pdf`);
     res.send(pdfBuffer);
 
   } catch (error) {
-    console.error('Error generating PDF:', error);
+    console.error('[API Error] Error generating PDF:', error);
     res.status(500).json({
       success: false,
       message: 'Error generating PDF',

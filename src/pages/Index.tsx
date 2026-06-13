@@ -182,6 +182,8 @@ const Index = () => {
             </div>
           )}
 
+
+
           {analysis && <AnalysisDisplay analysis={analysis} onReset={handleReset} onExport={handleExport} />}
         </div>
       </main>
