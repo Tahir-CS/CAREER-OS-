@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { io, Socket } from 'socket.io-client';
 import { useToast } from "../components/ui/use-toast";
 import Header from '../components/Header';
 import ResumeUploader from '../components/ResumeUploader';
@@ -6,6 +7,8 @@ import AnalysisDisplay from '../components/AnalysisDisplay';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Socket.io runs on the base URL, not the /api route
+const SOCKET_URL = import.meta.env.VITE_API_URL ? import.meta.env.VITE_API_URL.replace('/api', '') : 'http://localhost:3001';
 
 const getStatusFallbackMessage = (status: number, defaultMessage: string) => {
   if (status === 400) return 'Invalid request. Please check the uploaded file and inputs.';
@@ -16,7 +19,6 @@ const getStatusFallbackMessage = (status: number, defaultMessage: string) => {
 
 const readApiErrorMessage = async (response: Response, defaultMessage: string) => {
   const fallback = getStatusFallbackMessage(response.status, defaultMessage);
-
   try {
     const data = await response.json();
     if (typeof data?.message === 'string' && data.message.trim().length > 0) {
@@ -25,103 +27,119 @@ const readApiErrorMessage = async (response: Response, defaultMessage: string) =
   } catch (error) {
     // Fall back to a status-based message when body is not JSON.
   }
-
   return fallback;
-};
-
-const mockAnalysis = {
-  score: 88,
-  summary: "Your resume demonstrates strong professional experience with quantifiable achievements, but could benefit from some structural improvements and ATS optimization.",
-  strengths: [
-    "Clearly articulated project impacts with quantifiable results",
-    "Strong action verbs used throughout the experience section",
-    "Well-structured and easy to read format"
-  ],
-  weaknesses: [
-    "Missing professional summary section",
-    "Skills section needs better organization",
-    "Some bullet points lack specific metrics"
-  ],
-  improvementSuggestions: [
-    "Add a compelling professional summary at the top",
-    "Group skills by category (e.g., Technical, Soft Skills, Tools)",
-    "Include more quantifiable achievements in work experience",
-    "Use industry-specific keywords throughout"
-  ],
-  bulletPointRewrites: [
-    {
-      before: "Managed team projects and improved efficiency",
-      after: "Led 5-person development team to increase sprint velocity by 40% through agile process optimization",
-      explanation: "Added specific numbers and clear outcome metrics"
-    }
-  ],
-  atsAnalysis: {
-    score: 75,
-    issues: [
-      "Resume uses some graphical elements that may not parse correctly",
-      "Complex formatting in header could cause issues"
-    ],
-    missingKeywords: [
-      "project management",
-      "agile methodologies",
-      "cross-functional collaboration"
-    ],
-    formatWarnings: [
-      "Remove header images and use plain text",
-      "Avoid tables for skills section"
-    ]
-  }
 };
 
 const Index = () => {
   const { toast } = useToast();
-  const [analysis, setAnalysis] = useState<typeof mockAnalysis | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [analysis, setAnalysis] = useState<any>(null);
   const [feedbackId, setFeedbackId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Real-time WebSocket State
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const [jobStatus, setJobStatus] = useState<string>('');
+
+  // 1. Initialize Socket.io Connection on mount
+  useEffect(() => {
+    const newSocket = io(SOCKET_URL);
+    setSocket(newSocket);
+    return () => {
+      newSocket.close();
+    };
+  }, []);
+
+  // 2. Listen for Job Updates when feedbackId is set
+  useEffect(() => {
+    if (!socket || !feedbackId) return;
+
+    // Tell the server we want to listen to events for this specific job
+    socket.emit('subscribe-to-job', feedbackId);
+
+    // Listen for the Worker's real-time broadcasts
+    socket.on('job-update', async (data) => {
+      console.log("[WebSocket] Job update:", data);
+      setJobStatus(data.status);
+
+      if (data.status === 'COMPLETED') {
+        // The Worker is done! Fetch the final JSON from Postgres
+        try {
+          const response = await fetch(`${API_BASE_URL}/feedback/${feedbackId}`);
+          if (!response.ok) throw new Error('Failed to fetch final results');
+          const result = await response.json();
+          if (result.success) {
+            setAnalysis(result.feedback);
+            setIsLoading(false);
+            toast({ title: "Analysis Complete!", description: "Your resume has been fully analyzed." });
+          }
+        } catch (error) {
+          console.error("Error fetching final feedback:", error);
+          setIsLoading(false);
+        }
+      } else if (data.status === 'FAILED') {
+        setIsLoading(false);
+        toast({
+          title: "Analysis Failed",
+          description: data.error || "The AI worker encountered an error.",
+          variant: "destructive",
+        });
+      }
+    });
+
+    return () => {
+      socket.off('job-update');
+    };
+  }, [socket, feedbackId, toast]);
 
   const handleAnalyze = async (file: File) => {
-    console.log("Analyzing file:", file.name);
+    console.log("Queueing file for analysis:", file.name);
     setIsLoading(true);
     setAnalysis(null);
+    setJobStatus('UPLOADING');
 
     try {
       const formData = new FormData();
       formData.append('resume', file);
 
+      // We hit the new Event-Driven API endpoint
       const response = await fetch(`${API_BASE_URL}/upload-resume`, {
         method: 'POST',
         body: formData,
       });
 
       if (!response.ok) {
-        const message = await readApiErrorMessage(response, 'Failed to analyze resume.');
+        const message = await readApiErrorMessage(response, 'Failed to queue resume.');
         throw new Error(message);
       }
 
       const data = await response.json();
       if (!data.success) {
-        throw new Error(data.message || 'Failed to analyze resume');
+        throw new Error(data.message || 'Failed to queue resume');
       }
-      setAnalysis(data.analysis);
-      setFeedbackId(data.feedbackId);
+      
+      // We got the Job ID instantly! Now we wait for the WebSockets to do the rest.
+      setFeedbackId(data.jobId);
+      setJobStatus(data.status || 'PENDING');
+      
     } catch (error) {
-      console.error('Error analyzing resume:', error);
+      console.error('Error queueing resume:', error);
+      setIsLoading(false);
+      setJobStatus('');
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : 'Failed to analyze resume. Please try again.',
+        description: error instanceof Error ? error.message : 'Failed to queue resume. Please try again.',
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
   const handleReset = () => {
     setAnalysis(null);
     setFeedbackId(null);
+    setJobStatus('');
   };
 
-  // PDF Export Handler (fixed: use feedbackId and GET request)
   const handleExport = async () => {
     if (!analysis || !feedbackId) {
       toast({
@@ -144,7 +162,7 @@ const Index = () => {
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'AI-Resume-Feedback.pdf';
+      a.download = `Resume-Feedback-${feedbackId}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -178,11 +196,17 @@ const Index = () => {
           {isLoading && (
             <div className="text-center p-16 flex flex-col items-center justify-center space-y-4">
               <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
-              <p className="text-lg text-muted-foreground">Analyzing your resume... This might take a moment.</p>
+              
+              <div className="text-xl font-semibold text-primary flex items-center space-x-2">
+                {jobStatus === 'UPLOADING' && <span>Uploading to MinIO Storage...</span>}
+                {jobStatus === 'PENDING' && <span>Waiting in Queue...</span>}
+                {jobStatus === 'PARSING' && <span>AI Agent 1: Parsing PDF Text...</span>}
+                {jobStatus === 'ANALYZING' && <span>AI Agent 2: Synthesizing Feedback...</span>}
+                {!['UPLOADING', 'PENDING', 'PARSING', 'ANALYZING'].includes(jobStatus) && <span>Processing...</span>}
+              </div>
+              <p className="text-sm text-muted-foreground">Watching live events via WebSockets</p>
             </div>
           )}
-
-
 
           {analysis && <AnalysisDisplay analysis={analysis} onReset={handleReset} onExport={handleExport} />}
         </div>

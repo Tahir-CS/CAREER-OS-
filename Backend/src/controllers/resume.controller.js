@@ -21,7 +21,7 @@ export const analyzeResume = async (req, res) => {
 
     // Since we are using multer-s3, the file object automatically contains 
     // the 'location' URL pointing to our MinIO bucket!
-    const s3FileLocation = file.location || file.path; 
+    const s3FileLocation = file.location || file.path;
 
     // 1. Create a "PENDING" job in PostgreSQL
     const newJob = await prisma.analysisJob.create({
@@ -64,7 +64,7 @@ export const analyzeResume = async (req, res) => {
 export const getFeedback = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     // Fetch the job from PostgreSQL
     const job = await prisma.analysisJob.findUnique({
       where: { id: id }
@@ -96,7 +96,7 @@ export const getFeedback = async (req, res) => {
 export const downloadFeedback = async (req, res) => {
   try {
     const { id } = req.params;
-    
+
     const job = await prisma.analysisJob.findUnique({
       where: { id: id }
     });
@@ -111,7 +111,7 @@ export const downloadFeedback = async (req, res) => {
 
     // We pass the JSON feedback to the PDF Generator
     const pdfBuffer = await generatePDFFeedback({ analysis: job.feedback });
-    
+
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename=resume-feedback-${id}.pdf`);
     res.send(pdfBuffer);
