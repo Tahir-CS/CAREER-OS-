@@ -27,7 +27,9 @@ export const analyzeResume = async (req, res) => {
     const newJob = await prisma.analysisJob.create({
       data: {
         resumeUrl: s3FileLocation,
-        status: 'PENDING'
+        status: 'PENDING',
+        jobDescription: req.body.jobDescription || null,
+        sessionId: req.body.sessionId || null
       }
     });
 

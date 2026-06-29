@@ -3,8 +3,10 @@ import { createServer } from 'http'; // Step 1: Import Node's built-in HTTP modu
 import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import RedisStore from 'rate-limit-redis';
 import resumeRoutes from './routes/resume.routes.js';
 import { initSocket } from './config/socket.js';
+import { redisConnection } from './config/queue.js';
 
 dotenv.config();
 
@@ -47,13 +49,23 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Basic rate limiter (we will upgrade this to a Redis sliding-window limiter in Phase 4)
+// PHASE 4: Redis-Backed Rate Limiting (Abuse Control)
+// We use our existing Redis container to track IPs across multiple servers.
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: { success: false, message: 'Too many requests, please slow down.' }
+  windowMs: 60 * 60 * 1000, // 1 hour window
+  max: 10, // Limit each IP to 10 requests per hour
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: new RedisStore({
+    // ioredis needs to be bridged using the sendCommand method
+    sendCommand: (...args) => redisConnection.call(...args),
+  }),
+  message: { success: false, message: 'Too many analyses requested from this IP. Please try again after an hour.' }
 });
-app.use(limiter);
+
+// Apply the strict rate limiter ONLY to the analysis endpoint, 
+// so polling the status endpoint doesn't get blocked!
+app.use('/api/upload-resume', limiter);
 
 // REST API Routes
 app.use('/api', resumeRoutes);

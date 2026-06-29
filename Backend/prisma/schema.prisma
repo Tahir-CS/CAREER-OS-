@@ -22,6 +22,9 @@ model AnalysisJob {
   
   resumeUrl   String   
   
+  // Anonymous browser session ID for tracking a user's upload history
+  sessionId   String?
+  
   // The original Job Description the user provided
   jobDescription String?
   

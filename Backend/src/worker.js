@@ -42,19 +42,36 @@ const worker = new Worker(QUEUE_NAME, async (job) => {
     await prisma.analysisJob.update({ where: { id: jobId }, data: { status: 'ANALYZING' } });
 
     // -----------------------------------------------------------------------
-    // AGENT 1 & 2: Parsing and Synthesis
+    // NEW PHASE 4: REDIS CACHING LAYER (COST CONTROL)
     // -----------------------------------------------------------------------
-    console.log(`[Worker] Job ${jobId}: Running Agent 1 (Parser)`);
-    const agent1Prompt = `You are an expert ATS Parser. Extract the key information from this resume text and score its formatting and grammar out of 100. Output ONLY JSON. Resume: ${resumeText}`;
-    const agent1Result = await model.generateContent(agent1Prompt);
-    const agent1Data = agent1Result.response.text();
+    const contentHash = crypto.createHash('md5').update(resumeText + (jobDescription || '')).digest('hex');
+    const cacheKey = `resume_cache:${contentHash}`;
+    const cachedResult = await redisConnection.get(cacheKey);
 
-    console.log(`[Worker] Job ${jobId}: Running Agent 2 (Synthesis)`);
-    const agent2Prompt = `You are a Senior Tech Lead and HR Manager. Review this resume text, and the ATS parser's findings: ${agent1Data}. Write a cohesive final report with key strengths, weaknesses, and 3 bullet point rewrites. Compare it against this Job Description if provided: ${jobDescription}. Output ONLY valid JSON matching the old Analysis format (score, summary, strengths, weaknesses, improvementSuggestions, bulletPointRewrites).`;
-    const agent2Result = await model.generateContent(agent2Prompt);
-    
-    let finalFeedbackText = agent2Result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
-    const finalFeedbackJson = JSON.parse(finalFeedbackText);
+    let finalFeedbackJson;
+
+    if (cachedResult) {
+      console.log(`[Worker] Job ${jobId}: CACHE HIT! Skipping Gemini API to save costs.`);
+      finalFeedbackJson = JSON.parse(cachedResult);
+    } else {
+      // -----------------------------------------------------------------------
+      // AGENT 1 & 2: Parsing and Synthesis
+      // -----------------------------------------------------------------------
+      console.log(`[Worker] Job ${jobId}: Running Agent 1 (Parser)`);
+      const agent1Prompt = `You are an expert ATS Parser. Extract the key information from this resume text and score its formatting and grammar out of 100. Output ONLY JSON. Resume: ${resumeText}`;
+      const agent1Result = await model.generateContent(agent1Prompt);
+      const agent1Data = agent1Result.response.text();
+
+      console.log(`[Worker] Job ${jobId}: Running Agent 2 (Synthesis)`);
+      const agent2Prompt = `You are a Senior Tech Lead and HR Manager. Review this resume text, and the ATS parser's findings: ${agent1Data}. Write a cohesive final report with key strengths, weaknesses, and 3 bullet point rewrites. Compare it against this Job Description if provided: ${jobDescription}. Output ONLY valid JSON matching the old Analysis format (score, summary, strengths, weaknesses, improvementSuggestions, bulletPointRewrites).`;
+      const agent2Result = await model.generateContent(agent2Prompt);
+      
+      let finalFeedbackText = agent2Result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();
+      finalFeedbackJson = JSON.parse(finalFeedbackText);
+
+      // Save to Redis Cache with a 7-day expiration (TTL)
+      await redisConnection.set(cacheKey, JSON.stringify(finalFeedbackJson), 'EX', 7 * 24 * 60 * 60);
+    }
 
     // -----------------------------------------------------------------------
     // NEW PHASE 3: RAG EMBEDDINGS & SEMANTIC MATCHING

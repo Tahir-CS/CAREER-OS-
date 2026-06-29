@@ -40,6 +40,17 @@ const Index = () => {
   // Real-time WebSocket State
   const [socket, setSocket] = useState<Socket | null>(null);
   const [jobStatus, setJobStatus] = useState<string>('');
+  const [sessionId, setSessionId] = useState<string>('');
+
+  // 0. Initialize Anonymous Session ID
+  useEffect(() => {
+    let sid = localStorage.getItem('career_os_session_id');
+    if (!sid) {
+      sid = crypto.randomUUID();
+      localStorage.setItem('career_os_session_id', sid);
+    }
+    setSessionId(sid);
+  }, []);
 
   // 1. Initialize Socket.io Connection on mount
   useEffect(() => {
@@ -101,6 +112,9 @@ const Index = () => {
     try {
       const formData = new FormData();
       formData.append('resume', file);
+      if (sessionId) {
+        formData.append('sessionId', sessionId);
+      }
 
       // We hit the new Event-Driven API endpoint
       const response = await fetch(`${API_BASE_URL}/upload-resume`, {
