@@ -1,10 +1,14 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  // We enable the preview feature to use PostgreSQL extensions like pgvector
+  previewFeatures = ["postgresqlExtensions"]
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider   = "postgresql"
+  url        = env("DATABASE_URL")
+  // We explicitly tell Prisma to activate the vector extension in Postgres
+  extensions = [vector]
 }
 
 // ----------------------------------------------------
@@ -13,16 +17,44 @@ datasource db {
 model AnalysisJob {
   id          String   @id @default(uuid()) // A unique ticket number (Job ID)
   
-  // State machine: PENDING -> ANALYZING -> COMPLETED
+  // State machine: PENDING -> PARSING -> ANALYZING -> COMPLETED
   status      String   @default("PENDING") 
   
-  // We no longer save files to the hard drive. 
-  // We save them to S3/MinIO and just store the URL here!
   resumeUrl   String   
   
-  // Once the Worker finishes, it dumps the massive Gemini JSON result here
+  // The original Job Description the user provided
+  jobDescription String?
+  
+  // -------------------------------------------------------------------------
+  // NEW: RAG Embeddings & Scoring
+  // We store the 768-dimensional mathematical vector of the Job Description.
+  // 'Unsupported' just means Prisma doesn't natively parse it into JS objects, 
+  // but it will successfully create the column in Postgres!
+  // -------------------------------------------------------------------------
+  jdEmbedding Unsupported("vector(768)")? 
+  
+  // The calculated semantic match score (e.g., 85.5)
+  matchScore  Float?
+
   feedback    Json?    
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  // Relation: One Job has many Resume Embeddings (the chunks/bullet points)
+  embeddings  ResumeEmbedding[]
+}
+
+// ----------------------------------------------------
+// NEW: The Vector Store for the Resume
+// We break the resume down into chunks (skills, bullet points) 
+// and store the mathematical vector for each one to compare against the JD.
+// ----------------------------------------------------
+model ResumeEmbedding {
+  id          String   @id @default(uuid())
+  jobId       String
+  job         AnalysisJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  
+  content     String   // The extracted text chunk (e.g., "Led a team of 5 engineers")
+  embedding   Unsupported("vector(768)")?
 }
