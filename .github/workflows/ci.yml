@@ -1,0 +1,50 @@
+name: CareerOS CI Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install Frontend Dependencies
+      run: npm ci
+
+    - name: Build Frontend
+      run: npm run build
+      env:
+        VITE_API_URL: http://localhost:3001/api
+
+    - name: Install Backend Dependencies
+      working-directory: ./Backend
+      run: npm ci
+
+    - name: Generate Prisma Client
+      working-directory: ./Backend
+      run: npx prisma generate
+
+    # Normally you'd run `npm test` here if you had Jest tests written!
+    
+  docker-build-test:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Test Docker Compose Build
+      # This ensures our Dockerfiles are valid and build successfully without errors
+      run: docker-compose build
