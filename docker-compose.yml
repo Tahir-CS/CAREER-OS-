@@ -50,6 +50,72 @@ services:
     volumes:
       - minio_data:/data
 
+  # ---------------------------------------------------------------------------
+  # 4. Express Backend API
+  # ---------------------------------------------------------------------------
+  api:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    command: npm start
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://admin:password123@postgres:5432/careeros?schema=public
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=password123
+      - MINIO_BUCKET_NAME=resumes
+      - ALLOWED_ORIGINS=http://localhost:80
+      - SENTRY_DSN=${SENTRY_DSN}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+      - minio
+
+  # ---------------------------------------------------------------------------
+  # 5. BullMQ Background Worker
+  # ---------------------------------------------------------------------------
+  worker:
+    build: 
+      context: ./Backend
+      dockerfile: Dockerfile
+    command: node src/worker.js
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://admin:password123@postgres:5432/careeros?schema=public
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=password123
+      - MINIO_BUCKET_NAME=resumes
+      - SENTRY_DSN=${SENTRY_DSN}
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+    depends_on:
+      - postgres
+      - redis
+      - minio
+
+  # ---------------------------------------------------------------------------
+  # 6. React Frontend (Nginx)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    environment:
+      - VITE_API_URL=http://localhost:3001/api
+      - VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
+    depends_on:
+      - api
+
 # Here we declare the volumes we used above. Docker will create these folders
 # somewhere safely on your hard drive to persist the data.
 volumes:
