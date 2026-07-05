@@ -4,11 +4,24 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
 import RedisStore from 'rate-limit-redis';
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import resumeRoutes from './routes/resume.routes.js';
 import { initSocket } from './config/socket.js';
 import { redisConnection } from './config/queue.js';
 
 dotenv.config();
+
+// PHASE 6: Initialize Sentry for Distributed Tracing & Error Tracking
+Sentry.init({
+  dsn: process.env.SENTRY_DSN || '', // Placeholder until user creates Sentry account
+  integrations: [
+    nodeProfilingIntegration(),
+  ],
+  tracesSampleRate: 1.0, // Capture 100% of transactions for performance monitoring
+  profilesSampleRate: 1.0, // Capture 100% of profiles
+  environment: process.env.NODE_ENV || 'development'
+});
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -79,7 +92,10 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ success: false, message: err.message });
   }
 
-  // TODO Phase 6: Replace this with structured Winston logger + Sentry capture
+  // PHASE 6: Sentry Error Tracking
+  // Automatically capture all 500-level crashes and push them to the dashboard
+  Sentry.captureException(err);
+
   console.error('[Global Error Handler]', err.stack);
   res.status(500).json({
     success: false,

@@ -7,9 +7,22 @@ import { extractTextFromDOCXBuffer } from './utils/fileExtractor.js';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
+import * as Sentry from '@sentry/node';
+import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import { getIO } from './config/socket.js';
 
 dotenv.config();
+
+// PHASE 6: Sentry Initialization for Background Worker
+Sentry.init({
+  dsn: process.env.SENTRY_DSN || '', 
+  integrations: [
+    nodeProfilingIntegration(),
+  ],
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0,
+  environment: process.env.NODE_ENV || 'development'
+});
 
 const prisma = new PrismaClient();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -146,6 +159,12 @@ const worker = new Worker(QUEUE_NAME, async (job) => {
     try { getIO().to(jobId).emit('job-update', { status: 'COMPLETED' }); } catch (e) {}
 
   } catch (error) {
+    // PHASE 6: Sentry Error Boundary
+    // If anything fails in the worker (Gemini API crash, PDF parse error), it throws to here.
+    Sentry.captureException(error, {
+      tags: { jobId: jobId }
+    });
+
     console.error(`[Worker Error] Failed job ${jobId}:`, error);
     await prisma.analysisJob.update({
       where: { id: jobId },
