@@ -82,7 +82,8 @@ export const getFeedback = async (req, res) => {
     res.json({
       success: true,
       status: job.status,
-      feedback: job.feedback // This will be null if status is still PENDING or ANALYZING
+      // PHASE 5: Inject the top-level matchScore column into the JSON payload for the frontend Radar chart
+      feedback: job.feedback ? { ...job.feedback, matchScore: job.matchScore } : null 
     });
 
   } catch (error) {
