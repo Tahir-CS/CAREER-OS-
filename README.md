@@ -1,36 +1,28 @@
-# AI Resume Analyzer
+# CareerOS (AI Resume Analyzer)
 
 ## Overview
-AI Resume Analyzer is a web application that leverages AI to analyze resumes, provide feedback, and suggest improvements. It includes a robust backend for file uploads and AI analysis, and a modern frontend built with React and TypeScript.
+CareerOS is an enterprise-grade, event-driven web application that leverages AI to analyze resumes, provide feedback, and perform Semantic Job Matching (RAG). It features a robust, distributed backend for file uploads and AI analysis, and a stunning modern frontend built with React, TypeScript, and Tailwind CSS.
 
 ## Features
-- Upload resumes in PDF or DOCX format.
-- Analyze resumes using AI to provide:
-  - Overall score.
-  - Key strengths.
-  - Areas for improvement.
-  - Suggested bullet point rewrites.
-  - ATS (Applicant Tracking System) analysis.
-- Export feedback as a PDF.
-- Responsive and user-friendly interface.
+- **Semantic Job Matching (RAG)**: Uses `pgvector` and `text-embedding-004` to calculate the mathematical cosine similarity between a candidate's resume and a target Job Description.
+- **Dual-Agent AI Pipeline**: Two Gemini AI agents work in sequence (Agent 1: ATS Parser, Agent 2: Synthesis & Rewrite).
+- **Real-Time UI**: Instant WebSocket (`socket.io`) updates stream processing status to the frontend.
+- **Cost-Saving Cache**: Redis MD5 hashing prevents redundant LLM API calls.
+- **Admin Observability**: BullMQ Queue monitoring dashboard powered by `@bull-board/express`.
+- **Premium Visualization**: Radar charts and Circular Gauges powered by `recharts`.
 
 ## Technologies Used
-- **Frontend**:
-  - Vite
-  - React
-  - TypeScript
-  - Tailwind CSS
-  - shadcn-ui
-- **Backend**:
-  - Node.js
-  - Express
-  - Puppeteer (for PDF generation)
-  - Google Generative AI (Gemini API)
+- **Frontend**: Vite, React, TypeScript, Tailwind CSS, Recharts, Socket.io-client.
+- **Backend API**: Node.js, Express, Prisma ORM, BullMQ, Socket.io.
+- **Infrastructure (Docker Compose)**:
+  - **PostgreSQL (`pgvector`)**: Relational data and AI Embeddings.
+  - **Redis**: Rate-limiting, caching, and background job queues.
+  - **MinIO**: S3-compatible local storage for PDF/DOCX resumes.
+- **DevOps**: GitHub Actions (CI/CD), Sentry.io (Error Tracking), Docker.
 
-## Installation
+## Local Installation (Docker)
 
-### Prerequisites
-- Node.js & npm installed ([install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)).
+To run the entire production-like infrastructure locally, all you need is Docker!
 
 ### Steps
 ```sh
@@ -38,49 +30,29 @@ AI Resume Analyzer is a web application that leverages AI to analyze resumes, pr
 git clone <YOUR_GIT_URL>
 
 # Step 2: Navigate to the project directory
-cd AI-Resume-Analyzer
+cd Ai-RESUME-ANALYZER
 
-# Step 3: Install dependencies
-npm install
+# Step 3: Start the infrastructure (Postgres, Redis, MinIO)
+docker-compose up -d
 
-# Step 4: Create a .env file and add your API keys
-# Example:
-# GEMINI_API_KEY=your_gemini_api_key
+# Step 4: Run Prisma migrations
+cd Backend
+npx prisma db push
 
-# Step 5: Start the development server
+# Step 5: Add your Gemini API Key in Backend/.env
+GEMINI_API_KEY=your_google_ai_key
+
+# Step 6: Start the Backend API & Background Worker
+npm start
+node src/worker.js
+
+# Step 7: Start the Frontend
+cd ..
 npm run dev
 ```
 
-## Environment Setup
-
-### Creating a `.env` File
-To configure the application, you need to create a `.env` file in the root directory of the project. This file will store your API keys and other sensitive information.
-
-#### Steps:
-1. Create a new file named `.env` in the root directory.
-2. Add the following variables to the file:
-   ```env
-   GOOGLE_GEMINI_API_KEY=<YOUR_API_KEY>
-   ```
-
-### Obtaining a Google Gemini API Key
-To use the AI analysis feature, you need a Google Gemini API key. Follow these steps to obtain one:
-1. Visit the [Google Cloud Console](https://console.cloud.google.com/).
-2. Create a new project or select an existing one.
-3. Enable the "Generative AI" API for your project.
-4. Navigate to **APIs & Services > Credentials**.
-5. Click **Create Credentials** and select **API Key**.
-6. Copy the generated API key and paste it into your `.env` file.
-
-
-
-### Backend Deployment
-To deploy the backend:
-1. Use a platform like Heroku, Render, or AWS.
-2. Ensure the backend is accessible to the frontend by updating the API URL in the frontend configuration.
-
-
-.
+## Admin Dashboard
+To monitor the background AI workers, navigate to `http://localhost:3001/admin/queues` once the backend is running.
 
 ## Contributing
 Contributions are welcome! To contribute:
