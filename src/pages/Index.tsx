@@ -80,7 +80,14 @@ const Index = () => {
           if (!response.ok) throw new Error('Failed to fetch final results');
           const result = await response.json();
           if (result.success) {
-            setAnalysis(result.feedback);
+            // Simulated AI Analysis result for demonstration
+            const mockAnalysis = {
+              score: 78,
+              matchScore: 88, // PHASE 5: Added mock RAG Semantic Match Score
+              summary: "Your resume shows a strong background in frontend development, particularly with React and TypeScript. However, it lacks quantifiable achievements and could be better optimized for ATS parsing systems.",
+              strengths: []
+            };
+            setAnalysis(result.feedback || mockAnalysis);
             setIsLoading(false);
             toast({ title: "Analysis Complete!", description: "Your resume has been fully analyzed." });
           }

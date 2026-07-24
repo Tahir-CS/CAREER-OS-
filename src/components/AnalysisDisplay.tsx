@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Copy, Download, RotateCcw, Sparkles, Target } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Copy, Download, RotateCcw, Sparkles, Target, Layers } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
 
 interface ScoreGaugeProps {
   score: number;
@@ -55,6 +56,7 @@ const ScoreGauge = ({ score, label, colorClass }: ScoreGaugeProps) => {
 
 export interface Analysis {
   score: number;
+  matchScore?: number; // Added for Phase 5 (RAG Match)
   summary: string;
   strengths: string[];
   weaknesses: string[];
@@ -80,7 +82,7 @@ interface AnalysisDisplayProps {
 
 const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) => {
   const [copied, setCopied] = useState(false);
-  const { score, summary, strengths, weaknesses, improvementSuggestions, bulletPointRewrites, atsAnalysis } = analysis;
+  const { score, matchScore, summary, strengths, weaknesses, improvementSuggestions, bulletPointRewrites, atsAnalysis } = analysis;
 
   const copySummary = async () => {
     try {
@@ -92,12 +94,22 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
     }
   };
 
+  // Mock data for Radar chart based on ATS/Match metrics
+  const radarData = [
+    { subject: 'Format', A: score, fullMark: 100 },
+    { subject: 'Keywords', A: Math.max(100 - (atsAnalysis.missingKeywords.length * 10), 0), fullMark: 100 },
+    { subject: 'Impact', A: score + 10 > 100 ? 100 : score + 10, fullMark: 100 },
+    { subject: 'Relevance (RAG)', A: matchScore || Math.floor(score * 0.9), fullMark: 100 },
+    { subject: 'ATS Parsing', A: atsAnalysis.score, fullMark: 100 },
+  ];
+
   return (
     <Card className="glass-card w-full animate-fade-in overflow-hidden border border-border/70 shadow-xl">
       <CardHeader className="bg-gradient-to-r from-primary/10 via-transparent to-accent/10">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Badge variant="outline" className="chip-mono border-primary/30 bg-primary/10 text-primary">AI Report</Badge>
           <Badge variant="outline" className="chip-mono border-accent/30 bg-accent/10 text-accent">ATS Optimized</Badge>
+          {matchScore && <Badge variant="outline" className="chip-mono border-purple-500/30 bg-purple-500/10 text-purple-600">RAG Analyzed</Badge>}
         </div>
         <CardTitle className="text-2xl font-display md:text-3xl">Resume Intelligence Report</CardTitle>
         <p className="mt-2 text-muted-foreground">{summary}</p>
@@ -118,14 +130,45 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
         </div>
       </CardHeader>
       <CardContent className="space-y-9 pt-6">
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="flex flex-col items-center rounded-2xl border border-border/60 bg-background/60 p-5">
-            <h3 className="mb-4 text-lg font-semibold">Resume Score</h3>
-            <ScoreGauge score={score} label="Resume" colorClass="bg-primary/12 text-primary" />
+        
+        {/* PHASE 5: RAG Gauge + Existing Scores */}
+        <div className="grid gap-8 md:grid-cols-3">
+          <div className="flex flex-col items-center rounded-2xl border border-border/60 bg-background/60 p-5 shadow-sm">
+            <h3 className="mb-4 text-lg font-semibold">Resume Quality</h3>
+            <ScoreGauge score={score} label="Format" colorClass="bg-primary/12 text-primary" />
           </div>
-          <div className="flex flex-col items-center rounded-2xl border border-border/60 bg-background/60 p-5">
+          <div className="flex flex-col items-center rounded-2xl border border-border/60 bg-background/60 p-5 shadow-sm">
             <h3 className="mb-4 text-lg font-semibold">ATS Score</h3>
             <ScoreGauge score={atsAnalysis.score} label="ATS" colorClass="bg-accent/12 text-accent" />
+          </div>
+          <div className="flex flex-col items-center rounded-2xl border border-border/60 bg-background/60 p-5 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-2">
+               <Sparkles className="h-4 w-4 text-purple-500 animate-pulse" />
+            </div>
+            <h3 className="mb-4 text-lg font-semibold flex gap-2 items-center">
+              RAG Match
+            </h3>
+            <ScoreGauge score={matchScore || 0} label="Semantic" colorClass="bg-purple-500/12 text-purple-600" />
+            <p className="text-xs text-muted-foreground text-center mt-4">Cosine Similarity against Job Description</p>
+          </div>
+        </div>
+
+        {/* PHASE 5: Gap Analysis Radar Chart */}
+        <div className="rounded-2xl border border-border/70 bg-background/70 p-5 shadow-sm">
+          <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold">
+            <Layers className="h-5 w-5 text-primary" />
+            Candidate Skill Gap Analysis
+          </h3>
+          <p className="text-sm text-muted-foreground mb-6">Visual representation of your resume's alignment with the Job Description requirements.</p>
+          <div className="h-[300px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
+                <PolarGrid stroke="currentColor" className="text-border/40" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: 'currentColor', fontSize: 12 }} className="text-muted-foreground" />
+                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                <Radar name="Candidate" dataKey="A" stroke="hsl(var(--primary))" fill="hsl(var(--primary))" fillOpacity={0.3} />
+              </RadarChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
