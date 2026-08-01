@@ -8,20 +8,22 @@ import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Responsi
 interface ScoreGaugeProps {
   score: number;
   label: string;
-  colorClass: string;
+  strokeColor: string;
+  badgeBg: string;
+  badgeTextColor: string;
 }
 
-const ScoreGauge = ({ score, label, colorClass }: ScoreGaugeProps) => {
+const ScoreGauge = ({ score, label, strokeColor, badgeBg, badgeTextColor }: ScoreGaugeProps) => {
   const radius = 50;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
 
   return (
-    <div className="relative h-40 w-40">
+    <div className="relative h-36 w-36 flex items-center justify-center">
       <svg className="w-full h-full" viewBox="0 0 120 120">
         <circle
-          className="text-border/60"
-          strokeWidth="10"
+          className="text-[#e8e8ed] dark:text-muted"
+          strokeWidth="9"
           stroke="currentColor"
           fill="transparent"
           r={radius}
@@ -29,9 +31,8 @@ const ScoreGauge = ({ score, label, colorClass }: ScoreGaugeProps) => {
           cy="60"
         />
         <circle
-          className="text-primary"
-          strokeWidth="10"
-          stroke="currentColor"
+          strokeWidth="9"
+          stroke={strokeColor}
           fill="transparent"
           r={radius}
           cx="60"
@@ -40,15 +41,17 @@ const ScoreGauge = ({ score, label, colorClass }: ScoreGaugeProps) => {
           strokeDashoffset={offset}
           strokeLinecap="round"
           transform="rotate(-90 60 60)"
-          style={{ transition: 'stroke-dashoffset 1s ease-out' }}
+          style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-4xl font-bold text-foreground">{score}</span>
-        <span className="chip-mono text-xs uppercase tracking-wider text-muted-foreground">{label}</span>
+        <span className="text-3xl font-extrabold tracking-tight text-[#1d1d1f] dark:text-foreground">{score}</span>
+        <span className="chip-mono text-[10px] font-bold uppercase tracking-wider text-[#86868b]">{label}</span>
       </div>
-      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2">
-        <span className={`chip-mono rounded-full px-3 py-1 text-xs ${colorClass}`}>Score / 100</span>
+      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
+        <span className={`chip-mono rounded-full px-2.5 py-0.5 text-[10px] font-bold ${badgeBg} ${badgeTextColor}`}>
+          / 100
+        </span>
       </div>
     </div>
   );
@@ -56,12 +59,12 @@ const ScoreGauge = ({ score, label, colorClass }: ScoreGaugeProps) => {
 
 export interface Analysis {
   score: number;
-  matchScore?: number; // Added for Phase 5 (RAG Match)
+  matchScore?: number;
   summary: string;
   strengths: string[];
   weaknesses: string[];
   improvementSuggestions: string[];
-  interviewQuestions?: string[]; // Phase 3.2: Targeted interview questions
+  interviewQuestions?: string[];
   bulletPointRewrites: {
     before: string;
     after: string;
@@ -95,7 +98,6 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
     }
   };
 
-  // Mock data for Radar chart based on ATS/Match metrics
   const radarData = [
     { subject: 'Format', A: score, fullMark: 100 },
     { subject: 'Keywords', A: Math.max(100 - (atsAnalysis.missingKeywords.length * 10), 0), fullMark: 100 },
@@ -105,113 +107,123 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
   ];
 
   return (
-    <Card className="brutalist-card w-full animate-fade-in overflow-hidden rounded-none p-2 md:p-6">
-      <CardHeader className="bg-background border-b-4 border-black mb-6">
-        <div className="mb-3 flex flex-wrap items-center gap-3">
-          <Badge variant="outline" className="chip-mono border-2 border-black bg-white text-black dark:bg-black dark:text-white rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">AI Report</Badge>
-          <Badge variant="outline" className="chip-mono border-2 border-black bg-accent text-accent-foreground rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">ATS Optimized</Badge>
-          {matchScore && <Badge variant="outline" className="chip-mono border-2 border-black bg-[#9333ea] text-white rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">RAG Analyzed</Badge>}
+    <Card className="apple-card w-full animate-fade-in overflow-hidden p-4 md:p-8">
+      <CardHeader className="bg-transparent border-b border-border/60 pb-6 mb-6">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3 py-1 text-xs font-semibold text-[#0071e3]">
+            AI Intelligence Report
+          </Badge>
+          <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#34c759]/10 px-3 py-1 text-xs font-semibold text-[#34c759]">
+            ATS Verified
+          </Badge>
+          {matchScore && (
+            <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#af52de]/10 px-3 py-1 text-xs font-semibold text-[#af52de]">
+              RAG Vector Match
+            </Badge>
+          )}
         </div>
-        <CardTitle className="text-3xl font-display font-black uppercase md:text-5xl">Resume Intelligence Report</CardTitle>
-        <p className="mt-2 text-muted-foreground">{summary}</p>
+        <CardTitle className="text-3xl font-extrabold tracking-tight text-[#1d1d1f] dark:text-foreground md:text-4xl">
+          Resume Report
+        </CardTitle>
+        <p className="mt-3 text-base text-[#86868b] leading-relaxed">{summary}</p>
 
-        <div className="mt-4 flex flex-wrap gap-4">
-          <Button variant="outline" onClick={copySummary} className="brutalist-button rounded-none bg-white text-black dark:bg-black dark:text-white hover:bg-secondary">
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button variant="outline" onClick={copySummary} className="apple-button-secondary border-none h-11 px-5 text-sm">
             <Copy className="mr-2 h-4 w-4" />
             {copied ? 'Summary Copied' : 'Copy Summary'}
           </Button>
-          <Button onClick={onExport} className="brutalist-button rounded-none bg-black text-white dark:bg-white dark:text-black">
+          <Button onClick={onExport} className="apple-button h-11 px-5 text-sm">
             <Download className="mr-2 h-4 w-4" />
-            Export PDF
+            Export PDF Report
           </Button>
-          <Button variant="outline" onClick={onReset} className="brutalist-button rounded-none bg-white text-black dark:bg-black dark:text-white hover:bg-secondary">
+          <Button variant="outline" onClick={onReset} className="apple-button-secondary border-none h-11 px-5 text-sm">
             <RotateCcw className="mr-2 h-4 w-4" />
             Analyze Another
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-12 pt-2">
-        
-        {/* PHASE 5: RAG Gauge + Existing Scores */}
-        <div className="grid gap-8 md:grid-cols-3">
-          <div className="flex flex-col items-center border-4 border-black bg-white dark:bg-black p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-            <h3 className="mb-4 text-xl font-black uppercase tracking-tighter">Resume Quality</h3>
-            <ScoreGauge score={score} label="Format" colorClass="bg-black text-white dark:bg-white dark:text-black" />
+
+      <CardContent className="space-y-8 pt-2">
+        {/* Score Gauges */}
+        <div className="grid gap-6 md:grid-cols-3">
+          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7]/60 p-5">
+            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f] dark:text-foreground">Resume Quality</h3>
+            <ScoreGauge score={score} label="Format" strokeColor="#0071e3" badgeBg="bg-[#0071e3]/10" badgeTextColor="text-[#0071e3]" />
           </div>
-          <div className="flex flex-col items-center border-4 border-black bg-white dark:bg-black p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-            <h3 className="mb-4 text-xl font-black uppercase tracking-tighter">ATS Score</h3>
-            <ScoreGauge score={atsAnalysis.score} label="ATS" colorClass="bg-accent text-accent-foreground" />
+          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7]/60 p-5">
+            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f] dark:text-foreground">ATS Compliance</h3>
+            <ScoreGauge score={atsAnalysis.score} label="ATS" strokeColor="#34c759" badgeBg="bg-[#34c759]/10" badgeTextColor="text-[#34c759]" />
           </div>
-          <div className="flex flex-col items-center border-4 border-black bg-[#9333ea] p-5 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)] relative overflow-hidden">
-            <h3 className="mb-4 text-xl font-black uppercase tracking-tighter text-white flex gap-2 items-center">
-              RAG Match
-            </h3>
-            <ScoreGauge score={matchScore || 0} label="Semantic" colorClass="bg-white text-black" />
-            <p className="text-xs font-bold text-white uppercase text-center mt-4">Cosine Similarity against JD</p>
+          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7]/60 p-5">
+            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f] dark:text-foreground">RAG Vector Match</h3>
+            <ScoreGauge score={matchScore || 0} label="Semantic" strokeColor="#af52de" badgeBg="bg-[#af52de]/10" badgeTextColor="text-[#af52de]" />
           </div>
         </div>
 
-        {/* PHASE 5: Gap Analysis Radar Chart */}
-        <div className="border-4 border-black bg-white dark:bg-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-          <h3 className="mb-2 flex items-center gap-3 text-2xl font-black uppercase">
-            <Layers className="h-7 w-7 text-black dark:text-white" />
-            Candidate Skill Gap Analysis
+        {/* Skill Gap Analysis Radar Chart */}
+        <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
+          <h3 className="mb-1.5 flex items-center gap-2.5 text-lg font-bold text-[#1d1d1f] dark:text-foreground">
+            <Layers className="h-5 w-5 text-[#0071e3]" />
+            Skill Gap Analytics
           </h3>
-          <p className="text-sm font-bold uppercase text-muted-foreground mb-8">Visual representation of your resume's alignment with the Job Description requirements.</p>
-          <div className="h-[350px] w-full">
+          <p className="text-sm text-[#86868b] mb-6">Visual mapping of candidate resume alignment against target job requirements.</p>
+          <div className="h-[300px] w-full">
             <ResponsiveContainer width="100%" height="100%">
               <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                <PolarGrid stroke="currentColor" className="text-black dark:text-white" strokeWidth={2} />
-                <PolarAngleAxis dataKey="subject" tick={{ fill: 'currentColor', fontSize: 14, fontWeight: 'bold' }} />
+                <PolarGrid stroke="#e8e8ed" />
+                <PolarAngleAxis dataKey="subject" tick={{ fill: '#86868b', fontSize: 13, fontWeight: 600 }} />
                 <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar name="Candidate" dataKey="A" stroke="hsl(var(--foreground))" strokeWidth={4} fill="hsl(var(--accent))" fillOpacity={1} />
+                <Radar name="Candidate" dataKey="A" stroke="#0071e3" strokeWidth={3} fill="#0071e3" fillOpacity={0.15} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="border-4 border-black bg-[#22c55e] p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-            <h3 className="mb-4 flex items-center gap-3 text-2xl font-black uppercase text-black">
-              <CheckCircle2 className="h-7 w-7" />
+        {/* Strengths & Weaknesses */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-[#34c759]/25 bg-[#34c759]/5 p-6">
+            <h3 className="mb-3 flex items-center gap-2.5 text-base font-bold text-[#34c759]">
+              <CheckCircle2 className="h-5 w-5" />
               Strengths
             </h3>
-            <ul className="space-y-3 text-base font-medium text-black">
-              {strengths.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-black">{item}</li>)}
+            <ul className="space-y-2 text-sm text-[#1d1d1f] dark:text-foreground">
+              {strengths.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-[#34c759]">{item}</li>)}
             </ul>
           </div>
-          <div className="border-4 border-black bg-destructive p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-            <h3 className="mb-4 flex items-center gap-3 text-2xl font-black uppercase text-white">
-              <AlertTriangle className="h-7 w-7" />
+          <div className="rounded-2xl border border-[#ff9500]/30 bg-[#ff9500]/5 p-6">
+            <h3 className="mb-3 flex items-center gap-2.5 text-base font-bold text-[#ff9500]">
+              <AlertTriangle className="h-5 w-5" />
               Areas for Improvement
             </h3>
-            <ul className="space-y-3 text-base font-medium text-white">
-              {weaknesses.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-white">{item}</li>)}
+            <ul className="space-y-2 text-sm text-[#1d1d1f] dark:text-foreground">
+              {weaknesses.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-[#ff9500]">{item}</li>)}
             </ul>
           </div>
         </div>
 
-        <div className="border-4 border-black bg-white dark:bg-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-          <h3 className="mb-4 flex items-center gap-3 text-2xl font-black uppercase">
-            <Sparkles className="h-7 w-7 text-black dark:text-white" />
-            Suggested Improvements
+        {/* Suggested Improvements */}
+        <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
+          <h3 className="mb-3 flex items-center gap-2.5 text-lg font-bold text-[#1d1d1f] dark:text-foreground">
+            <Sparkles className="h-5 w-5 text-[#0071e3]" />
+            Actionable Recommendations
           </h3>
-          <ul className="space-y-3 text-base font-medium text-foreground">
-            {improvementSuggestions.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-accent">{item}</li>)}
+          <ul className="space-y-2 text-sm text-[#424245]">
+            {improvementSuggestions.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-[#0071e3]">{item}</li>)}
           </ul>
         </div>
 
+        {/* Targeted Interview Prep */}
         {interviewQuestions && interviewQuestions.length > 0 ? (
-          <div className="border-4 border-black bg-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-            <h3 className="mb-4 flex items-center gap-3 text-2xl font-black uppercase text-white">
-              <Target className="h-7 w-7 text-white" />
-              Targeted Interview Prep
+          <div className="rounded-2xl border border-[#af52de]/25 bg-[#af52de]/5 p-6">
+            <h3 className="mb-2 flex items-center gap-2.5 text-lg font-bold text-[#af52de]">
+              <Target className="h-5 w-5" />
+              Targeted Interview Questions
             </h3>
-            <p className="text-sm font-bold uppercase text-white mb-6">Based on your skill gaps, expect these questions in an interview:</p>
-            <ul className="space-y-4 text-base font-medium text-white">
+            <p className="text-sm text-[#86868b] mb-4">Questions likely to be asked based on your identified skill gaps:</p>
+            <ul className="space-y-3 text-sm text-[#1d1d1f] dark:text-foreground">
               {interviewQuestions.map((q, index) => (
-                <li key={index} className="flex gap-4 items-start">
-                  <span className="font-black text-accent bg-black border-2 border-accent px-2 py-1 text-xs">Q{index + 1}.</span> 
+                <li key={index} className="flex gap-3 items-start">
+                  <span className="font-bold text-[#af52de] chip-mono text-xs pt-0.5">Q{index + 1}.</span> 
                   <span>{q}</span>
                 </li>
               ))}
@@ -219,65 +231,64 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
           </div>
         ) : null}
 
+        {/* Bullet Point Rewrites */}
         {bulletPointRewrites.length > 0 ? (
-          <div className="space-y-6">
-            <h3 className="text-2xl font-black uppercase">Bullet Point Upgrades</h3>
-            <div className="space-y-6">
+          <div className="space-y-4">
+            <h3 className="text-lg font-bold text-[#1d1d1f] dark:text-foreground">Bullet Point Enhancements</h3>
+            <div className="space-y-4">
               {bulletPointRewrites.map((rewrite, index) => (
-                <div key={index} className="border-4 border-black bg-white dark:bg-black p-5 shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] dark:shadow-[6px_6px_0px_0px_rgba(255,255,255,1)]">
-                  <p className="mb-3 text-base text-foreground"><strong className="bg-destructive text-white px-1">BEFORE:</strong> {rewrite.before}</p>
-                  <p className="mb-3 text-base text-foreground"><strong className="bg-[#22c55e] text-black px-1">AFTER:</strong> {rewrite.after}</p>
-                  <p className="text-sm font-bold uppercase text-muted-foreground"><strong>WHY:</strong> {rewrite.explanation}</p>
+                <div key={index} className="rounded-2xl border border-border/70 bg-[#f5f5f7]/60 p-5">
+                  <p className="mb-2 text-sm text-[#86868b]"><strong className="text-[#ff3b30]">Original:</strong> {rewrite.before}</p>
+                  <p className="mb-2 text-sm text-[#1d1d1f] dark:text-foreground"><strong className="text-[#34c759]">Enhanced:</strong> {rewrite.after}</p>
+                  <p className="text-xs text-[#86868b]"><strong>Rationale:</strong> {rewrite.explanation}</p>
                 </div>
               ))}
             </div>
           </div>
         ) : null}
 
-        <div className="grid gap-8 md:grid-cols-2">
-          <div className="border-4 border-black bg-white dark:bg-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-            <h3 className="mb-4 flex items-center gap-3 text-2xl font-black uppercase">
-              <Target className="h-7 w-7 text-accent" />
+        {/* Missing Keywords & ATS Warnings */}
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
+            <h3 className="mb-3 flex items-center gap-2.5 text-base font-bold text-[#1d1d1f] dark:text-foreground">
+              <Target className="h-4 w-4 text-[#0071e3]" />
               Missing Keywords
             </h3>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {atsAnalysis.missingKeywords.length > 0 ? (
                 atsAnalysis.missingKeywords.map((keyword, index) => (
-                  <Badge key={index} variant="outline" className="chip-mono border-2 border-black bg-white text-black dark:bg-black dark:text-white rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">
+                  <Badge key={index} variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3 py-1 text-xs font-semibold text-[#0071e3]">
                     {keyword}
                   </Badge>
                 ))
               ) : (
-                <p className="text-base font-medium text-foreground">No missing keywords detected.</p>
+                <p className="text-sm text-[#86868b]">No critical keywords missing.</p>
               )}
             </div>
           </div>
 
-          <div className="border-4 border-black bg-white dark:bg-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,1)]">
-            <h3 className="mb-4 text-2xl font-black uppercase">ATS Warnings</h3>
-            <ul className="space-y-3 text-base font-medium text-foreground">
+          <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
+            <h3 className="mb-3 text-base font-bold text-[#1d1d1f] dark:text-foreground">ATS Parsing Notes</h3>
+            <ul className="space-y-2 text-sm text-[#86868b]">
               {atsAnalysis.issues.length > 0 ? atsAnalysis.issues.map((issue, index) => (
-                <li key={index} className="list-disc pl-1 marker:text-destructive">{issue}</li>
-              )) : <li className="text-foreground">No major ATS issues flagged.</li>}
+                <li key={index} className="list-disc pl-1 marker:text-[#ff9500]">{issue}</li>
+              )) : <li>No major ATS formatting flags detected.</li>}
             </ul>
-            {atsAnalysis.formatWarnings.length > 0 ? (
-              <div className="mt-6 border-l-4 border-accent bg-secondary/30 p-4">
-                <p className="chip-mono mb-3 text-sm font-bold uppercase text-foreground">Format Notes</p>
-                <ul className="space-y-2 text-sm font-medium text-foreground">
-                  {atsAnalysis.formatWarnings.map((warning, index) => (
-                    <li key={index} className="list-disc pl-1 marker:text-accent">{warning}</li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
           </div>
         </div>
 
-        <div className="border-t-4 border-black pt-8">
-             <div className="flex flex-col justify-center gap-4 sm:flex-row">
-                <Button onClick={onExport} className="brutalist-button h-14 rounded-none bg-black text-white dark:bg-white dark:text-black text-lg uppercase tracking-widest"><Download className="mr-2 h-5 w-5" />Export Improved Version</Button>
-                <Button variant="outline" onClick={onReset} className="brutalist-button h-14 rounded-none bg-white text-black dark:bg-black dark:text-white text-lg uppercase tracking-widest"><RotateCcw className="mr-2 h-5 w-5" />Analyze Another</Button>
-            </div>
+        {/* Footer Actions */}
+        <div className="border-t border-border/70 pt-6">
+          <div className="flex flex-col justify-center gap-3 sm:flex-row">
+            <Button onClick={onExport} className="apple-button h-12 px-6 text-base font-semibold">
+              <Download className="mr-2 h-5 w-5" />
+              Download PDF Report
+            </Button>
+            <Button variant="outline" onClick={onReset} className="apple-button-secondary h-12 px-6 text-base font-semibold border-none">
+              <RotateCcw className="mr-2 h-5 w-5" />
+              Analyze Another Resume
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

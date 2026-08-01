@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,68 +6,67 @@
 
 @layer base {
   :root {
-    --background: 60 10% 96%; /* Off-white f4f4f0 */
-    --foreground: 0 0% 9%; /* Sharp black 171717 */
+    --background: 240 11% 96%;     /* #f5f5f7 Apple light background */
+    --foreground: 240 5% 12%;      /* #1d1d1f Apple main dark text */
 
-    --card: 0 0% 100%; /* Pure white */
-    --card-foreground: 0 0% 9%;
+    --card: 0 0% 100%;            /* #ffffff Pure white cards */
+    --card-foreground: 240 5% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 240 5% 12%;
 
-    --primary: 0 0% 9%; /* Solid black for primary */
-    --primary-foreground: 0 0% 100%; /* White text */
+    --primary: 211 100% 45%;       /* #0071e3 Apple SF Blue */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 90%; /* Light gray */
-    --secondary-foreground: 0 0% 9%;
+    --secondary: 240 5% 94%;       /* #e8e8ed Apple secondary gray */
+    --secondary-foreground: 240 5% 12%;
 
-    --muted: 0 0% 92%;
-    --muted-foreground: 0 0% 40%;
+    --muted: 240 5% 92%;
+    --muted-foreground: 240 2% 54%; /* #86868b Apple muted text */
 
-    --accent: 45 100% 50%; /* Electric Yellow for strong brutalist accents */
-    --accent-foreground: 0 0% 9%;
+    --accent: 142 58% 49%;          /* #34c759 Apple SF Emerald */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 100% 50%; /* Pure Red */
+    --destructive: 358 100% 60%;    /* #ff3b30 Apple SF Red */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 9%; /* Black borders */
-    --input: 0 0% 90%;
-    --ring: 0 0% 9%;
+    --border: 240 6% 90%;          /* Subtle Apple border */
+    --input: 240 6% 90%;
+    --ring: 211 100% 45%;
 
-    --radius: 0px; /* Brutalism demands sharp corners! */
+    --radius: 1.125rem;            /* Apple 18px rounded corners */
   }
 
-  /* No dark mode for strict Neo-Brutalism, or we keep it very stark */
   .dark {
-    --background: 0 0% 9%; /* Pure black */
-    --foreground: 60 10% 96%; /* Off-white */
+    --background: 240 6% 10%;      /* Apple Dark mode */
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 12%;
-    --card-foreground: 60 10% 96%;
+    --card: 240 6% 13%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 12%;
-    --popover-foreground: 60 10% 96%;
+    --popover: 240 6% 13%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 60 10% 96%; /* White */
-    --primary-foreground: 0 0% 9%; /* Black text */
+    --primary: 211 100% 50%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 20%;
-    --secondary-foreground: 60 10% 96%;
+    --secondary: 240 4% 18%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 240 4% 18%;
+    --muted-foreground: 240 2% 64%;
 
-    --accent: 45 100% 50%; /* Electric Yellow */
-    --accent-foreground: 0 0% 9%;
+    --accent: 142 58% 49%;
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 100% 50%;
-    --destructive-foreground: 60 10% 96%;
+    --destructive: 358 100% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 60 10% 96%; /* White borders */
-    --input: 0 0% 20%;
-    --ring: 60 10% 96%;
-    
-    --radius: 0px;
+    --border: 240 4% 20%;
+    --input: 240 4% 20%;
+    --ring: 211 100% 50%;
+
+    --radius: 1.125rem;
   }
 }
 
@@ -80,50 +79,35 @@
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Removed all soft radial gradients for a stark minimalist look */
-    background-image: none;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
   }
 
   h1, h2, h3, h4 {
-    font-family: 'Lexend', sans-serif;
-    letter-spacing: -0.04em;
-    font-weight: 800;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+    letter-spacing: -0.025em;
+    font-weight: 700;
   }
 }
 
 @layer components {
-  /* No more glowing glass cards. Replacing with strict brutalist component. */
-  .brutalist-card {
-    @apply bg-card border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform duration-200;
-  }
-  
-  .dark .brutalist-card {
-    @apply shadow-[4px_4px_0px_0px_rgba(244,244,240,1)];
+  .apple-card {
+    @apply bg-card border border-border/80 rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.04)] transition-all duration-300;
   }
 
-  .brutalist-card:hover {
-    @apply translate-x-[2px] translate-y-[2px] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)];
+  .apple-card-hover {
+    @apply hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:-translate-y-0.5;
   }
 
-  .dark .brutalist-card:hover {
-    @apply shadow-[2px_2px_0px_0px_rgba(244,244,240,1)];
-  }
-  
-  .brutalist-button {
-    @apply font-bold border-2 border-border shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-transform duration-75 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+  .apple-button {
+    @apply bg-[#0071e3] text-white hover:bg-[#0077ed] font-semibold rounded-full shadow-[0_2px_10px_rgba(0,113,227,0.3)] transition-all duration-200 active:scale-[0.98];
   }
 
-  .dark .brutalist-button {
-    @apply shadow-[2px_2px_0px_0px_rgba(244,244,240,1)];
-  }
-
-  .reveal-up {
-    animation: slide-up 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  .apple-button-secondary {
+    @apply bg-[#e8e8ed] dark:bg-secondary text-[#1d1d1f] dark:text-foreground hover:bg-[#dfdfe4] font-semibold rounded-full transition-all duration-200 active:scale-[0.98];
   }
 
   .chip-mono {
-    font-family: 'IBM Plex Mono', monospace;
+    font-family: 'Fira Code', monospace;
     letter-spacing: 0.02em;
     font-weight: 600;
   }

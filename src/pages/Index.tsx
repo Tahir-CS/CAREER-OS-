@@ -210,11 +210,11 @@ const Index = () => {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8 md:py-16">
         <div className="text-center max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-display font-black mb-4 uppercase tracking-tighter text-foreground">
-            Transform Your Resume with AI
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight text-[#1d1d1f] dark:text-foreground">
+            Transform Your Resume with AI.
           </h1>
-          <p className="text-lg md:text-xl text-muted-foreground mb-8">
-            Get instant feedback, a hireability score, and tailored suggestions to make your resume stand out.
+          <p className="text-lg md:text-xl text-[#86868b] mb-10 max-w-2xl mx-auto font-normal">
+            Instant feedback, hireability analytics, and intelligent targeted recommendations designed for the modern career.
           </p>
         </div>
 
@@ -222,17 +222,17 @@ const Index = () => {
           {!analysis && !isLoading && <ResumeUploader onAnalyze={handleAnalyze} />}
           
           {isLoading && (
-            <div className="text-center p-16 flex flex-col items-center justify-center space-y-4">
-              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary"></div>
+            <div className="apple-card p-12 text-center flex flex-col items-center justify-center space-y-5">
+              <div className="animate-spin rounded-full h-14 w-14 border-4 border-[#0071e3]/20 border-t-[#0071e3]"></div>
               
-              <div className="text-xl font-semibold text-primary flex items-center space-x-2">
+              <div className="text-xl font-bold text-[#1d1d1f] dark:text-foreground flex items-center space-x-2">
                 {jobStatus === 'UPLOADING' && <span>Uploading to MinIO Storage...</span>}
                 {jobStatus === 'PENDING' && <span>Waiting in Queue...</span>}
-                {jobStatus === 'PARSING' && <span>AI Agent 1: Parsing PDF Text...</span>}
-                {jobStatus === 'ANALYZING' && <span>AI Agent 2: Synthesizing Feedback...</span>}
+                {jobStatus === 'PARSING' && <span>Agent 1: Parsing PDF & Creating Embeddings...</span>}
+                {jobStatus === 'ANALYZING' && <span>Agent 2: Synthesizing Targeted Insights...</span>}
                 {!['UPLOADING', 'PENDING', 'PARSING', 'ANALYZING'].includes(jobStatus) && <span>Processing...</span>}
               </div>
-              <p className="text-sm text-muted-foreground">Watching live events via WebSockets</p>
+              <p className="text-sm font-medium text-[#86868b]">Streaming live events via WebSockets</p>
             </div>
           )}
 
