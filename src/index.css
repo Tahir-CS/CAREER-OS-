@@ -1,5 +1,4 @@
-
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Sora:wght@500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800;900&family=Lexend:wght@500;600;700;800;900&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,65 +6,68 @@
 
 @layer base {
   :root {
-    --background: 38 56% 96%;
-    --foreground: 204 53% 16%;
+    --background: 60 10% 96%; /* Off-white f4f4f0 */
+    --foreground: 0 0% 9%; /* Sharp black 171717 */
 
-    --card: 0 0% 100%;
-    --card-foreground: 204 53% 16%;
+    --card: 0 0% 100%; /* Pure white */
+    --card-foreground: 0 0% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 204 53% 16%;
+    --popover-foreground: 0 0% 9%;
 
-    --primary: 188 76% 31%;
-    --primary-foreground: 43 100% 98%;
+    --primary: 0 0% 9%; /* Solid black for primary */
+    --primary-foreground: 0 0% 100%; /* White text */
 
-    --secondary: 30 60% 92%;
-    --secondary-foreground: 206 41% 20%;
+    --secondary: 0 0% 90%; /* Light gray */
+    --secondary-foreground: 0 0% 9%;
 
-    --muted: 35 54% 92%;
-    --muted-foreground: 207 23% 38%;
+    --muted: 0 0% 92%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 18 92% 56%;
-    --accent-foreground: 30 100% 97%;
+    --accent: 45 100% 50%; /* Electric Yellow for strong brutalist accents */
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 72% 45%;
+    --destructive: 0 100% 50%; /* Pure Red */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 27 28% 80%;
-    --input: 34 42% 88%;
-    --ring: 188 76% 31%;
+    --border: 0 0% 9%; /* Black borders */
+    --input: 0 0% 90%;
+    --ring: 0 0% 9%;
 
-    --radius: 0.8rem;
+    --radius: 0px; /* Brutalism demands sharp corners! */
   }
 
+  /* No dark mode for strict Neo-Brutalism, or we keep it very stark */
   .dark {
-    --background: 205 32% 11%;
-    --foreground: 39 50% 93%;
+    --background: 0 0% 9%; /* Pure black */
+    --foreground: 60 10% 96%; /* Off-white */
 
-    --card: 206 28% 14%;
-    --card-foreground: 38 45% 92%;
+    --card: 0 0% 12%;
+    --card-foreground: 60 10% 96%;
 
-    --popover: 206 28% 14%;
-    --popover-foreground: 38 45% 92%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 60 10% 96%;
 
-    --primary: 183 75% 53%;
-    --primary-foreground: 208 42% 12%;
+    --primary: 60 10% 96%; /* White */
+    --primary-foreground: 0 0% 9%; /* Black text */
 
-    --secondary: 208 20% 21%;
-    --secondary-foreground: 42 41% 90%;
+    --secondary: 0 0% 20%;
+    --secondary-foreground: 60 10% 96%;
 
-    --muted: 209 19% 18%;
-    --muted-foreground: 31 18% 72%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 60%;
 
-    --accent: 18 82% 60%;
-    --accent-foreground: 20 100% 95%;
+    --accent: 45 100% 50%; /* Electric Yellow */
+    --accent-foreground: 0 0% 9%;
 
-    --destructive: 0 72% 53%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 100% 50%;
+    --destructive-foreground: 60 10% 96%;
 
-    --border: 208 14% 28%;
-    --input: 208 14% 28%;
-    --ring: 183 75% 53%;
+    --border: 60 10% 96%; /* White borders */
+    --input: 0 0% 20%;
+    --ring: 60 10% 96%;
+    
+    --radius: 0px;
   }
 }
 
@@ -78,46 +80,42 @@
     @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    background-image:
-      radial-gradient(circle at 14% 14%, rgba(0, 162, 171, 0.2), transparent 28%),
-      radial-gradient(circle at 84% 12%, rgba(255, 122, 68, 0.18), transparent 32%),
-      radial-gradient(circle at 82% 78%, rgba(255, 200, 94, 0.18), transparent 28%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0));
-    background-attachment: fixed;
-    font-family: 'IBM Plex Sans', sans-serif;
+    /* Removed all soft radial gradients for a stark minimalist look */
+    background-image: none;
+    font-family: 'Inter', sans-serif;
   }
 
-  h1,
-  h2,
-  h3,
-  h4 {
-    font-family: 'Sora', sans-serif;
-    letter-spacing: -0.02em;
+  h1, h2, h3, h4 {
+    font-family: 'Lexend', sans-serif;
+    letter-spacing: -0.04em;
+    font-weight: 800;
   }
 }
 
 @layer components {
-  .atmosphere-grid {
-    position: relative;
+  /* No more glowing glass cards. Replacing with strict brutalist component. */
+  .brutalist-card {
+    @apply bg-card border-2 border-border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-transform duration-200;
+  }
+  
+  .dark .brutalist-card {
+    @apply shadow-[4px_4px_0px_0px_rgba(244,244,240,1)];
   }
 
-  .atmosphere-grid::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    opacity: 0.22;
-    background-image: linear-gradient(rgba(7, 46, 48, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(7, 46, 48, 0.08) 1px, transparent 1px);
-    background-size: 42px 42px;
-    mask-image: radial-gradient(circle at center, black 38%, transparent 76%);
+  .brutalist-card:hover {
+    @apply translate-x-[2px] translate-y-[2px] shadow-[2px_2px_0px_0px_rgba(0,0,0,1)];
   }
 
-  .glass-card {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.62);
-    box-shadow: 0 18px 42px -24px rgba(13, 61, 66, 0.45);
+  .dark .brutalist-card:hover {
+    @apply shadow-[2px_2px_0px_0px_rgba(244,244,240,1)];
+  }
+  
+  .brutalist-button {
+    @apply font-bold border-2 border-border shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] transition-transform duration-75 active:translate-x-[2px] active:translate-y-[2px] active:shadow-none;
+  }
+
+  .dark .brutalist-button {
+    @apply shadow-[2px_2px_0px_0px_rgba(244,244,240,1)];
   }
 
   .reveal-up {
@@ -127,5 +125,6 @@
   .chip-mono {
     font-family: 'IBM Plex Mono', monospace;
     letter-spacing: 0.02em;
+    font-weight: 600;
   }
 }

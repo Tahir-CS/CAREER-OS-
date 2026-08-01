@@ -210,7 +210,7 @@ const Index = () => {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8 md:py-16">
         <div className="text-center max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-display font-bold mb-4 bg-gradient-to-r from-blue-400 to-purple-500 text-transparent bg-clip-text">
+          <h1 className="text-4xl md:text-6xl font-display font-black mb-4 uppercase tracking-tighter text-foreground">
             Transform Your Resume with AI
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground mb-8">

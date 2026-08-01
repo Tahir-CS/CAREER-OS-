@@ -72,23 +72,21 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
   };
 
   return (
-    <div className="glass-card reveal-up rounded-3xl border border-border/60 p-6 shadow-xl md:p-8">
+    <div className="brutalist-card reveal-up p-6 md:p-8">
       <div className="mb-5 flex flex-wrap items-center gap-2">
-        <Badge variant="outline" className="chip-mono border-primary/30 bg-primary/10 text-primary">Resume Upload</Badge>
-        <Badge variant="outline" className="chip-mono border-accent/30 bg-accent/10 text-accent">Optional Job Targeting</Badge>
+        <Badge variant="outline" className="chip-mono border-2 border-border bg-white text-black dark:bg-black dark:text-white rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">Resume Upload</Badge>
+        <Badge variant="outline" className="chip-mono border-2 border-border bg-accent text-accent-foreground rounded-none shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)]">Optional Job Targeting</Badge>
       </div>
 
       <label
         htmlFor="resume-upload" 
-        className={`relative flex min-h-[230px] w-full cursor-pointer flex-col items-center justify-center space-y-4 overflow-hidden rounded-2xl border-2 border-dashed p-5 text-center transition-all duration-300 ${isDragging ? 'border-primary bg-primary/10' : 'border-border bg-background/40 hover:border-primary/50 hover:bg-primary/5'}`}
+        className={`relative flex min-h-[230px] w-full cursor-pointer flex-col items-center justify-center space-y-4 overflow-hidden border-4 border-dashed p-5 text-center transition-all duration-300 ${isDragging ? 'border-primary bg-primary/10' : 'border-border bg-background hover:border-primary/50 hover:bg-primary/5'}`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
-        <div className="pointer-events-none absolute -left-10 -top-10 h-28 w-28 rounded-full bg-primary/20 blur-2xl" />
-        <div className="pointer-events-none absolute -bottom-8 right-2 h-24 w-24 rounded-full bg-accent/20 blur-2xl" />
-        <div className="relative rounded-2xl border border-primary/30 bg-primary/10 p-4 animate-float">
-          <Upload className="h-10 w-10 text-primary" />
+        <div className="relative border-4 border-black bg-white dark:bg-black dark:border-white p-4 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]">
+          <Upload className="h-10 w-10 text-foreground" />
         </div>
         <input id="resume-upload" type="file" className="hidden" onChange={handleFileChange} accept=".pdf,.docx" />
         <p className="font-display text-2xl font-bold text-foreground md:text-3xl">Drop resume file here</p>
@@ -97,24 +95,24 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
       </label>
 
       {file && (
-        <div className="mt-5 rounded-xl border border-border/70 bg-secondary/50 p-4">
+        <div className="mt-5 border-2 border-border bg-secondary/20 p-4">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
-              <p className="mb-1 flex items-center gap-2 text-sm font-semibold text-foreground">
-                <FileText className="h-4 w-4 text-primary" />
+              <p className="mb-1 flex items-center gap-2 text-sm font-bold text-foreground uppercase">
+                <FileText className="h-4 w-4" />
                 Selected Resume
               </p>
-              <p className="truncate text-sm text-muted-foreground">{file.name}</p>
+              <p className="truncate text-sm text-foreground font-mono">{file.name}</p>
             </div>
-            <span className="chip-mono rounded-full bg-background px-3 py-1 text-xs text-muted-foreground">
+            <span className="chip-mono bg-border text-background px-3 py-1 text-xs font-bold">
               {formatFileSize(file.size)}
             </span>
           </div>
         </div>
       )}
 
-      <div className="mt-5 rounded-xl border border-border/70 bg-background/50 p-4">
-        <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
+      <div className="mt-5 border-2 border-border bg-white dark:bg-black p-4">
+        <div className="mb-2 flex items-center gap-2 text-sm font-bold text-foreground uppercase">
           <Briefcase className="h-4 w-4 text-accent" />
           Target Job Description
         </div>
@@ -122,11 +120,11 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
           value={jobDescription}
           onChange={(e) => setJobDescription(e.target.value.slice(0, MAX_JOB_DESCRIPTION_CHARS))}
           placeholder="Optional: paste the role description to get more specific keyword and ATS feedback."
-          className="min-h-[130px] border-border/70 bg-background/70 text-sm"
+          className="min-h-[130px] border-2 border-border rounded-none bg-background text-sm font-mono shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] dark:shadow-[4px_4px_0px_0px_rgba(255,255,255,1)]"
         />
         <div className="mt-2 flex items-center justify-between text-xs">
-          <span className="text-muted-foreground">Optional but recommended for role-specific scoring.</span>
-          <span className={`chip-mono ${remainingCharacters < 350 ? 'text-accent' : 'text-muted-foreground'}`}>
+          <span className="text-foreground font-bold uppercase">Optional but recommended for role-specific scoring.</span>
+          <span className={`chip-mono font-bold ${remainingCharacters < 350 ? 'text-destructive' : 'text-foreground'}`}>
             {jobDescription.length}/{MAX_JOB_DESCRIPTION_CHARS}
           </span>
         </div>
@@ -134,7 +132,7 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
 
       <Button 
         size="lg" 
-        className="mt-6 h-12 w-full text-base font-semibold"
+        className="mt-6 h-14 w-full text-lg font-bold rounded-none brutalist-button uppercase tracking-wider"
         disabled={!file || isLoading}
         onClick={handleAnalyze}
       >
@@ -145,7 +143,7 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
       {onUseDemo && (
         <Button
           variant="outline"
-          className="mt-3 h-11 w-full border-primary/40 bg-primary/5 text-primary hover:bg-primary/10"
+          className="mt-4 h-12 w-full text-sm font-bold rounded-none border-2 border-border shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] dark:shadow-[2px_2px_0px_0px_rgba(255,255,255,1)] hover:translate-y-[1px] hover:translate-x-[1px] hover:shadow-none"
           onClick={onUseDemo}
           disabled={isLoading}
         >
