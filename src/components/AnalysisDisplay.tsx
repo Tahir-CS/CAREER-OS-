@@ -22,7 +22,7 @@ const ScoreGauge = ({ score, label, strokeColor, badgeBg, badgeTextColor }: Scor
     <div className="relative h-36 w-36 flex items-center justify-center">
       <svg className="w-full h-full" viewBox="0 0 120 120">
         <circle
-          className="text-[#e8e8ed] dark:text-muted"
+          className="text-[#e8e8ed]"
           strokeWidth="9"
           stroke="currentColor"
           fill="transparent"
@@ -45,7 +45,7 @@ const ScoreGauge = ({ score, label, strokeColor, badgeBg, badgeTextColor }: Scor
         />
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-extrabold tracking-tight text-[#1d1d1f] dark:text-foreground">{score}</span>
+        <span className="text-3xl font-extrabold tracking-tight text-[#1d1d1f]">{score}</span>
         <span className="chip-mono text-[10px] font-bold uppercase tracking-wider text-[#86868b]">{label}</span>
       </div>
       <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
@@ -117,12 +117,12 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
             ATS Verified
           </Badge>
           {matchScore && (
-            <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#af52de]/10 px-3 py-1 text-xs font-semibold text-[#af52de]">
+            <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3 py-1 text-xs font-semibold text-[#0071e3]">
               RAG Vector Match
             </Badge>
           )}
         </div>
-        <CardTitle className="text-3xl font-extrabold tracking-tight text-[#1d1d1f] dark:text-foreground md:text-4xl">
+        <CardTitle className="text-3xl font-extrabold tracking-tight text-[#1d1d1f] md:text-4xl">
           Resume Report
         </CardTitle>
         <p className="mt-3 text-base text-[#86868b] leading-relaxed">{summary}</p>
@@ -146,23 +146,23 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
       <CardContent className="space-y-8 pt-2">
         {/* Score Gauges */}
         <div className="grid gap-6 md:grid-cols-3">
-          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7]/60 p-5">
-            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f] dark:text-foreground">Resume Quality</h3>
+          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7] p-5">
+            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f]">Resume Quality</h3>
             <ScoreGauge score={score} label="Format" strokeColor="#0071e3" badgeBg="bg-[#0071e3]/10" badgeTextColor="text-[#0071e3]" />
           </div>
-          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7]/60 p-5">
-            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f] dark:text-foreground">ATS Compliance</h3>
+          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7] p-5">
+            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f]">ATS Compliance</h3>
             <ScoreGauge score={atsAnalysis.score} label="ATS" strokeColor="#34c759" badgeBg="bg-[#34c759]/10" badgeTextColor="text-[#34c759]" />
           </div>
-          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7]/60 p-5">
-            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f] dark:text-foreground">RAG Vector Match</h3>
-            <ScoreGauge score={matchScore || 0} label="Semantic" strokeColor="#af52de" badgeBg="bg-[#af52de]/10" badgeTextColor="text-[#af52de]" />
+          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7] p-5">
+            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f]">RAG Vector Match</h3>
+            <ScoreGauge score={matchScore || 0} label="Semantic" strokeColor="#0071e3" badgeBg="bg-[#0071e3]/10" badgeTextColor="text-[#0071e3]" />
           </div>
         </div>
 
         {/* Skill Gap Analysis Radar Chart */}
         <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
-          <h3 className="mb-1.5 flex items-center gap-2.5 text-lg font-bold text-[#1d1d1f] dark:text-foreground">
+          <h3 className="mb-1.5 flex items-center gap-2.5 text-lg font-bold text-[#1d1d1f]">
             <Layers className="h-5 w-5 text-[#0071e3]" />
             Skill Gap Analytics
           </h3>
@@ -186,7 +186,7 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
               <CheckCircle2 className="h-5 w-5" />
               Strengths
             </h3>
-            <ul className="space-y-2 text-sm text-[#1d1d1f] dark:text-foreground">
+            <ul className="space-y-2 text-sm text-[#1d1d1f]">
               {strengths.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-[#34c759]">{item}</li>)}
             </ul>
           </div>
@@ -195,7 +195,7 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
               <AlertTriangle className="h-5 w-5" />
               Areas for Improvement
             </h3>
-            <ul className="space-y-2 text-sm text-[#1d1d1f] dark:text-foreground">
+            <ul className="space-y-2 text-sm text-[#1d1d1f]">
               {weaknesses.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-[#ff9500]">{item}</li>)}
             </ul>
           </div>
@@ -203,7 +203,7 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
 
         {/* Suggested Improvements */}
         <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
-          <h3 className="mb-3 flex items-center gap-2.5 text-lg font-bold text-[#1d1d1f] dark:text-foreground">
+          <h3 className="mb-3 flex items-center gap-2.5 text-lg font-bold text-[#1d1d1f]">
             <Sparkles className="h-5 w-5 text-[#0071e3]" />
             Actionable Recommendations
           </h3>
@@ -214,16 +214,16 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
 
         {/* Targeted Interview Prep */}
         {interviewQuestions && interviewQuestions.length > 0 ? (
-          <div className="rounded-2xl border border-[#af52de]/25 bg-[#af52de]/5 p-6">
-            <h3 className="mb-2 flex items-center gap-2.5 text-lg font-bold text-[#af52de]">
+          <div className="rounded-2xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-6">
+            <h3 className="mb-2 flex items-center gap-2.5 text-lg font-bold text-[#0071e3]">
               <Target className="h-5 w-5" />
               Targeted Interview Questions
             </h3>
             <p className="text-sm text-[#86868b] mb-4">Questions likely to be asked based on your identified skill gaps:</p>
-            <ul className="space-y-3 text-sm text-[#1d1d1f] dark:text-foreground">
+            <ul className="space-y-3 text-sm text-[#1d1d1f]">
               {interviewQuestions.map((q, index) => (
                 <li key={index} className="flex gap-3 items-start">
-                  <span className="font-bold text-[#af52de] chip-mono text-xs pt-0.5">Q{index + 1}.</span> 
+                  <span className="font-bold text-[#0071e3] chip-mono text-xs pt-0.5">Q{index + 1}.</span> 
                   <span>{q}</span>
                 </li>
               ))}
@@ -234,12 +234,12 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
         {/* Bullet Point Rewrites */}
         {bulletPointRewrites.length > 0 ? (
           <div className="space-y-4">
-            <h3 className="text-lg font-bold text-[#1d1d1f] dark:text-foreground">Bullet Point Enhancements</h3>
+            <h3 className="text-lg font-bold text-[#1d1d1f]">Bullet Point Enhancements</h3>
             <div className="space-y-4">
               {bulletPointRewrites.map((rewrite, index) => (
-                <div key={index} className="rounded-2xl border border-border/70 bg-[#f5f5f7]/60 p-5">
+                <div key={index} className="rounded-2xl border border-border/70 bg-[#f5f5f7] p-5">
                   <p className="mb-2 text-sm text-[#86868b]"><strong className="text-[#ff3b30]">Original:</strong> {rewrite.before}</p>
-                  <p className="mb-2 text-sm text-[#1d1d1f] dark:text-foreground"><strong className="text-[#34c759]">Enhanced:</strong> {rewrite.after}</p>
+                  <p className="mb-2 text-sm text-[#1d1d1f]"><strong className="text-[#34c759]">Enhanced:</strong> {rewrite.after}</p>
                   <p className="text-xs text-[#86868b]"><strong>Rationale:</strong> {rewrite.explanation}</p>
                 </div>
               ))}
@@ -250,7 +250,7 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
         {/* Missing Keywords & ATS Warnings */}
         <div className="grid gap-6 md:grid-cols-2">
           <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
-            <h3 className="mb-3 flex items-center gap-2.5 text-base font-bold text-[#1d1d1f] dark:text-foreground">
+            <h3 className="mb-3 flex items-center gap-2.5 text-base font-bold text-[#1d1d1f]">
               <Target className="h-4 w-4 text-[#0071e3]" />
               Missing Keywords
             </h3>
@@ -268,7 +268,7 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
           </div>
 
           <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
-            <h3 className="mb-3 text-base font-bold text-[#1d1d1f] dark:text-foreground">ATS Parsing Notes</h3>
+            <h3 className="mb-3 text-base font-bold text-[#1d1d1f]">ATS Parsing Notes</h3>
             <ul className="space-y-2 text-sm text-[#86868b]">
               {atsAnalysis.issues.length > 0 ? atsAnalysis.issues.map((issue, index) => (
                 <li key={index} className="list-disc pl-1 marker:text-[#ff9500]">{issue}</li>

@@ -7,7 +7,7 @@ const Header = () => {
       <nav className="apple-card px-6 py-4 md:px-8 md:py-5">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <a href="/" className="flex items-center gap-3.5 transition-opacity hover:opacity-90">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-[#0071e3] to-[#af52de] text-white shadow-md shadow-[#0071e3]/20">
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-[#0071e3] text-white shadow-md shadow-[#0071e3]/25">
               <FileText className="h-6 w-6" />
             </span>
             <div>
