@@ -76,7 +76,7 @@ const worker = new Worker(QUEUE_NAME, async (job) => {
       const agent1Data = agent1Result.response.text();
 
       console.log(`[Worker] Job ${jobId}: Running Agent 2 (Synthesis)`);
-      const agent2Prompt = `You are a Senior Tech Lead and HR Manager. Review this resume text, and the ATS parser's findings: ${agent1Data}. Write a cohesive final report with key strengths, weaknesses, and 3 bullet point rewrites. Compare it against this Job Description if provided: ${jobDescription}. Output ONLY valid JSON matching the old Analysis format (score, summary, strengths, weaknesses, improvementSuggestions, bulletPointRewrites).`;
+      const agent2Prompt = `You are a Senior Tech Lead and HR Manager. Review this resume text, and the ATS parser's findings: ${agent1Data}. Write a cohesive final report with key strengths, weaknesses, and 3 bullet point rewrites. Compare it against this Job Description if provided: ${jobDescription}. Also, generate 5 targeted interview questions addressing the candidate's weakest areas based on the requirements. Output ONLY valid JSON matching the old Analysis format (score, summary, strengths, weaknesses, improvementSuggestions, bulletPointRewrites, interviewQuestions).`;
       const agent2Result = await model.generateContent(agent2Prompt);
       
       let finalFeedbackText = agent2Result.response.text().replace(/```json/g, '').replace(/```/g, '').trim();

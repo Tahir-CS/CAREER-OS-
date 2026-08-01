@@ -85,7 +85,14 @@ const Index = () => {
               score: 78,
               matchScore: 88, // PHASE 5: Added mock RAG Semantic Match Score
               summary: "Your resume shows a strong background in frontend development, particularly with React and TypeScript. However, it lacks quantifiable achievements and could be better optimized for ATS parsing systems.",
-              strengths: []
+              strengths: [],
+              interviewQuestions: [
+                "I notice a lack of AWS or Cloud experience on your resume. How would you approach deploying a React application to production?",
+                "Can you walk me through a time you had to optimize the performance of a large React application?",
+                "How do you handle state management in complex frontend architectures?",
+                "Describe a situation where you had to collaborate closely with a backend engineer to design an API.",
+                "Your resume mentions TypeScript, but not strict type safety. How do you ensure type safety in a large codebase?"
+              ]
             };
             setAnalysis(result.feedback || mockAnalysis);
             setIsLoading(false);

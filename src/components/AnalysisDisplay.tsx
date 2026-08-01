@@ -61,6 +61,7 @@ export interface Analysis {
   strengths: string[];
   weaknesses: string[];
   improvementSuggestions: string[];
+  interviewQuestions?: string[]; // Phase 3.2: Targeted interview questions
   bulletPointRewrites: {
     before: string;
     after: string;
@@ -82,7 +83,7 @@ interface AnalysisDisplayProps {
 
 const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) => {
   const [copied, setCopied] = useState(false);
-  const { score, matchScore, summary, strengths, weaknesses, improvementSuggestions, bulletPointRewrites, atsAnalysis } = analysis;
+  const { score, matchScore, summary, strengths, weaknesses, improvementSuggestions, interviewQuestions, bulletPointRewrites, atsAnalysis } = analysis;
 
   const copySummary = async () => {
     try {
@@ -202,6 +203,24 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
             {improvementSuggestions.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-primary">{item}</li>)}
           </ul>
         </div>
+
+        {interviewQuestions && interviewQuestions.length > 0 ? (
+          <div className="rounded-2xl border border-purple-500/20 bg-purple-500/5 p-5">
+            <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-purple-600">
+              <Target className="h-5 w-5" />
+              Targeted Interview Prep
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">Based on your skill gaps, expect these questions in an interview:</p>
+            <ul className="space-y-3 text-sm text-muted-foreground">
+              {interviewQuestions.map((q, index) => (
+                <li key={index} className="flex gap-3">
+                  <span className="font-bold text-purple-500">Q{index + 1}.</span> 
+                  <span>{q}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
 
         {bulletPointRewrites.length > 0 ? (
           <div className="space-y-4">
