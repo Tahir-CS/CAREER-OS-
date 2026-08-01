@@ -210,7 +210,7 @@ const Index = () => {
       <Header />
       <main className="flex-grow container mx-auto px-4 py-8 md:py-16">
         <div className="text-center max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight text-[#1d1d1f] dark:text-foreground">
+          <h1 className="text-4xl md:text-6xl font-extrabold mb-4 tracking-tight text-[#1d1d1f]">
             Transform Your Resume with AI.
           </h1>
           <p className="text-lg md:text-xl text-[#86868b] mb-10 max-w-2xl mx-auto font-normal">
@@ -225,7 +225,7 @@ const Index = () => {
             <div className="apple-card p-12 text-center flex flex-col items-center justify-center space-y-5">
               <div className="animate-spin rounded-full h-14 w-14 border-4 border-[#0071e3]/20 border-t-[#0071e3]"></div>
               
-              <div className="text-xl font-bold text-[#1d1d1f] dark:text-foreground flex items-center space-x-2">
+              <div className="text-xl font-bold text-[#1d1d1f] flex items-center space-x-2">
                 {jobStatus === 'UPLOADING' && <span>Uploading to MinIO Storage...</span>}
                 {jobStatus === 'PENDING' && <span>Waiting in Queue...</span>}
                 {jobStatus === 'PARSING' && <span>Agent 1: Parsing PDF & Creating Embeddings...</span>}

@@ -12,7 +12,7 @@ const Header = () => {
             </span>
             <div>
               <p className="chip-mono text-[10px] uppercase font-bold tracking-widest text-[#86868b]">Career Intelligence Platform</p>
-              <p className="text-xl font-bold tracking-tight text-[#1d1d1f] dark:text-foreground md:text-2xl">CareerOS</p>
+              <p className="text-xl font-bold tracking-tight text-[#1d1d1f] md:text-2xl">CareerOS</p>
             </div>
           </a>
 
