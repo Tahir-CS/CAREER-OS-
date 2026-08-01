@@ -1,0 +1,81 @@
+# Render Blueprint Configuration (render.yaml)
+# Connect your GitHub repository to Render and select "Blueprint" to automatically deploy all services!
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. Express API Gateway Web Service
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: careeros-api
+    env: node
+    region: singapore
+    plan: free
+    rootDir: Backend
+    buildCommand: npm install && npx prisma generate
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: GEMINI_API_KEY
+        sync: false # Set in Render Dashboard
+      - key: SENTRY_DSN
+        sync: false
+      - key: DATABASE_URL
+        sync: false # Set Render Postgres URL (with pgvector enabled)
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: careeros-redis
+          property: connectionString
+
+  # ---------------------------------------------------------------------------
+  # 2. BullMQ Background Worker Node
+  # ---------------------------------------------------------------------------
+  - type: worker
+    name: careeros-worker
+    env: node
+    region: singapore
+    plan: free
+    rootDir: Backend
+    buildCommand: npm install && npx prisma generate
+    startCommand: node src/worker.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: careeros-redis
+          property: connectionString
+
+  # ---------------------------------------------------------------------------
+  # 3. React Vite Frontend Static Site
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: careeros-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: careeros-api
+          property: url
+
+# ---------------------------------------------------------------------------
+# 4. Managed Redis Instance for BullMQ
+# ---------------------------------------------------------------------------
+redis:
+  - name: careeros-redis
+    region: singapore
+    plan: free
+    maxmemoryPolicy: noeviction
