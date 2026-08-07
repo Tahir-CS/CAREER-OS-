@@ -5,7 +5,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
-import { History as HistoryIcon, FileText, Download, ArrowUpRight, Trash2, Sparkles, TrendingUp, Search, Columns, Calendar, ArrowRight } from 'lucide-react';
+import { History as HistoryIcon, FileText, Download, ArrowUpRight, Trash2, Sparkles, TrendingUp, Search, Columns, Calendar, ArrowRight, ArrowLeft } from 'lucide-react';
 import AnalysisDisplay, { Analysis } from '../components/AnalysisDisplay';
 import { useToast } from '../components/ui/use-toast';
 import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
@@ -77,7 +77,6 @@ const History = () => {
     );
   }, [history, searchQuery]);
 
-  // Format Chart Data chronologically
   const chartData = useMemo(() => {
     return [...history]
       .reverse()
@@ -125,7 +124,7 @@ const History = () => {
               className="apple-button-secondary mb-6 border-none"
               onClick={() => setSelectedReport(null)}
             >
-              ← Back to History Dashboard
+              <ArrowLeft className="mr-2 h-4 w-4" /> Back to History Dashboard
             </Button>
 
             <AnalysisDisplay

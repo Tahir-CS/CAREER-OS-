@@ -73,7 +73,6 @@ const ATSKeywords = () => {
         ? Math.round((matched.length / allJdKeywords.length) * 100)
         : 80;
 
-      // Word Frequencies & Stuffing Detector
       const words = jdLower.match(/\b[a-z]{4,}\b/g) || [];
       const freqMap: Record<string, number> = {};
       const stopWords = new Set(['with', 'this', 'that', 'from', 'have', 'will', 'your', 'team', 'work', 'about', 'must', 'should']);
@@ -206,9 +205,9 @@ const ATSKeywords = () => {
                     <Badge
                       key={i}
                       onClick={() => copyKeyword(kw)}
-                      className="chip-mono cursor-pointer rounded-full border-none bg-[#34c759]/15 px-3 py-1 text-xs font-semibold text-[#34c759] hover:bg-[#34c759]/25"
+                      className="chip-mono cursor-pointer rounded-full border-none bg-[#34c759]/15 px-3 py-1 text-xs font-semibold text-[#34c759] hover:bg-[#34c759]/25 flex items-center gap-1"
                     >
-                      ✔ {kw}
+                      <Check className="h-3 w-3" /> {kw}
                     </Badge>
                   ))}
                 </div>
@@ -238,9 +237,9 @@ const ATSKeywords = () => {
                     <Badge
                       key={i}
                       onClick={() => copyKeyword(kw)}
-                      className="chip-mono cursor-pointer rounded-full border-none bg-[#ff3b30]/15 px-3 py-1 text-xs font-semibold text-[#ff3b30] hover:bg-[#ff3b30]/25"
+                      className="chip-mono cursor-pointer rounded-full border-none bg-[#ff3b30]/15 px-3 py-1 text-xs font-semibold text-[#ff3b30] hover:bg-[#ff3b30]/25 flex items-center gap-1"
                     >
-                      + Insert {kw}
+                      <Plus className="h-3 w-3" /> Insert {kw}
                     </Badge>
                   ))}
                 </div>

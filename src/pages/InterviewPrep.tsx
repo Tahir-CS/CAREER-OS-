@@ -4,7 +4,7 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import { Textarea } from '../components/ui/textarea';
-import { Mic, MicOff, Volume2, VolumeX, Sparkles, CheckCircle2, RotateCcw, Send, Play, Trophy, HelpCircle, UserCheck, ShieldAlert, Award, Radio } from 'lucide-react';
+import { Mic, MicOff, Volume2, VolumeX, Sparkles, CheckCircle2, RotateCcw, Send, Play, Trophy, HelpCircle, UserCheck, ShieldAlert, Award, Radio, Check, X } from 'lucide-react';
 import { useToast } from '../components/ui/use-toast';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -156,7 +156,6 @@ const InterviewPrep = () => {
     setIsEvaluating(true);
     const currentQ = questions[currentQuestionIndex];
 
-    // Detect Filler Words locally
     const fillerWordsList = ['like', 'um', 'uh', 'you know', 'basically', 'actually', 'literally'];
     const textLower = candidateAnswer.toLowerCase();
     const detected: string[] = [];
@@ -241,7 +240,7 @@ const InterviewPrep = () => {
         {/* Header Banner */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3.5 py-1 text-xs font-semibold text-[#0071e3] mb-3">
-            Zero-Cost Web Speech API Engine
+            Web Speech API Engine
           </Badge>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#1d1d1f]">
             Live Voice AI Mock Interviewer
@@ -302,7 +301,7 @@ const InterviewPrep = () => {
                 <div className="rounded-2xl border border-border/70 bg-[#f5f5f7] p-4">
                   <p className="text-xs font-bold uppercase text-[#34c759] chip-mono">Step 2</p>
                   <p className="text-sm font-semibold text-[#1d1d1f] mt-1">Speak into Mic</p>
-                  <p className="text-xs text-[#86868b]">Your spoken answer is transcribed live to text ($0 API fees!).</p>
+                  <p className="text-xs text-[#86868b]">Your spoken answer is transcribed live to text.</p>
                 </div>
                 <div className="rounded-2xl border border-border/70 bg-[#f5f5f7] p-4">
                   <p className="text-xs font-bold uppercase text-[#af52de] chip-mono">Step 3</p>
@@ -382,7 +381,7 @@ const InterviewPrep = () => {
                   ) : (
                     <>
                       <Mic className="mr-1.5 h-3.5 w-3.5" />
-                      🎤 Record Answer via Voice
+                      Record Answer via Voice
                     </>
                   )}
                 </Button>
@@ -465,18 +464,18 @@ const InterviewPrep = () => {
                       {/* STAR Checklist */}
                       <div className="rounded-xl border border-border/80 bg-white p-4 space-y-2">
                         <p className="text-xs font-bold uppercase text-[#0071e3] chip-mono">STAR Method Checklist</p>
-                        <div className="flex flex-wrap gap-2 text-xs font-semibold">
-                          <span className={turn.feedback.starStructure.situation ? 'text-[#34c759]' : 'text-[#86868b]'}>
-                            {turn.feedback.starStructure.situation ? '✔' : '✖'} Situation
+                        <div className="flex flex-wrap gap-3 text-xs font-semibold items-center">
+                          <span className={`flex items-center gap-1 ${turn.feedback.starStructure.situation ? 'text-[#34c759]' : 'text-[#86868b]'}`}>
+                            {turn.feedback.starStructure.situation ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />} Situation
                           </span>
-                          <span className={turn.feedback.starStructure.task ? 'text-[#34c759]' : 'text-[#86868b]'}>
-                            {turn.feedback.starStructure.task ? '✔' : '✖'} Task
+                          <span className={`flex items-center gap-1 ${turn.feedback.starStructure.task ? 'text-[#34c759]' : 'text-[#86868b]'}`}>
+                            {turn.feedback.starStructure.task ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />} Task
                           </span>
-                          <span className={turn.feedback.starStructure.action ? 'text-[#34c759]' : 'text-[#86868b]'}>
-                            {turn.feedback.starStructure.action ? '✔' : '✖'} Action
+                          <span className={`flex items-center gap-1 ${turn.feedback.starStructure.action ? 'text-[#34c759]' : 'text-[#86868b]'}`}>
+                            {turn.feedback.starStructure.action ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />} Action
                           </span>
-                          <span className={turn.feedback.starStructure.result ? 'text-[#34c759]' : 'text-[#ff3b30]'}>
-                            {turn.feedback.starStructure.result ? '✔' : '✖'} Quantified Result
+                          <span className={`flex items-center gap-1 ${turn.feedback.starStructure.result ? 'text-[#34c759]' : 'text-[#ff3b30]'}`}>
+                            {turn.feedback.starStructure.result ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />} Quantified Result
                           </span>
                         </div>
                         <p className="text-xs text-[#86868b]">{turn.feedback.starStructure.notes}</p>
