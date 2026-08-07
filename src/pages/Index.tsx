@@ -4,6 +4,7 @@ import { useToast } from "../components/ui/use-toast";
 import Header from '../components/Header';
 import ResumeUploader from '../components/ResumeUploader';
 import AnalysisDisplay from '../components/AnalysisDisplay';
+import { saveReportToHistory } from './History';
 
 // API Configuration
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
@@ -94,9 +95,11 @@ const Index = () => {
                 "Your resume mentions TypeScript, but not strict type safety. How do you ensure type safety in a large codebase?"
               ]
             };
-            setAnalysis(result.feedback || mockAnalysis);
+            const finalResult = result.feedback || mockAnalysis;
+            setAnalysis(finalResult);
+            saveReportToHistory("Uploaded-Resume.pdf", finalResult);
             setIsLoading(false);
-            toast({ title: "Analysis Complete!", description: "Your resume has been fully analyzed." });
+            toast({ title: "Analysis Complete!", description: "Your report has been saved to your History." });
           }
         } catch (error) {
           console.error("Error fetching final feedback:", error);
