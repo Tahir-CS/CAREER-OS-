@@ -4,15 +4,17 @@ import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
-import { Settings as SettingsIcon, User, Briefcase, MapPin, DollarSign, Database, Save, Check } from 'lucide-react';
+import { Settings as SettingsIcon, User, Briefcase, MapPin, DollarSign, Database, Save, Check, Plus, X, Download, Upload, Sliders } from 'lucide-react';
 import { useToast } from '../components/ui/use-toast';
+import { getSavedHistory } from './History';
 
 export interface UserPreferences {
   targetRole: string;
   experienceLevel: string;
   workPreference: string;
   targetSalary: string;
-  enableVoiceResponse: boolean;
+  aiStrictness: 'strict' | 'standard' | 'supportive';
+  skills: string[];
 }
 
 const DEFAULT_PREFS: UserPreferences = {
@@ -20,12 +22,14 @@ const DEFAULT_PREFS: UserPreferences = {
   experienceLevel: 'Senior / Lead',
   workPreference: 'Remote',
   targetSalary: '$140,000 - $180,000',
-  enableVoiceResponse: true,
+  aiStrictness: 'strict',
+  skills: ['TypeScript', 'React', 'Node.js', 'Python', 'Docker', 'PostgreSQL', 'Redis', 'System Design'],
 };
 
 const Settings = () => {
   const { toast } = useToast();
   const [prefs, setPrefs] = useState<UserPreferences>(DEFAULT_PREFS);
+  const [newSkill, setNewSkill] = useState('');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
@@ -41,8 +45,42 @@ const Settings = () => {
     try {
       localStorage.setItem('careeros_user_prefs', JSON.stringify(prefs));
       setSaved(true);
-      toast({ title: 'Settings Saved', description: 'Career profile & system preferences updated.' });
+      toast({ title: 'Settings Saved', description: 'Career profile & AI preferences updated.' });
       setTimeout(() => setSaved(false), 2000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const addSkill = () => {
+    if (newSkill.trim() && !prefs.skills.includes(newSkill.trim())) {
+      setPrefs({ ...prefs, skills: [...prefs.skills, newSkill.trim()] });
+      setNewSkill('');
+    }
+  };
+
+  const removeSkill = (skillToRemove: string) => {
+    setPrefs({ ...prefs, skills: prefs.skills.filter((s) => s !== skillToRemove) });
+  };
+
+  const handleExportBackup = () => {
+    try {
+      const history = getSavedHistory();
+      const backupData = {
+        preferences: prefs,
+        history,
+        exportedAt: new Date().toISOString(),
+      };
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `CareerOS-Backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      toast({ title: 'Backup Exported', description: 'Career profile & analysis history downloaded as JSON.' });
     } catch (e) {
       console.error(e);
     }
@@ -62,13 +100,13 @@ const Settings = () => {
         {/* Header Title */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3.5 py-1 text-xs font-semibold text-[#0071e3] mb-3">
-            Career Profile &amp; Preferences
+            Career Profile &amp; AI Engine Configuration
           </Badge>
           <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#1d1d1f]">
-            Candidate Settings
+            Candidate Settings &amp; Preferences
           </h1>
           <p className="text-base text-[#86868b] mt-2">
-            Configure your target roles, work mode preferences, and system options.
+            Configure your target career roles, primary technical skills, AI strictness level, and data backups.
           </p>
         </div>
 
@@ -77,7 +115,7 @@ const Settings = () => {
           <div className="apple-card p-6 md:p-8 space-y-6">
             <h2 className="text-xl font-bold text-[#1d1d1f] flex items-center gap-2.5">
               <User className="h-5 w-5 text-[#0071e3]" />
-              Career Profile Targets
+              Target Role &amp; Preferences
             </h2>
 
             <div className="grid gap-6 md:grid-cols-2">
@@ -124,23 +162,106 @@ const Settings = () => {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-[#1d1d1f]">Target Experience Level</label>
+                <label className="text-sm font-bold text-[#1d1d1f]">Target Seniority Level</label>
                 <Input
                   value={prefs.experienceLevel}
                   onChange={(e) => setPrefs({ ...prefs, experienceLevel: e.target.value })}
-                  placeholder="e.g. Senior / Staff"
+                  placeholder="e.g. Senior / Staff / Lead"
                   className="rounded-xl border border-border/80 bg-[#f5f5f7] h-11 text-sm focus:border-[#0071e3]"
                 />
               </div>
             </div>
+
+            {/* Core Skills Tag Cloud */}
+            <div className="space-y-3 pt-2">
+              <label className="text-sm font-bold text-[#1d1d1f]">Candidate Core Technical Skills Tag Cloud</label>
+              <div className="flex flex-wrap gap-2">
+                {prefs.skills.map((skill) => (
+                  <Badge
+                    key={skill}
+                    className="chip-mono rounded-full bg-[#0071e3]/10 text-[#0071e3] px-3 py-1 text-xs font-semibold flex items-center gap-1.5 border-none"
+                  >
+                    <span>{skill}</span>
+                    <X className="h-3.5 w-3.5 cursor-pointer hover:text-[#ff3b30]" onClick={() => removeSkill(skill)} />
+                  </Badge>
+                ))}
+              </div>
+              <div className="flex gap-2 pt-1">
+                <Input
+                  value={newSkill}
+                  onChange={(e) => setNewSkill(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && addSkill()}
+                  placeholder="Add a new skill (e.g. Docker, GraphQL)..."
+                  className="rounded-xl border border-border/80 bg-[#f5f5f7] h-10 text-sm focus:border-[#0071e3]"
+                />
+                <Button onClick={addSkill} className="apple-button h-10 px-4 text-xs font-semibold">
+                  <Plus className="h-4 w-4" /> Add Skill
+                </Button>
+              </div>
+            </div>
           </div>
 
-          {/* Data & Storage Management Card */}
+          {/* AI Analysis Tuning Card */}
+          <div className="apple-card p-6 md:p-8 space-y-6">
+            <h2 className="text-xl font-bold text-[#1d1d1f] flex items-center gap-2.5">
+              <Sliders className="h-5 w-5 text-[#34c759]" />
+              AI Agent Review Strictness Mode
+            </h2>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              <div
+                onClick={() => setPrefs({ ...prefs, aiStrictness: 'strict' })}
+                className={`apple-card apple-card-hover p-4 cursor-pointer border-2 transition-all ${
+                  prefs.aiStrictness === 'strict' ? 'border-[#0071e3] bg-[#0071e3]/5 shadow-sm' : 'border-border/70'
+                }`}
+              >
+                <h4 className="font-bold text-[#0071e3] text-sm">Strict Senior Bar</h4>
+                <p className="text-xs text-[#86868b] mt-1">High bar evaluation modeling Principal FAANG hiring managers.</p>
+              </div>
+
+              <div
+                onClick={() => setPrefs({ ...prefs, aiStrictness: 'standard' })}
+                className={`apple-card apple-card-hover p-4 cursor-pointer border-2 transition-all ${
+                  prefs.aiStrictness === 'standard' ? 'border-[#34c759] bg-[#34c759]/5 shadow-sm' : 'border-border/70'
+                }`}
+              >
+                <h4 className="font-bold text-[#34c759] text-sm">Standard Review</h4>
+                <p className="text-xs text-[#86868b] mt-1">Balanced feedback covering major strengths &amp; ATS formatting.</p>
+              </div>
+
+              <div
+                onClick={() => setPrefs({ ...prefs, aiStrictness: 'supportive' })}
+                className={`apple-card apple-card-hover p-4 cursor-pointer border-2 transition-all ${
+                  prefs.aiStrictness === 'supportive' ? 'border-[#af52de] bg-[#af52de]/5 shadow-sm' : 'border-border/70'
+                }`}
+              >
+                <h4 className="font-bold text-[#af52de] text-sm">Supportive Career Guide</h4>
+                <p className="text-xs text-[#86868b] mt-1">Encouraging analysis tailored for career transitioners.</p>
+              </div>
+            </div>
+          </div>
+
+          {/* Backup & Export Storage Management Card */}
           <div className="apple-card p-6 md:p-8 space-y-6">
             <h2 className="text-xl font-bold text-[#1d1d1f] flex items-center gap-2.5">
               <Database className="h-5 w-5 text-[#af52de]" />
-              Data &amp; Local Storage Management
+              Backup &amp; Storage Management
             </h2>
+
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-border/60 pt-4">
+              <div>
+                <p className="text-base font-bold text-[#1d1d1f]">Export Career Profile &amp; History Backup</p>
+                <p className="text-sm text-[#86868b]">Download full profile preferences and saved reports as a JSON backup.</p>
+              </div>
+              <Button
+                variant="outline"
+                onClick={handleExportBackup}
+                className="apple-button-secondary border-none text-xs"
+              >
+                <Download className="mr-1.5 h-3.5 w-3.5 text-[#0071e3]" />
+                Export JSON Backup
+              </Button>
+            </div>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-t border-border/60 pt-4">
               <div>
