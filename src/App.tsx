@@ -3,7 +3,10 @@ import { Toaster as Sonner } from "./components/ui/sonner";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Landing from "./pages/Landing";
 import Index from "./pages/Index";
+import About from "./pages/About";
+import Support from "./pages/Support";
 import History from "./pages/History";
 import InterviewPrep from "./pages/InterviewPrep";
 import ATSKeywords from "./pages/ATSKeywords";
@@ -19,12 +22,21 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          {/* Landing Marketing Page */}
+          <Route path="/" element={<Landing />} />
+          
+          {/* Dedicated Resume Analyzer Workspace */}
+          <Route path="/app" element={<Index />} />
+          
+          {/* Platform Information & Tools */}
+          <Route path="/about" element={<About />} />
+          <Route path="/support" element={<Support />} />
           <Route path="/history" element={<History />} />
           <Route path="/interview" element={<InterviewPrep />} />
           <Route path="/keywords" element={<ATSKeywords />} />
           <Route path="/settings" element={<Settings />} />
-          {/* CATCH-ALL 404 ROUTE */}
+
+          {/* Catch-all 404 Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
