@@ -1,61 +1,46 @@
 import { Link } from 'react-router-dom';
-import { Github, ArrowUpRight } from 'lucide-react';
 
 const Footer = () => {
   return (
-    <footer className="border-t border-[#d2cabb] bg-[#e9e4d8]">
-      <div className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-12">
-        <div className="grid gap-10 md:grid-cols-[1.4fr_0.8fr_0.8fr]">
+    <footer className="border-t border-black/[0.08] bg-[#f5f5f7]">
+      <div className="mx-auto max-w-[1080px] px-5 py-10 md:px-6">
+        <div className="grid gap-9 md:grid-cols-[1.45fr_0.8fr_0.8fr]">
           <div>
-            <div className="flex items-center gap-3">
-              <img src="/brand/careeros-mark.svg" alt="" className="h-10 w-10" />
-              <div>
-                <p className="text-base font-semibold tracking-[-0.02em] text-[#17201d]">CareerOS</p>
-                <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#72776f]">Job search workbench</p>
-              </div>
-            </div>
-            <p className="mt-5 max-w-md text-sm leading-6 text-[#59615c]">
-              A focused workspace for turning a job description and a resume into a concrete revision and interview plan.
+            <p className="text-[15px] font-semibold tracking-[-0.02em] text-[#1d1d1f]">CareerOS</p>
+            <p className="mt-3 max-w-md text-[13px] leading-6 text-[#6e6e73]">
+              Resume analysis, role matching, ATS review, and interview practice in one focused workspace.
             </p>
           </div>
 
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#7b7d76]">Workflows</p>
-            <div className="mt-4 grid gap-2.5 text-sm text-[#3e4742]">
-              <Link to="/app" className="hover:text-[#173f35]">Resume workspace</Link>
-              <Link to="/keywords" className="hover:text-[#173f35]">ATS scan</Link>
-              <Link to="/interview" className="hover:text-[#173f35]">Interview practice</Link>
-              <Link to="/history" className="hover:text-[#173f35]">Revision history</Link>
+            <p className="text-[11px] font-semibold text-[#1d1d1f]">Product</p>
+            <div className="mt-3 grid gap-2 text-[12px] text-[#6e6e73]">
+              <Link to="/app" className="hover:text-[#1d1d1f]">Workspace</Link>
+              <Link to="/keywords" className="hover:text-[#1d1d1f]">ATS</Link>
+              <Link to="/interview" className="hover:text-[#1d1d1f]">Interview</Link>
+              <Link to="/history" className="hover:text-[#1d1d1f]">History</Link>
             </div>
           </div>
 
           <div>
-            <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#7b7d76]">Project</p>
-            <div className="mt-4 grid gap-2.5 text-sm text-[#3e4742]">
-              <Link to="/about" className="hover:text-[#173f35]">How it works</Link>
-              <Link to="/support" className="hover:text-[#173f35]">Support</Link>
+            <p className="text-[11px] font-semibold text-[#1d1d1f]">Project</p>
+            <div className="mt-3 grid gap-2 text-[12px] text-[#6e6e73]">
+              <Link to="/about" className="hover:text-[#1d1d1f]">About</Link>
+              <Link to="/support" className="hover:text-[#1d1d1f]">Support</Link>
               <a
                 href="https://github.com/Tahir-CS/CAREER-OS-"
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-1.5 hover:text-[#173f35]"
+                className="hover:text-[#1d1d1f]"
               >
-                GitHub <ArrowUpRight className="h-3.5 w-3.5" />
+                GitHub
               </a>
             </div>
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col gap-3 border-t border-[#d2cabb] pt-6 text-xs text-[#73776f] sm:flex-row sm:items-center sm:justify-between">
-          <p>© {new Date().getFullYear()} CareerOS</p>
-          <a
-            href="https://github.com/Tahir-CS/CAREER-OS-"
-            target="_blank"
-            rel="noreferrer"
-            className="inline-flex items-center gap-1.5 hover:text-[#173f35]"
-          >
-            <Github className="h-3.5 w-3.5" /> Open-source project
-          </a>
+        <div className="mt-9 border-t border-black/[0.07] pt-5 text-[11px] text-[#86868b]">
+          © {new Date().getFullYear()} CareerOS
         </div>
       </div>
     </footer>
