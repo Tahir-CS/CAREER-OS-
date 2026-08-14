@@ -1,14 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
-import { Card } from '../components/ui/card';
 import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
 import { Input } from '../components/ui/input';
-import { History as HistoryIcon, FileText, Download, ArrowUpRight, Trash2, Sparkles, TrendingUp, Search, Columns, Calendar, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Search, Trash2, Columns, ArrowLeft, ArrowRight } from 'lucide-react';
 import AnalysisDisplay, { Analysis } from '../components/AnalysisDisplay';
 import { useToast } from '../components/ui/use-toast';
-import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 export interface SavedReport {
   id: string;
@@ -38,8 +35,7 @@ export const saveReportToHistory = (filename: string, analysis: Analysis, jobDes
       jobDescription,
       analysis,
     };
-    const updated = [newReport, ...history];
-    localStorage.setItem('careeros_analysis_history', JSON.stringify(updated.slice(0, 30)));
+    localStorage.setItem('careeros_analysis_history', JSON.stringify([newReport, ...history].slice(0, 30)));
   } catch (error) {
     console.error('Failed to save report to history:', error);
   }
@@ -54,317 +50,187 @@ const History = () => {
   const [compareMode, setCompareMode] = useState(false);
   const [compareIds, setCompareIds] = useState<string[]>([]);
 
-  useEffect(() => {
-    setHistory(getSavedHistory());
-  }, []);
+  useEffect(() => setHistory(getSavedHistory()), []);
 
   const clearHistory = () => {
     localStorage.removeItem('careeros_analysis_history');
     setHistory([]);
     setSelectedReport(null);
     setCompareIds([]);
-    toast({ title: 'History Cleared', description: 'All stored analysis reports have been removed.' });
+    toast({ title: 'History cleared', description: 'Saved local analysis reports were removed.' });
   };
 
   const filteredHistory = useMemo(() => {
     if (!searchQuery.trim()) return history;
-    const q = searchQuery.toLowerCase();
-    return history.filter(
-      (item) =>
-        item.filename.toLowerCase().includes(q) ||
-        (item.jobDescription && item.jobDescription.toLowerCase().includes(q)) ||
-        item.analysis.summary.toLowerCase().includes(q)
+    const query = searchQuery.toLowerCase();
+    return history.filter((item) =>
+      item.filename.toLowerCase().includes(query) ||
+      item.jobDescription?.toLowerCase().includes(query) ||
+      item.analysis.summary.toLowerCase().includes(query)
     );
   }, [history, searchQuery]);
 
-  const chartData = useMemo(() => {
-    return [...history]
-      .reverse()
-      .map((item, index) => ({
-        index: `Run #${index + 1}`,
-        date: new Date(item.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-        Score: item.analysis.score,
-        ATS: item.analysis.atsAnalysis.score,
-        RAG: item.analysis.matchScore || Math.round(item.analysis.score * 0.9),
-      }));
-  }, [history]);
-
-  const avgScore = history.length > 0
-    ? Math.round(history.reduce((acc, item) => acc + item.analysis.score, 0) / history.length)
+  const avgScore = history.length
+    ? Math.round(history.reduce((sum, item) => sum + item.analysis.score, 0) / history.length)
     : 0;
-
-  const maxScore = history.length > 0
-    ? Math.max(...history.map((item) => item.analysis.score))
-    : 0;
+  const maxScore = history.length ? Math.max(...history.map((item) => item.analysis.score)) : 0;
 
   const toggleCompare = (id: string) => {
     if (compareIds.includes(id)) {
       setCompareIds(compareIds.filter((item) => item !== id));
+    } else if (compareIds.length >= 2) {
+      setCompareIds([compareIds[1], id]);
     } else {
-      if (compareIds.length >= 2) {
-        setCompareIds([compareIds[1], id]);
-      } else {
-        setCompareIds([...compareIds, id]);
-      }
+      setCompareIds([...compareIds, id]);
     }
   };
 
-  const reportA = history.find((r) => r.id === compareIds[0]);
-  const reportB = history.find((r) => r.id === compareIds[1]);
+  const reportA = history.find((report) => report.id === compareIds[0]);
+  const reportB = history.find((report) => report.id === compareIds[1]);
+
+  if (selectedReport) {
+    return (
+      <div className="min-h-screen bg-[#f3f0e7] text-[#17201d]">
+        <Header />
+        <main className="mx-auto max-w-5xl px-5 py-8 md:px-8 md:py-10">
+          <button onClick={() => setSelectedReport(null)} className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-[#173f35]">
+            <ArrowLeft className="h-4 w-4" /> Back to revision history
+          </button>
+          <AnalysisDisplay
+            analysis={selectedReport.analysis}
+            onReset={() => setSelectedReport(null)}
+            onExport={() => toast({ title: 'Export', description: 'Open the original report from the workspace to export the generated PDF.' })}
+          />
+        </main>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground font-sans">
+    <div className="min-h-screen bg-[#f3f0e7] text-[#17201d]">
       <Header />
-      
-      <main className="flex-grow container mx-auto px-4 py-8 md:py-12 max-w-6xl">
-        {selectedReport ? (
+      <main className="mx-auto max-w-7xl px-5 pb-16 md:px-8">
+        <div className="grid gap-8 border-b border-[#d2cabb] py-9 md:grid-cols-[1fr_auto] md:items-end md:py-12">
           <div>
-            <Button
-              variant="outline"
-              className="apple-button-secondary mb-6 border-none"
-              onClick={() => setSelectedReport(null)}
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" /> Back to History Dashboard
-            </Button>
-
-            <AnalysisDisplay
-              analysis={selectedReport.analysis}
-              onReset={() => setSelectedReport(null)}
-              onExport={() => {
-                toast({ title: 'Export PDF', description: 'Generating report PDF...' });
-              }}
-            />
+            <p className="rule-label">History / 04</p>
+            <h1 className="display-serif mt-4 text-4xl leading-[1] md:text-6xl">Revision history</h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-[#59615c]">
+              Keep each run as a checkpoint. Compare scores and open the report that explains why the number moved.
+            </p>
           </div>
-        ) : (
-          <div className="space-y-8">
-            {/* Header Banner */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#1d1d1f]">
-                  Career Trajectory &amp; History
-                </h1>
-                <p className="text-base text-[#86868b] mt-1">
-                  Comprehensive score progression timeline, side-by-side report comparison, and report archives.
-                </p>
-              </div>
-
-              {history.length > 0 && (
-                <div className="flex flex-wrap items-center gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setCompareMode(!compareMode);
-                      setCompareIds([]);
-                    }}
-                    className={`apple-button-secondary border-none text-xs font-semibold ${
-                      compareMode ? 'bg-[#0071e3] text-white' : ''
-                    }`}
-                  >
-                    <Columns className="mr-1.5 h-4 w-4" />
-                    {compareMode ? 'Exit Compare Mode' : 'Compare 2 Reports'}
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    onClick={clearHistory}
-                    className="apple-button-secondary border-none text-xs text-[#ff3b30] hover:bg-[#ff3b30]/10"
-                  >
-                    <Trash2 className="mr-1.5 h-4 w-4" />
-                    Clear History
-                  </Button>
-                </div>
-              )}
+          {history.length > 0 && (
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                className="apple-button-secondary h-9 px-3 text-xs"
+                onClick={() => {
+                  setCompareMode(!compareMode);
+                  setCompareIds([]);
+                }}
+              >
+                <Columns className="mr-1.5 h-3.5 w-3.5" /> {compareMode ? 'Exit compare' : 'Compare two'}
+              </Button>
+              <Button variant="outline" className="h-9 border-[#d9aa9a] bg-[#f7e6df] px-3 text-xs text-[#a4432c] hover:bg-[#f2d9cf]" onClick={clearHistory}>
+                <Trash2 className="mr-1.5 h-3.5 w-3.5" /> Clear
+              </Button>
             </div>
+          )}
+        </div>
 
-            {/* Score Trajectory Line Chart Card */}
-            {history.length > 1 && (
-              <div className="apple-card p-6 md:p-8 space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-lg font-bold text-[#1d1d1f] flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5 text-[#0071e3]" />
-                      Resume Score Trajectory Over Time
-                    </h3>
-                    <p className="text-xs text-[#86868b]">Visualizing score improvement across all revision runs.</p>
-                  </div>
-                  <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#34c759]/10 px-3 py-1 text-xs font-bold text-[#34c759]">
-                    Peak Score: {maxScore}/100
-                  </Badge>
+        {history.length === 0 ? (
+          <section className="mt-8 grid min-h-[360px] place-items-center border border-[#cfc7b7] bg-[#faf8f2] p-8 text-center">
+            <div className="max-w-md">
+              <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#b84f31]">No checkpoints yet</p>
+              <h2 className="display-serif mt-3 text-3xl">Your first analysis becomes revision #01.</h2>
+              <p className="mt-3 text-sm leading-6 text-[#59615c]">Run a resume through the workspace, make an edit, then come back here to compare the next version.</p>
+              <Button onClick={() => navigate('/app')} className="apple-button mt-5 h-10 px-5 text-sm">Open workspace</Button>
+            </div>
+          </section>
+        ) : (
+          <>
+            <section className="grid border-x border-b border-[#cfc7b7] bg-[#faf8f2] sm:grid-cols-3">
+              {[
+                ['Saved runs', history.length.toString(), 'local checkpoints'],
+                ['Average', `${avgScore}`, 'overall score'],
+                ['Best', `${maxScore}`, 'highest score'],
+              ].map(([label, value, note]) => (
+                <div key={label} className="border-b border-[#d2cabb] p-5 last:border-b-0 sm:border-b-0 sm:border-r sm:last:border-r-0">
+                  <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#85877f]">{label}</p>
+                  <p className="mt-2 font-mono text-3xl font-semibold text-[#173f35]">{value}</p>
+                  <p className="mt-1 text-xs text-[#72776f]">{note}</p>
                 </div>
+              ))}
+            </section>
 
-                <div className="h-[240px] w-full pt-4">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData}>
-                      <defs>
-                        <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#0071e3" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#0071e3" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#e8e8ed" />
-                      <XAxis dataKey="date" tick={{ fill: '#86868b', fontSize: 12 }} />
-                      <YAxis domain={[0, 100]} tick={{ fill: '#86868b', fontSize: 12 }} />
-                      <Tooltip />
-                      <Area type="monotone" dataKey="Score" stroke="#0071e3" strokeWidth={3} fillOpacity={1} fill="url(#scoreGrad)" />
-                      <Area type="monotone" dataKey="ATS" stroke="#34c759" strokeWidth={2} fillOpacity={0} />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            )}
-
-            {/* Side-by-Side Comparison View */}
             {compareMode && (
-              <div className="apple-card p-6 md:p-8 space-y-6 bg-[#0071e3]/5 border-[#0071e3]/30">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-[#1d1d1f] flex items-center gap-2">
-                    <Columns className="h-5 w-5 text-[#0071e3]" />
-                    Side-by-Side Report Comparison Matrix
-                  </h3>
-                  <p className="text-xs font-bold text-[#0071e3] chip-mono">
-                    Select 2 reports below to compare ({compareIds.length}/2 selected)
-                  </p>
-                </div>
-
-                {reportA && reportB ? (
-                  <div className="grid gap-6 md:grid-cols-2 pt-2">
-                    {/* Report A */}
-                    <div className="rounded-2xl border border-border/80 bg-white p-5 space-y-3">
-                      <Badge className="bg-[#0071e3] text-white">Report A (Older)</Badge>
-                      <h4 className="font-bold text-[#1d1d1f]">{reportA.filename}</h4>
-                      <p className="text-xs text-[#86868b]">{new Date(reportA.timestamp).toLocaleDateString()}</p>
-                      <div className="grid grid-cols-2 gap-2 pt-2">
-                        <div className="rounded-xl bg-[#f5f5f7] p-3 text-center">
-                          <span className="text-2xl font-extrabold text-[#0071e3]">{reportA.analysis.score}</span>
-                          <span className="text-[10px] uppercase font-bold text-[#86868b] block">Quality Score</span>
-                        </div>
-                        <div className="rounded-xl bg-[#f5f5f7] p-3 text-center">
-                          <span className="text-2xl font-extrabold text-[#34c759]">{reportA.analysis.atsAnalysis.score}</span>
-                          <span className="text-[10px] uppercase font-bold text-[#86868b] block">ATS Compliance</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Report B */}
-                    <div className="rounded-2xl border border-border/80 bg-white p-5 space-y-3">
-                      <Badge className="bg-[#34c759] text-white">Report B (Newer)</Badge>
-                      <h4 className="font-bold text-[#1d1d1f]">{reportB.filename}</h4>
-                      <p className="text-xs text-[#86868b]">{new Date(reportB.timestamp).toLocaleDateString()}</p>
-                      <div className="grid grid-cols-2 gap-2 pt-2">
-                        <div className="rounded-xl bg-[#f5f5f7] p-3 text-center">
-                          <span className="text-2xl font-extrabold text-[#0071e3]">{reportB.analysis.score}</span>
-                          <span className="text-[10px] uppercase font-bold text-[#86868b] block">Quality Score</span>
-                        </div>
-                        <div className="rounded-xl bg-[#f5f5f7] p-3 text-center">
-                          <span className="text-2xl font-extrabold text-[#34c759]">{reportB.analysis.atsAnalysis.score}</span>
-                          <span className="text-[10px] uppercase font-bold text-[#86868b] block">ATS Compliance</span>
-                        </div>
-                      </div>
-                    </div>
+              <section className="mt-8 border border-[#cfc7b7] bg-[#e9e4d8] p-5 md:p-6">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <p className="eyebrow">Compare mode</p>
+                    <h2 className="mt-2 text-lg font-semibold">Select two checkpoints below.</h2>
                   </div>
-                ) : (
-                  <p className="text-sm text-[#86868b]">Click check-boxes on any 2 report cards below to render comparison metrics.</p>
+                  <p className="font-mono text-[10px] text-[#85877f]">{compareIds.length}/2 selected</p>
+                </div>
+                {reportA && reportB && (
+                  <div className="mt-5 grid bg-[#faf8f2] md:grid-cols-2">
+                    {[reportA, reportB].map((report, index) => (
+                      <div key={report.id} className="border border-[#d2cabb] p-5 md:first:border-r-0">
+                        <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#b84f31]">Checkpoint {index === 0 ? 'A' : 'B'}</p>
+                        <p className="mt-2 truncate text-sm font-semibold">{report.filename}</p>
+                        <p className="mt-1 text-xs text-[#72776f]">{new Date(report.timestamp).toLocaleDateString()}</p>
+                        <div className="mt-5 grid grid-cols-3 gap-3 border-t border-[#d2cabb] pt-4">
+                          <div><p className="font-mono text-xl">{report.analysis.score}</p><p className="text-[10px] text-[#85877f]">overall</p></div>
+                          <div><p className="font-mono text-xl">{report.analysis.atsAnalysis?.score ?? 0}</p><p className="text-[10px] text-[#85877f]">ATS</p></div>
+                          <div><p className="font-mono text-xl">{report.analysis.matchScore ?? 0}</p><p className="text-[10px] text-[#85877f]">match</p></div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
-              </div>
+              </section>
             )}
 
-            {/* Search & Filter Bar */}
-            {history.length > 0 && (
-              <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="relative w-full sm:w-96">
-                  <Search className="absolute left-3.5 top-3 h-4 w-4 text-[#86868b]" />
+            <section className="mt-8">
+              <div className="flex flex-col gap-3 border-b border-[#d2cabb] pb-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="relative w-full max-w-md">
+                  <Search className="absolute left-3 top-3 h-4 w-4 text-[#85877f]" />
                   <Input
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search reports by file name, role, or keywords..."
-                    className="pl-10 rounded-xl border border-border/80 bg-white h-11 text-sm focus:border-[#0071e3]"
+                    onChange={(event) => setSearchQuery(event.target.value)}
+                    placeholder="Search file name or report text…"
+                    className="h-10 rounded-none border-[#cfc7b7] bg-[#faf8f2] pl-9 text-sm focus-visible:ring-1 focus-visible:ring-[#173f35]"
                   />
                 </div>
-
-                <span className="chip-mono text-xs font-semibold text-[#86868b] self-end sm:self-auto">
-                  Showing {filteredHistory.length} of {history.length} saved reports
-                </span>
+                <p className="font-mono text-[10px] text-[#85877f]">{filteredHistory.length} of {history.length} runs</p>
               </div>
-            )}
 
-            {/* Reports List */}
-            {history.length === 0 ? (
-              <div className="apple-card p-12 text-center flex flex-col items-center justify-center space-y-4">
-                <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0071e3]/10 text-[#0071e3]">
-                  <FileText className="h-8 w-8" />
-                </div>
-                <h3 className="text-2xl font-bold text-[#1d1d1f]">No History Reports Yet</h3>
-                <p className="text-base text-[#86868b] max-w-md">
-                  Upload a resume on the main dashboard to generate your first AI evaluation report.
-                </p>
-                <Button onClick={() => navigate('/')} className="apple-button mt-4 h-12 px-6">
-                  Analyze Resume Now
-                </Button>
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {filteredHistory.map((item) => {
-                  const isCheckedForCompare = compareIds.includes(item.id);
+              <div>
+                {filteredHistory.map((item, index) => {
+                  const selected = compareIds.includes(item.id);
                   return (
-                    <div
-                      key={item.id}
-                      className={`apple-card apple-card-hover p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all ${
-                        isCheckedForCompare ? 'ring-2 ring-[#0071e3] bg-[#0071e3]/5' : ''
-                      }`}
-                    >
-                      <div className="flex items-start gap-4 min-w-0">
-                        {compareMode && (
-                          <input
-                            type="checkbox"
-                            checked={isCheckedForCompare}
-                            onChange={() => toggleCompare(item.id)}
-                            className="mt-1.5 h-5 w-5 rounded border-gray-300 text-[#0071e3] focus:ring-[#0071e3]"
-                          />
-                        )}
-
-                        <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl bg-[#0071e3]/10 text-[#0071e3]">
-                          <FileText className="h-6 w-6" />
-                        </div>
-                        <div className="min-w-0">
-                          <h4 className="truncate text-base font-bold text-[#1d1d1f]">{item.filename}</h4>
-                          <p className="chip-mono text-xs text-[#86868b] mt-0.5">
-                            {new Date(item.timestamp).toLocaleDateString(undefined, {
-                              year: 'numeric',
-                              month: 'short',
-                              day: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </p>
-                          {item.jobDescription && (
-                            <p className="truncate text-xs text-[#86868b] mt-1 max-w-md">
-                              Target Role: {item.jobDescription}
-                            </p>
-                          )}
-                        </div>
+                    <article key={item.id} className={`grid gap-4 border-b border-[#d2cabb] py-5 md:grid-cols-[60px_1fr_210px_auto] md:items-center ${selected ? 'bg-[#e6eee9]' : ''}`}>
+                      <div className="flex items-center gap-3">
+                        {compareMode && <input type="checkbox" checked={selected} onChange={() => toggleCompare(item.id)} className="h-4 w-4 accent-[#173f35]" />}
+                        <span className="font-mono text-xs text-[#b84f31]">{String(filteredHistory.length - index).padStart(2, '0')}</span>
                       </div>
-
-                      <div className="flex items-center gap-3 self-end md:self-auto">
-                        <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3 py-1 text-xs font-bold text-[#0071e3]">
-                          Quality: {item.analysis.score}
-                        </Badge>
-                        <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#34c759]/10 px-3 py-1 text-xs font-semibold text-[#34c759]">
-                          ATS: {item.analysis.atsAnalysis.score}
-                        </Badge>
-                        <Button
-                          variant="outline"
-                          onClick={() => setSelectedReport(item)}
-                          className="apple-button-secondary border-none h-9 px-4 text-xs"
-                        >
-                          View Report <ArrowRight className="ml-1 h-3.5 w-3.5" />
-                        </Button>
+                      <div className="min-w-0">
+                        <h3 className="truncate text-sm font-semibold">{item.filename}</h3>
+                        <p className="mt-1 text-xs text-[#72776f]">{new Date(item.timestamp).toLocaleString()}</p>
                       </div>
-                    </div>
+                      <div className="grid grid-cols-3 gap-3 text-center md:text-left">
+                        <div><p className="font-mono text-lg">{item.analysis.score}</p><p className="text-[10px] text-[#85877f]">overall</p></div>
+                        <div><p className="font-mono text-lg">{item.analysis.atsAnalysis?.score ?? 0}</p><p className="text-[10px] text-[#85877f]">ATS</p></div>
+                        <div><p className="font-mono text-lg">{item.analysis.matchScore ?? 0}</p><p className="text-[10px] text-[#85877f]">match</p></div>
+                      </div>
+                      <button onClick={() => setSelectedReport(item)} className="inline-flex items-center gap-1.5 text-sm font-medium text-[#173f35]">
+                        Open report <ArrowRight className="h-4 w-4" />
+                      </button>
+                    </article>
                   );
                 })}
               </div>
-            )}
-          </div>
+            </section>
+          </>
         )}
       </main>
     </div>
