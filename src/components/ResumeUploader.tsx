@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Briefcase, FileText, Upload, Sparkles } from 'lucide-react';
+import { Briefcase, FileText, Upload } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
-import { Badge } from './ui/badge';
 
 const MAX_JOB_DESCRIPTION_CHARS = 5000;
 
@@ -34,18 +33,14 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
+    if (e.target.files?.[0]) setFile(e.target.files[0]);
   };
 
   const handleDrop = useCallback((e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      setFile(e.dataTransfer.files[0]);
-    }
+    if (e.dataTransfer.files?.[0]) setFile(e.dataTransfer.files[0]);
   }, []);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLLabelElement>) => {
@@ -61,104 +56,87 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
   }, []);
 
   const handleAnalyze = () => {
-    if (!file || isLoading) {
-      return;
-    }
-
-    onAnalyze({
-      file,
-      jobDescription: jobDescription.trim(),
-    });
+    if (!file || isLoading) return;
+    onAnalyze({ file, jobDescription: jobDescription.trim() });
   };
 
   return (
-    <div className="apple-card p-6 md:p-10">
-      <div className="mb-6 flex flex-wrap items-center gap-2.5">
-        <Badge variant="outline" className="chip-mono border-none bg-[#0071e3]/10 px-3.5 py-1 text-xs font-semibold text-[#0071e3] rounded-full">
-          Resume Upload
-        </Badge>
-        <Badge variant="outline" className="chip-mono border-none bg-[#34c759]/10 px-3.5 py-1 text-xs font-semibold text-[#34c759] rounded-full">
-          Target Role Optimization
-        </Badge>
+    <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] md:p-7">
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm font-semibold text-[#222]">New analysis</p>
+          <p className="mt-1 text-sm text-[#777]">Add your resume first. The job description is optional, but improves role-specific results.</p>
+        </div>
+        <span className="shrink-0 rounded-md bg-[#f1f1ee] px-2.5 py-1 text-xs font-medium text-[#666]">PDF / DOCX</span>
       </div>
 
       <label
-        htmlFor="resume-upload" 
-        className={`relative flex min-h-[220px] w-full cursor-pointer flex-col items-center justify-center space-y-3.5 rounded-2xl border-2 border-dashed p-6 text-center transition-all duration-200 ${
-          isDragging 
-            ? 'border-[#0071e3] bg-[#0071e3]/5 scale-[0.99]' 
-            : 'border-[#86868b]/30 bg-[#f5f5f7] hover:border-[#0071e3]/50 hover:bg-[#0071e3]/5'
+        htmlFor="resume-upload"
+        className={`flex min-h-[190px] w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed p-6 text-center transition ${
+          isDragging ? 'border-[#333] bg-[#f4f4f0]' : 'border-black/15 bg-[#fafaf8] hover:border-black/30 hover:bg-[#f7f7f3]'
         }`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0071e3] text-white shadow-lg shadow-[#0071e3]/25">
-          <Upload className="h-7 w-7" />
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 bg-white text-[#333]">
+          <Upload className="h-4 w-4" />
         </div>
         <input id="resume-upload" type="file" className="hidden" onChange={handleFileChange} accept=".pdf,.docx" />
-        <div>
-          <p className="text-xl font-bold tracking-tight text-[#1d1d1f]">Drop your resume here</p>
-          <p className="mt-1 text-sm text-[#86868b]">Upload PDF or DOCX file (Max 5MB)</p>
-        </div>
+        <p className="mt-4 text-sm font-semibold text-[#222]">Drop a resume here, or choose a file</p>
+        <p className="mt-1 text-xs text-[#888]">PDF or DOCX, up to 5 MB</p>
       </label>
 
       {file && (
-        <div className="mt-5 rounded-2xl border border-border/70 bg-[#f5f5f7] p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-[#0071e3] shadow-sm">
-                <FileText className="h-5 w-5" />
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-semibold text-[#1d1d1f]">{file.name}</p>
-                <p className="chip-mono text-xs text-[#86868b]">{formatFileSize(file.size)}</p>
-              </div>
+        <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-[#f7f7f5] p-3.5">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#333] ring-1 ring-black/5">
+              <FileText className="h-4 w-4" />
             </div>
-            <span className="rounded-full bg-[#34c759]/15 px-3 py-1 text-xs font-semibold text-[#34c759]">
-              Ready
-            </span>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-[#222]">{file.name}</p>
+              <p className="mt-0.5 text-xs text-[#888]">{formatFileSize(file.size)}</p>
+            </div>
           </div>
+          <span className="text-xs font-medium text-[#4f6d3a]">Ready</span>
         </div>
       )}
 
-      <div className="mt-6 rounded-2xl border border-border/70 bg-white p-5 shadow-sm">
-        <div className="mb-2.5 flex items-center gap-2 text-sm font-semibold text-[#1d1d1f]">
-          <Briefcase className="h-4 w-4 text-[#0071e3]" />
-          Target Job Description (Optional)
+      <div className="mt-6">
+        <div className="mb-2 flex items-center justify-between gap-3">
+          <label htmlFor="job-description" className="flex items-center gap-2 text-sm font-medium text-[#333]">
+            <Briefcase className="h-4 w-4 text-[#777]" />
+            Job description
+            <span className="font-normal text-[#999]">optional</span>
+          </label>
+          <span className="text-xs tabular-nums text-[#999]">{remainingCharacters} left</span>
         </div>
         <Textarea
+          id="job-description"
           value={jobDescription}
           onChange={(e) => setJobDescription(e.target.value.slice(0, MAX_JOB_DESCRIPTION_CHARS))}
-          placeholder="Paste the role requirements to perform RAG semantic matching & gap analysis."
-          className="min-h-[120px] rounded-xl border border-border/80 bg-[#f5f5f7] text-sm focus:border-[#0071e3] focus:ring-1 focus:ring-[#0071e3]"
+          placeholder="Paste the role description here to compare your resume against it."
+          className="min-h-[145px] resize-y rounded-xl border-black/10 bg-[#fafaf8] text-sm leading-6 placeholder:text-[#aaa] focus-visible:ring-1 focus-visible:ring-[#333]"
         />
-        <div className="mt-2.5 flex items-center justify-between text-xs text-[#86868b]">
-          <span>Enables AI Agent 2 to generate 5 targeted interview questions.</span>
-          <span className="chip-mono font-semibold">
-            {jobDescription.length}/{MAX_JOB_DESCRIPTION_CHARS}
-          </span>
-        </div>
       </div>
 
-      <Button 
-        size="lg" 
-        className="apple-button mt-6 h-13 w-full text-base font-semibold"
+      <Button
+        size="lg"
+        className="apple-button mt-5 h-11 w-full text-sm"
         disabled={!file || isLoading}
         onClick={handleAnalyze}
       >
-        <Sparkles className="mr-2 h-5 w-5" />
-        {isLoading ? 'Analyzing Resume...' : 'Analyze Resume'}
+        {isLoading ? 'Analyzing…' : 'Analyze resume'}
       </Button>
 
       {onUseDemo && (
         <Button
           variant="outline"
-          className="apple-button-secondary mt-3 h-12 w-full text-sm font-semibold border-none"
+          className="apple-button-secondary mt-2.5 h-11 w-full text-sm"
           onClick={onUseDemo}
           disabled={isLoading}
         >
-          View Demo Report Layout
+          View sample report
         </Button>
       )}
     </div>
