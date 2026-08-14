@@ -1,293 +1,240 @@
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight, Check, FileSearch, MessageSquareText, Mic2, Search, Shield, Upload } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
-import { Sparkles, ArrowRight, CheckCircle2, ShieldCheck, Zap, Layers, Mic, Search, TrendingUp, HelpCircle, ChevronDown, Rocket, Award, Star, Users } from 'lucide-react';
 import ResumeUploader, { AnalyzePayload } from '../components/ResumeUploader';
+
+const capabilities = [
+  {
+    number: '01',
+    title: 'Resume and job matching',
+    text: 'Compare a resume against a target role, surface gaps, and get a relevance score based on the content of both documents.',
+  },
+  {
+    number: '02',
+    title: 'ATS review',
+    text: 'Inspect keyword coverage, formatting risks, missing skills, and other signals that can affect an applicant tracking system scan.',
+  },
+  {
+    number: '03',
+    title: 'Interview preparation',
+    text: 'Generate role-aware questions, practise spoken answers, and review responses against a structured STAR-style checklist.',
+  },
+  {
+    number: '04',
+    title: 'Progress history',
+    text: 'Keep previous analyses in one place so you can compare revisions instead of losing each result after a single session.',
+  },
+];
 
 const Landing = () => {
   const navigate = useNavigate();
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  const handleDemoUpload = (payload: AnalyzePayload) => {
-    // Navigate to workspace with file payload
+  const handleDemoUpload = (_payload: AnalyzePayload) => {
     navigate('/app');
   };
 
-  const faqs = [
-    {
-      q: "How does CareerOS calculate ATS Compliance & RAG Match Scores?",
-      a: "CareerOS converts both candidate resume text and target role requirements into 768-dimensional mathematical vector arrays using Google Gemini's text-embedding-004 model. We then execute a native pgvector Cosine Distance query inside PostgreSQL (1 - (v1 <=> v2)) to compute exact mathematical relevance scores instead of relying on subjective LLM guesses."
-    },
-    {
-      q: "Is the Live Voice AI Mock Interviewer completely free?",
-      a: "Yes! By leveraging your browser's native Web Speech Recognition (for speech-to-text mic input) and Web Speech Synthesis (for voice audio playback), candidate voice answers are processed locally in your browser with $0 API audio streaming fees."
-    },
-    {
-      q: "Will my resume data be shared or used to train public AI models?",
-      a: "No. All uploaded documents are stored securely in isolated S3-compatible MinIO object storage. We adhere to strict GDPR and SOC2 data privacy guidelines. Your resume is never sold or used for public LLM training."
-    },
-    {
-      q: "Can I export my evaluation reports as PDF?",
-      a: "Absolutely. Every generated report can be exported as a clean, professionally formatted PDF document containing score breakdowns, radar charts, targeted interview questions, and bullet point rewrites."
-    },
-    {
-      q: "What file formats does CareerOS support?",
-      a: "CareerOS accepts PDF and DOCX document formats up to 5MB in size."
-    },
-    {
-      q: "How do I compare my resume score improvements over time?",
-      a: "Every analysis is automatically saved to your Analysis History dashboard (/history). You can view your score trajectory timeline graph or select any 2 reports to view a side-by-side comparison matrix."
-    }
-  ];
-
   return (
-    <div className="flex flex-col min-h-screen bg-background text-foreground font-sans">
+    <div className="min-h-screen bg-[#f7f7f5] text-[#111]">
       <Header />
 
-      <main className="flex-grow space-y-20 pb-16">
-        
-        {/* 1. HERO SECTION */}
-        <section className="container mx-auto px-4 pt-8 md:pt-16">
-          <div className="apple-card p-8 md:p-16 text-center max-w-5xl mx-auto relative overflow-hidden bg-gradient-to-b from-white to-[#f5f5f7]">
-            <div className="inline-flex items-center gap-2 rounded-full bg-[#0071e3]/10 px-4 py-1.5 text-xs font-bold text-[#0071e3] mb-6">
-              <Sparkles className="h-4 w-4" />
-              Enterprise Career Intelligence Platform v2.0
-            </div>
-
-            <h1 className="text-4xl md:text-7xl font-extrabold tracking-tight text-[#1d1d1f] leading-[1.08] max-w-4xl mx-auto">
-              Accelerate Your Career with Vector AI Intelligence.
-            </h1>
-
-            <p className="text-lg md:text-2xl text-[#86868b] mt-6 max-w-2xl mx-auto font-normal leading-relaxed">
-              Instant ATS compliance checks, mathematical RAG role matching, and zero-cost live voice mock interviews.
-            </p>
-
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link to="/app">
-                <Button className="apple-button h-14 px-8 text-base font-semibold w-full sm:w-auto">
-                  <Rocket className="mr-2 h-5 w-5" /> Launch Workspace Free
-                </Button>
-              </Link>
-              <Link to="/interview">
-                <Button variant="outline" className="apple-button-secondary border-none h-14 px-8 text-base font-semibold w-full sm:w-auto">
-                  <Mic className="mr-2 h-5 w-5 text-[#0071e3]" /> Try Live Voice Interview
-                </Button>
-              </Link>
-            </div>
-
-            {/* Floating Social Proof Bar */}
-            <div className="mt-12 pt-8 border-t border-border/70 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-              <div>
-                <p className="text-3xl font-extrabold text-[#1d1d1f]">50,000+</p>
-                <p className="text-xs text-[#86868b] font-medium mt-0.5">Resumes Evaluated</p>
+      <main>
+        <section className="border-b border-black/5">
+          <div className="mx-auto grid max-w-7xl gap-14 px-5 py-16 md:px-8 md:py-24 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+            <div className="max-w-3xl">
+              <div className="mb-7 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.14em] text-[#7a7a75]">
+                <span className="h-px w-8 bg-[#aaa]" />
+                Career intelligence workspace
               </div>
-              <div>
-                <p className="text-3xl font-extrabold text-[#34c759]">98%</p>
-                <p className="text-xs text-[#86868b] font-medium mt-0.5">ATS Pass Rate</p>
-              </div>
-              <div>
-                <p className="text-3xl font-extrabold text-[#0071e3]">&lt; 50ms</p>
-                <p className="text-xs text-[#86868b] font-medium mt-0.5">Queue Ingestion Speed</p>
-              </div>
-              <div>
-                <p className="text-3xl font-extrabold text-[#af52de]">4.9 / 5</p>
-                <p className="text-xs text-[#86868b] font-medium mt-0.5">Candidate Rating</p>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* 2. INTERACTIVE DEMO WIDGET */}
-        <section className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-4xl font-extrabold text-[#1d1d1f]">Try the Analyzer Right Now</h2>
-            <p className="text-base text-[#86868b] mt-1">Upload your resume to experience our vector evaluation engine instantly.</p>
-          </div>
-          <ResumeUploader onAnalyze={handleDemoUpload} />
-        </section>
+              <h1 className="max-w-4xl text-[48px] font-semibold leading-[0.98] tracking-[-0.055em] text-[#111] sm:text-[64px] lg:text-[78px]">
+                Make your application fit the role before you send it.
+              </h1>
 
-        {/* 3. FEATURE HIGHLIGHTS MATRIX */}
-        <section className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3.5 py-1 text-xs font-semibold text-[#0071e3] mb-3">
-              Engine Architecture
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#1d1d1f]">
-              Built for Modern Career Velocity
-            </h2>
-            <p className="text-base text-[#86868b] mt-2">
-              Combining vector embeddings, event queues, and native browser speech engines.
-            </p>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-2">
-            {/* Feature 1 */}
-            <div className="apple-card p-8 space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0071e3]/10 text-[#0071e3]">
-                <Layers className="h-6 w-6" />
-              </div>
-              <h3 className="text-xl font-bold text-[#1d1d1f]">pgvector RAG Semantic Matching</h3>
-              <p className="text-sm text-[#86868b] leading-relaxed">
-                Calculates native mathematical cosine distance between candidate resumes and target job descriptions using Google Gemini 768-dimensional float embeddings.
+              <p className="mt-7 max-w-2xl text-lg leading-8 text-[#5d5d58] md:text-xl">
+                CareerOS brings resume analysis, job matching, ATS review, and interview preparation into one practical workspace.
               </p>
-            </div>
 
-            {/* Feature 2 */}
-            <div className="apple-card p-8 space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#34c759]/10 text-[#34c759]">
-                <Mic className="h-6 w-6" />
-              </div>
-              <h3 className="text-xl font-bold text-[#1d1d1f]">Zero-Cost Live Voice AI Interviewer</h3>
-              <p className="text-sm text-[#86868b] leading-relaxed">
-                Practice answering candidate-specific technical interview questions with real-time speech recognition, AI interviewer personas, and STAR checklist scoring.
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="apple-card p-8 space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#af52de]/10 text-[#af52de]">
-                <Search className="h-6 w-6" />
-              </div>
-              <h3 className="text-xl font-bold text-[#1d1d1f]">ATS Keyword &amp; Gap Extractor</h3>
-              <p className="text-sm text-[#86868b] leading-relaxed">
-                Instantly extract Hard Skills, Tools, and Soft Skills from target postings and copy auto-generated resume bullet point enhancements with one click.
-              </p>
-            </div>
-
-            {/* Feature 4 */}
-            <div className="apple-card p-8 space-y-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#ff9500]/10 text-[#ff9500]">
-                <TrendingUp className="h-6 w-6" />
-              </div>
-              <h3 className="text-xl font-bold text-[#1d1d1f]">Score Trajectory Analytics</h3>
-              <p className="text-sm text-[#86868b] leading-relaxed">
-                Track candidate resume score improvements over time with interactive Recharts timeline graphs and side-by-side report comparison matrices.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* 4. PRICING TIERS */}
-        <section className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center max-w-2xl mx-auto mb-12">
-            <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#34c759]/10 px-3.5 py-1 text-xs font-semibold text-[#34c759] mb-3">
-              Simple Transparent Pricing
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-extrabold text-[#1d1d1f]">
-              Plans Tailored for Every Career Stage
-            </h2>
-          </div>
-
-          <div className="grid gap-8 md:grid-cols-3">
-            {/* Free */}
-            <div className="apple-card p-8 flex flex-col justify-between space-y-6">
-              <div className="space-y-4">
-                <Badge variant="outline" className="chip-mono border-none bg-[#86868b]/10 text-[#86868b] px-3 py-1">Starter</Badge>
-                <h3 className="text-3xl font-extrabold text-[#1d1d1f]">$0 <span className="text-sm font-normal text-[#86868b]">/ forever</span></h3>
-                <p className="text-xs text-[#86868b]">Ideal for candidates getting started with resume reviews.</p>
-                <ul className="space-y-2.5 text-sm text-[#1d1d1f] pt-2">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#34c759]" /> 5 Resume Uploads / Month</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#34c759]" /> Basic ATS Compliance Score</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#34c759]" /> ATS Keyword Extractor</li>
-                </ul>
-              </div>
-              <Link to="/app">
-                <Button className="apple-button-secondary w-full h-12 border-none">Get Started Free</Button>
-              </Link>
-            </div>
-
-            {/* Pro (Highlighted) */}
-            <div className="apple-card p-8 flex flex-col justify-between space-y-6 border-2 border-[#0071e3] shadow-lg relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                <Badge className="bg-[#0071e3] text-white px-3 py-0.5 text-[10px] font-extrabold uppercase chip-mono">Most Popular</Badge>
-              </div>
-              <div className="space-y-4">
-                <Badge variant="outline" className="chip-mono border-none bg-[#0071e3]/10 text-[#0071e3] px-3 py-1">Pro CareerOS</Badge>
-                <h3 className="text-3xl font-extrabold text-[#1d1d1f]">$19 <span className="text-sm font-normal text-[#86868b]">/ month</span></h3>
-                <p className="text-xs text-[#86868b]">For active job seekers accelerating interview callbacks.</p>
-                <ul className="space-y-2.5 text-sm text-[#1d1d1f] pt-2">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#0071e3]" /> Unlimited Resume Uploads</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#0071e3]" /> pgvector RAG Semantic Matching</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#0071e3]" /> Unlimited Voice AI Mock Interviews</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#0071e3]" /> PDF Export &amp; Score Trajectory</li>
-                </ul>
-              </div>
-              <Link to="/app">
-                <Button className="apple-button w-full h-12">Upgrade to Pro</Button>
-              </Link>
-            </div>
-
-            {/* Executive */}
-            <div className="apple-card p-8 flex flex-col justify-between space-y-6">
-              <div className="space-y-4">
-                <Badge variant="outline" className="chip-mono border-none bg-[#af52de]/10 text-[#af52de] px-3 py-1">Executive Suite</Badge>
-                <h3 className="text-3xl font-extrabold text-[#1d1d1f]">$49 <span className="text-sm font-normal text-[#86868b]">/ month</span></h3>
-                <p className="text-xs text-[#86868b]">For executive candidates &amp; career coaches.</p>
-                <ul className="space-y-2.5 text-sm text-[#1d1d1f] pt-2">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#af52de]" /> Everything in Pro</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#af52de]" /> Priority Queue Execution (&lt;10ms)</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#af52de]" /> Custom AI Interviewer Personas</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-[#af52de]" /> 1-on-1 Recruiter Review Credits</li>
-                </ul>
-              </div>
-              <Link to="/app">
-                <Button className="apple-button-secondary w-full h-12 border-none">Contact Sales</Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-
-        {/* 5. FAQ ACCORDION */}
-        <section className="container mx-auto px-4 max-w-4xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-extrabold text-[#1d1d1f]">Frequently Asked Questions</h2>
-            <p className="text-base text-[#86868b] mt-1">Everything you need to know about CareerOS.</p>
-          </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, index) => {
-              const isOpen = openFaqIndex === index;
-              return (
-                <div
-                  key={index}
-                  onClick={() => setOpenFaqIndex(isOpen ? null : index)}
-                  className="apple-card p-6 cursor-pointer transition-all"
+              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  to="/app"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#111] px-5 text-sm font-semibold text-white transition hover:bg-[#2a2a2a]"
                 >
-                  <div className="flex items-center justify-between gap-4">
-                    <h3 className="text-base font-bold text-[#1d1d1f]">{faq.q}</h3>
-                    <ChevronDown className={`h-5 w-5 text-[#86868b] transition-transform ${isOpen ? 'rotate-180 text-[#0071e3]' : ''}`} />
-                  </div>
-                  {isOpen && (
-                    <p className="mt-3 text-sm text-[#86868b] leading-relaxed border-t border-border/60 pt-3">
-                      {faq.a}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </section>
+                  Analyze a resume <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link
+                  to="/interview"
+                  className="inline-flex h-12 items-center justify-center rounded-lg border border-black/10 bg-white px-5 text-sm font-semibold text-[#222] transition hover:bg-[#f0f0ed]"
+                >
+                  Try interview prep
+                </Link>
+              </div>
 
-        {/* 6. BOTTOM CTA BANNER */}
-        <section className="container mx-auto px-4 max-w-5xl">
-          <div className="apple-card p-10 md:p-14 text-center bg-gradient-to-r from-[#0071e3] to-[#5856d6] text-white space-y-6 border-none shadow-xl">
-            <h2 className="text-3xl md:text-5xl font-extrabold text-white">Ready to Land Your Next Senior Role?</h2>
-            <p className="text-base md:text-lg text-white/80 max-w-xl mx-auto font-normal">
-              Join 50,000+ candidates using CareerOS to optimize resumes and ace technical interviews.
-            </p>
-            <div className="pt-2">
-              <Link to="/app">
-                <Button className="bg-white text-[#0071e3] hover:bg-white/90 h-14 px-8 text-base font-extrabold rounded-full shadow-lg">
-                  Launch Free Workspace Now <ArrowRight className="ml-2 h-5 w-5" />
-                </Button>
-              </Link>
+              <div className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
+                {['PDF and DOCX input', 'Role-specific analysis', 'Saved analysis history'].map((item) => (
+                  <div key={item} className="flex items-center gap-2 text-sm text-[#666]">
+                    <Check className="h-4 w-4 text-[#222]" />
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="relative">
+              <div className="rounded-2xl border border-black/10 bg-[#151515] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.14)]">
+                <div className="rounded-xl bg-[#fbfbf9] p-5 md:p-6">
+                  <div className="flex items-center justify-between border-b border-black/5 pb-4">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#999]">Analysis / Senior frontend engineer</p>
+                      <p className="mt-1 text-sm font-semibold text-[#222]">Resume fit overview</p>
+                    </div>
+                    <span className="rounded-md border border-black/10 bg-white px-2.5 py-1 text-xs font-medium text-[#555]">Report</span>
+                  </div>
+
+                  <div className="grid gap-4 py-5 sm:grid-cols-[130px_1fr]">
+                    <div className="rounded-xl border border-black/5 bg-white p-4">
+                      <p className="text-xs text-[#888]">Match score</p>
+                      <p className="mt-2 text-4xl font-semibold tracking-[-0.05em] text-[#111]">78</p>
+                      <p className="mt-1 text-xs text-[#777]">out of 100</p>
+                    </div>
+                    <div className="rounded-xl border border-black/5 bg-white p-4">
+                      <div className="flex items-center justify-between text-xs text-[#777]">
+                        <span>Keyword coverage</span>
+                        <span>14 / 18</span>
+                      </div>
+                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#ecece8]">
+                        <div className="h-full w-[78%] rounded-full bg-[#222]" />
+                      </div>
+                      <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
+                        <span className="rounded-md bg-[#f1f1ee] px-2.5 py-2 text-[#555]">React</span>
+                        <span className="rounded-md bg-[#f1f1ee] px-2.5 py-2 text-[#555]">TypeScript</span>
+                        <span className="rounded-md bg-[#f1f1ee] px-2.5 py-2 text-[#555]">Accessibility</span>
+                        <span className="rounded-md bg-[#fff1c2] px-2.5 py-2 text-[#6b5215]">Testing gap</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-xl border border-black/5 bg-white p-4">
+                      <p className="text-xs font-medium uppercase tracking-[0.1em] text-[#999]">Strong signal</p>
+                      <p className="mt-2 text-sm font-medium text-[#222]">Relevant frontend ownership</p>
+                      <p className="mt-1 text-xs leading-5 text-[#777]">Experience maps clearly to the role's product delivery requirements.</p>
+                    </div>
+                    <div className="rounded-xl border border-black/5 bg-white p-4">
+                      <p className="text-xs font-medium uppercase tracking-[0.1em] text-[#999]">Next fix</p>
+                      <p className="mt-2 text-sm font-medium text-[#222]">Add measurable test coverage</p>
+                      <p className="mt-1 text-xs leading-5 text-[#777]">The job asks for testing depth that is not explicit in the resume.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="absolute -bottom-5 -left-5 hidden rounded-lg border border-black/10 bg-[#ffe08a] px-4 py-3 text-xs font-medium text-[#413514] shadow-sm md:block">
+                Built around the actual workflow, not AI theatre.
+              </div>
             </div>
           </div>
         </section>
 
+        <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
+            <div>
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#8a8a84]">What it does</p>
+              <h2 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.05] tracking-[-0.045em] md:text-5xl">
+                Four tools, one application workflow.
+              </h2>
+              <p className="mt-5 max-w-md text-base leading-7 text-[#666]">
+                The product is organised around the decisions a job seeker actually makes: what to change, what is missing, and what to practise next.
+              </p>
+            </div>
+
+            <div className="border-t border-black/10">
+              {capabilities.map((item) => (
+                <div key={item.number} className="grid gap-4 border-b border-black/10 py-7 sm:grid-cols-[64px_220px_1fr] sm:items-start">
+                  <span className="font-mono text-xs text-[#999]">{item.number}</span>
+                  <h3 className="text-lg font-semibold tracking-[-0.025em] text-[#222]">{item.title}</h3>
+                  <p className="max-w-xl text-sm leading-6 text-[#666]">{item.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="border-y border-black/5 bg-[#111] text-white">
+          <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
+            <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">Workflow</p>
+                <h2 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.05] tracking-[-0.045em] text-white md:text-5xl">
+                  From job post to better application in three steps.
+                </h2>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  { icon: Upload, title: 'Upload', text: 'Add a resume and, if you have one, the job description.' },
+                  { icon: Search, title: 'Review', text: 'Inspect match, ATS gaps, missing keywords, and suggested changes.' },
+                  { icon: MessageSquareText, title: 'Prepare', text: 'Use the same role context to practise likely interview questions.' },
+                ].map(({ icon: Icon, title, text }) => (
+                  <div key={title} className="rounded-xl border border-white/10 bg-white/[0.04] p-5">
+                    <Icon className="h-5 w-5 text-white/70" />
+                    <h3 className="mt-7 text-base font-semibold text-white">{title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-white/55">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
+          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div className="lg:sticky lg:top-24">
+              <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#8a8a84]">Try it</p>
+              <h2 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-[-0.045em] md:text-5xl">
+                Start with your actual resume.
+              </h2>
+              <p className="mt-5 max-w-md text-base leading-7 text-[#666]">
+                Uploading here takes you into the full workspace, where the analysis and revision tools live.
+              </p>
+
+              <div className="mt-8 grid gap-3 text-sm text-[#555]">
+                <div className="flex items-start gap-3">
+                  <FileSearch className="mt-0.5 h-4 w-4 text-[#222]" />
+                  <span>Resume parsing and role comparison</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Mic2 className="mt-0.5 h-4 w-4 text-[#222]" />
+                  <span>Browser-based voice practice</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <Shield className="mt-0.5 h-4 w-4 text-[#222]" />
+                  <span>No fake usage counters or invented customer logos</span>
+                </div>
+              </div>
+            </div>
+
+            <ResumeUploader onAnalyze={handleDemoUpload} />
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-5 pb-16 md:px-8 md:pb-24">
+          <div className="rounded-2xl border border-black/10 bg-[#ffe08a] px-6 py-8 md:px-10 md:py-10">
+            <div className="flex flex-col gap-7 md:flex-row md:items-end md:justify-between">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#6f5b20]">Built for iteration</p>
+                <h2 className="mt-3 max-w-2xl text-3xl font-semibold leading-[1.08] tracking-[-0.04em] text-[#1b180f] md:text-4xl">
+                  Get a clearer answer to one question: what should I change before I apply?
+                </h2>
+              </div>
+              <Link
+                to="/app"
+                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#111] px-5 text-sm font-semibold text-white hover:bg-[#2a2a2a]"
+              >
+                Open CareerOS <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
       </main>
 
       <Footer />
