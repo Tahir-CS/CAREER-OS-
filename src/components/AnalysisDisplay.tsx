@@ -1,61 +1,6 @@
 import { useState } from 'react';
-import { AlertTriangle, CheckCircle2, Copy, Download, RotateCcw, Sparkles, Target, Layers } from 'lucide-react';
+import { Copy, Download, RotateCcw, Check, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
-import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from 'recharts';
-
-interface ScoreGaugeProps {
-  score: number;
-  label: string;
-  strokeColor: string;
-  badgeBg: string;
-  badgeTextColor: string;
-}
-
-const ScoreGauge = ({ score, label, strokeColor, badgeBg, badgeTextColor }: ScoreGaugeProps) => {
-  const radius = 50;
-  const circumference = 2 * Math.PI * radius;
-  const offset = circumference - (score / 100) * circumference;
-
-  return (
-    <div className="relative h-36 w-36 flex items-center justify-center">
-      <svg className="w-full h-full" viewBox="0 0 120 120">
-        <circle
-          className="text-[#e8e8ed]"
-          strokeWidth="9"
-          stroke="currentColor"
-          fill="transparent"
-          r={radius}
-          cx="60"
-          cy="60"
-        />
-        <circle
-          strokeWidth="9"
-          stroke={strokeColor}
-          fill="transparent"
-          r={radius}
-          cx="60"
-          cy="60"
-          strokeDasharray={circumference}
-          strokeDashoffset={offset}
-          strokeLinecap="round"
-          transform="rotate(-90 60 60)"
-          style={{ transition: 'stroke-dashoffset 1s cubic-bezier(0.16, 1, 0.3, 1)' }}
-        />
-      </svg>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-3xl font-extrabold tracking-tight text-[#1d1d1f]">{score}</span>
-        <span className="chip-mono text-[10px] font-bold uppercase tracking-wider text-[#86868b]">{label}</span>
-      </div>
-      <div className="absolute -bottom-1 left-1/2 -translate-x-1/2">
-        <span className={`chip-mono rounded-full px-2.5 py-0.5 text-[10px] font-bold ${badgeBg} ${badgeTextColor}`}>
-          / 100
-        </span>
-      </div>
-    </div>
-  );
-};
 
 export interface Analysis {
   score: number;
@@ -84,214 +29,209 @@ interface AnalysisDisplayProps {
   onExport: () => void;
 }
 
+const scoreLabel = (score: number) => {
+  if (score >= 85) return 'Strong';
+  if (score >= 70) return 'Competitive';
+  if (score >= 55) return 'Needs revision';
+  return 'Major gaps';
+};
+
+const ScoreRow = ({ label, score, note }: { label: string; score: number; note: string }) => (
+  <div className="grid gap-3 border-b border-[#d2cabb] py-4 last:border-b-0 sm:grid-cols-[150px_1fr_74px] sm:items-center">
+    <div>
+      <p className="text-sm font-semibold text-[#17201d]">{label}</p>
+      <p className="mt-0.5 text-xs text-[#72776f]">{note}</p>
+    </div>
+    <div className="h-2 bg-[#ddd6c9]">
+      <div className="h-full bg-[#173f35]" style={{ width: `${Math.max(0, Math.min(score, 100))}%` }} />
+    </div>
+    <div className="flex items-baseline gap-1 sm:justify-end">
+      <span className="font-mono text-lg font-semibold text-[#17201d]">{score}</span>
+      <span className="font-mono text-[10px] text-[#85877f]">/100</span>
+    </div>
+  </div>
+);
+
 const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) => {
   const [copied, setCopied] = useState(false);
-  const { score, matchScore, summary, strengths, weaknesses, improvementSuggestions, interviewQuestions, bulletPointRewrites, atsAnalysis } = analysis;
+  const {
+    score = 0,
+    matchScore = 0,
+    summary = '',
+    strengths = [],
+    weaknesses = [],
+    improvementSuggestions = [],
+    interviewQuestions = [],
+    bulletPointRewrites = [],
+    atsAnalysis = { score: 0, issues: [], missingKeywords: [], formatWarnings: [] },
+  } = analysis;
 
   const copySummary = async () => {
     try {
       await navigator.clipboard.writeText(summary);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1600);
-    } catch (error) {
+    } catch {
       setCopied(false);
     }
   };
 
-  const radarData = [
-    { subject: 'Format', A: score, fullMark: 100 },
-    { subject: 'Keywords', A: Math.max(100 - (atsAnalysis.missingKeywords.length * 10), 0), fullMark: 100 },
-    { subject: 'Impact', A: score + 10 > 100 ? 100 : score + 10, fullMark: 100 },
-    { subject: 'Relevance (RAG)', A: matchScore || Math.floor(score * 0.9), fullMark: 100 },
-    { subject: 'ATS Parsing', A: atsAnalysis.score, fullMark: 100 },
-  ];
-
   return (
-    <Card className="apple-card w-full animate-fade-in overflow-hidden p-4 md:p-8">
-      <CardHeader className="bg-transparent border-b border-border/60 pb-6 mb-6">
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3 py-1 text-xs font-semibold text-[#0071e3]">
-            AI Intelligence Report
-          </Badge>
-          <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#34c759]/10 px-3 py-1 text-xs font-semibold text-[#34c759]">
-            ATS Verified
-          </Badge>
-          {matchScore && (
-            <Badge variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3 py-1 text-xs font-semibold text-[#0071e3]">
-              RAG Vector Match
-            </Badge>
-          )}
+    <section className="border border-[#cfc7b7] bg-[#faf8f2]">
+      <div className="grid border-b border-[#cfc7b7] bg-[#173f35] text-[#f8f5ed] md:grid-cols-[1fr_auto] md:items-end">
+        <div className="p-6 md:p-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#e99a7e]">Report / 03</p>
+          <h2 className="display-serif mt-3 text-4xl leading-none text-[#f8f5ed] md:text-5xl">Application fit report</h2>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-[#b9c8c2]">{summary}</p>
         </div>
-        <CardTitle className="text-3xl font-extrabold tracking-tight text-[#1d1d1f] md:text-4xl">
-          Resume Report
-        </CardTitle>
-        <p className="mt-3 text-base text-[#86868b] leading-relaxed">{summary}</p>
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button variant="outline" onClick={copySummary} className="apple-button-secondary border-none h-11 px-5 text-sm">
-            <Copy className="mr-2 h-4 w-4" />
-            {copied ? 'Summary Copied' : 'Copy Summary'}
-          </Button>
-          <Button onClick={onExport} className="apple-button h-11 px-5 text-sm">
-            <Download className="mr-2 h-4 w-4" />
-            Export PDF Report
-          </Button>
-          <Button variant="outline" onClick={onReset} className="apple-button-secondary border-none h-11 px-5 text-sm">
-            <RotateCcw className="mr-2 h-4 w-4" />
-            Analyze Another
-          </Button>
+        <div className="border-t border-white/10 p-6 md:min-w-[190px] md:border-l md:border-t-0 md:p-8">
+          <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#9eb5ac]">Overall signal</p>
+          <div className="mt-2 flex items-end gap-2">
+            <span className="font-mono text-5xl font-semibold tracking-[-0.05em] text-white">{score}</span>
+            <span className="pb-1 text-xs text-[#9eb5ac]">/ 100</span>
+          </div>
+          <p className="mt-2 text-xs font-medium text-[#f0b49e]">{scoreLabel(score)}</p>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="space-y-8 pt-2">
-        {/* Score Gauges */}
-        <div className="grid gap-6 md:grid-cols-3">
-          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7] p-5">
-            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f]">Resume Quality</h3>
-            <ScoreGauge score={score} label="Format" strokeColor="#0071e3" badgeBg="bg-[#0071e3]/10" badgeTextColor="text-[#0071e3]" />
-          </div>
-          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7] p-5">
-            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f]">ATS Compliance</h3>
-            <ScoreGauge score={atsAnalysis.score} label="ATS" strokeColor="#34c759" badgeBg="bg-[#34c759]/10" badgeTextColor="text-[#34c759]" />
-          </div>
-          <div className="flex flex-col items-center rounded-2xl border border-border/70 bg-[#f5f5f7] p-5">
-            <h3 className="mb-3 text-base font-semibold text-[#1d1d1f]">RAG Vector Match</h3>
-            <ScoreGauge score={matchScore || 0} label="Semantic" strokeColor="#0071e3" badgeBg="bg-[#0071e3]/10" badgeTextColor="text-[#0071e3]" />
+      <div className="p-5 md:p-8">
+        <div className="flex flex-col gap-2 border-b border-[#d2cabb] pb-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-[#59615c]">Use the report as a revision checklist, then run the resume again.</p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={copySummary} className="apple-button-secondary h-9 px-3 text-xs">
+              <Copy className="mr-1.5 h-3.5 w-3.5" /> {copied ? 'Copied' : 'Copy summary'}
+            </Button>
+            <Button onClick={onExport} className="apple-button h-9 px-3 text-xs">
+              <Download className="mr-1.5 h-3.5 w-3.5" /> Export PDF
+            </Button>
+            <Button variant="outline" onClick={onReset} className="apple-button-secondary h-9 px-3 text-xs">
+              <RotateCcw className="mr-1.5 h-3.5 w-3.5" /> New analysis
+            </Button>
           </div>
         </div>
 
-        {/* Skill Gap Analysis Radar Chart */}
-        <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
-          <h3 className="mb-1.5 flex items-center gap-2.5 text-lg font-bold text-[#1d1d1f]">
-            <Layers className="h-5 w-5 text-[#0071e3]" />
-            Skill Gap Analytics
-          </h3>
-          <p className="text-sm text-[#86868b] mb-6">Visual mapping of candidate resume alignment against target job requirements.</p>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarData}>
-                <PolarGrid stroke="#e8e8ed" />
-                <PolarAngleAxis dataKey="subject" tick={{ fill: '#86868b', fontSize: 13, fontWeight: 600 }} />
-                <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar name="Candidate" dataKey="A" stroke="#0071e3" strokeWidth={3} fill="#0071e3" fillOpacity={0.15} />
-              </RadarChart>
-            </ResponsiveContainer>
+        <div className="grid gap-8 py-7 lg:grid-cols-[0.85fr_1.15fr]">
+          <div>
+            <p className="eyebrow">Score board</p>
+            <h3 className="mt-3 text-xl font-semibold">How the application reads</h3>
+            <p className="mt-2 text-sm leading-6 text-[#59615c]">Three signals separate document quality from role alignment.</p>
+          </div>
+          <div className="border-t border-[#d2cabb]">
+            <ScoreRow label="Resume quality" score={score} note="Clarity and evidence" />
+            <ScoreRow label="ATS coverage" score={atsAnalysis.score} note="Parsing and keywords" />
+            <ScoreRow label="Role match" score={matchScore || Math.round(score * 0.9)} note="Resume ↔ job fit" />
           </div>
         </div>
 
-        {/* Strengths & Weaknesses */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-[#34c759]/25 bg-[#34c759]/5 p-6">
-            <h3 className="mb-3 flex items-center gap-2.5 text-base font-bold text-[#34c759]">
-              <CheckCircle2 className="h-5 w-5" />
-              Strengths
-            </h3>
-            <ul className="space-y-2 text-sm text-[#1d1d1f]">
-              {strengths.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-[#34c759]">{item}</li>)}
+        <div className="grid border-y border-[#d2cabb] md:grid-cols-2">
+          <div className="border-b border-[#d2cabb] p-5 md:border-b-0 md:border-r md:p-6">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#e6eee9] text-[#225a4b]"><Check className="h-3.5 w-3.5" /></span>
+              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#59615c]">Keep</p>
+            </div>
+            <h3 className="mt-3 text-lg font-semibold">Evidence already working</h3>
+            <ul className="mt-4 space-y-3 text-sm leading-6 text-[#414943]">
+              {strengths.length > 0 ? strengths.map((item, index) => (
+                <li key={index} className="grid grid-cols-[18px_1fr] gap-2"><span className="font-mono text-[10px] text-[#225a4b]">{String(index + 1).padStart(2, '0')}</span><span>{item}</span></li>
+              )) : <li className="text-[#72776f]">No strengths were returned in this report.</li>}
             </ul>
           </div>
-          <div className="rounded-2xl border border-[#ff9500]/30 bg-[#ff9500]/5 p-6">
-            <h3 className="mb-3 flex items-center gap-2.5 text-base font-bold text-[#ff9500]">
-              <AlertTriangle className="h-5 w-5" />
-              Areas for Improvement
-            </h3>
-            <ul className="space-y-2 text-sm text-[#1d1d1f]">
-              {weaknesses.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-[#ff9500]">{item}</li>)}
+
+          <div className="p-5 md:p-6">
+            <div className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[#f7e6df] text-[#b84f31]"><AlertTriangle className="h-3.5 w-3.5" /></span>
+              <p className="font-mono text-[10px] uppercase tracking-[0.1em] text-[#59615c]">Fix</p>
+            </div>
+            <h3 className="mt-3 text-lg font-semibold">Weak or missing evidence</h3>
+            <ul className="mt-4 space-y-3 text-sm leading-6 text-[#414943]">
+              {weaknesses.length > 0 ? weaknesses.map((item, index) => (
+                <li key={index} className="grid grid-cols-[18px_1fr] gap-2"><span className="font-mono text-[10px] text-[#b84f31]">{String(index + 1).padStart(2, '0')}</span><span>{item}</span></li>
+              )) : <li className="text-[#72776f]">No major weaknesses were returned.</li>}
             </ul>
           </div>
         </div>
 
-        {/* Suggested Improvements */}
-        <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
-          <h3 className="mb-3 flex items-center gap-2.5 text-lg font-bold text-[#1d1d1f]">
-            <Sparkles className="h-5 w-5 text-[#0071e3]" />
-            Actionable Recommendations
-          </h3>
-          <ul className="space-y-2 text-sm text-[#424245]">
-            {improvementSuggestions.map((item, index) => <li key={index} className="list-disc pl-1 marker:text-[#0071e3]">{item}</li>)}
-          </ul>
+        <div className="grid gap-8 border-b border-[#d2cabb] py-7 lg:grid-cols-[0.85fr_1.15fr]">
+          <div>
+            <p className="eyebrow">Revision queue</p>
+            <h3 className="mt-3 text-xl font-semibold">What to change next</h3>
+            <p className="mt-2 text-sm leading-6 text-[#59615c]">Work top to bottom; each item should result in an actual resume edit.</p>
+          </div>
+          <ol className="border-t border-[#d2cabb]">
+            {improvementSuggestions.length > 0 ? improvementSuggestions.map((item, index) => (
+              <li key={index} className="grid grid-cols-[42px_1fr_auto] items-start gap-3 border-b border-[#d2cabb] py-4">
+                <span className="font-mono text-xs text-[#b84f31]">{String(index + 1).padStart(2, '0')}</span>
+                <span className="text-sm leading-6 text-[#414943]">{item}</span>
+                <ArrowRight className="mt-1 h-4 w-4 text-[#8d9088]" />
+              </li>
+            )) : <li className="py-4 text-sm text-[#72776f]">No revision recommendations were returned.</li>}
+          </ol>
         </div>
 
-        {/* Targeted Interview Prep */}
-        {interviewQuestions && interviewQuestions.length > 0 ? (
-          <div className="rounded-2xl border border-[#0071e3]/20 bg-[#0071e3]/5 p-6">
-            <h3 className="mb-2 flex items-center gap-2.5 text-lg font-bold text-[#0071e3]">
-              <Target className="h-5 w-5" />
-              Targeted Interview Questions
-            </h3>
-            <p className="text-sm text-[#86868b] mb-4">Questions likely to be asked based on your identified skill gaps:</p>
-            <ul className="space-y-3 text-sm text-[#1d1d1f]">
-              {interviewQuestions.map((q, index) => (
-                <li key={index} className="flex gap-3 items-start">
-                  <span className="font-bold text-[#0071e3] chip-mono text-xs pt-0.5">Q{index + 1}.</span> 
-                  <span>{q}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-
-        {/* Bullet Point Rewrites */}
-        {bulletPointRewrites.length > 0 ? (
-          <div className="space-y-4">
-            <h3 className="text-lg font-bold text-[#1d1d1f]">Bullet Point Enhancements</h3>
-            <div className="space-y-4">
+        {bulletPointRewrites.length > 0 && (
+          <div className="border-b border-[#d2cabb] py-7">
+            <div className="mb-5">
+              <p className="eyebrow">Bullet workshop</p>
+              <h3 className="mt-3 text-xl font-semibold">Before → after</h3>
+            </div>
+            <div className="grid gap-4">
               {bulletPointRewrites.map((rewrite, index) => (
-                <div key={index} className="rounded-2xl border border-border/70 bg-[#f5f5f7] p-5">
-                  <p className="mb-2 text-sm text-[#86868b]"><strong className="text-[#ff3b30]">Original:</strong> {rewrite.before}</p>
-                  <p className="mb-2 text-sm text-[#1d1d1f]"><strong className="text-[#34c759]">Enhanced:</strong> {rewrite.after}</p>
-                  <p className="text-xs text-[#86868b]"><strong>Rationale:</strong> {rewrite.explanation}</p>
+                <div key={index} className="grid border border-[#d2cabb] md:grid-cols-2">
+                  <div className="border-b border-[#d2cabb] bg-[#e9e4d8] p-4 md:border-b-0 md:border-r">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#85877f]">Original</p>
+                    <p className="mt-2 text-sm leading-6 text-[#59615c]">{rewrite.before}</p>
+                  </div>
+                  <div className="p-4">
+                    <p className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#225a4b]">Revision</p>
+                    <p className="mt-2 text-sm font-medium leading-6 text-[#17201d]">{rewrite.after}</p>
+                    <p className="mt-3 border-l-2 border-[#e86e45] pl-3 text-xs leading-5 text-[#72776f]">{rewrite.explanation}</p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        ) : null}
+        )}
 
-        {/* Missing Keywords & ATS Warnings */}
-        <div className="grid gap-6 md:grid-cols-2">
-          <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
-            <h3 className="mb-3 flex items-center gap-2.5 text-base font-bold text-[#1d1d1f]">
-              <Target className="h-4 w-4 text-[#0071e3]" />
-              Missing Keywords
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {atsAnalysis.missingKeywords.length > 0 ? (
-                atsAnalysis.missingKeywords.map((keyword, index) => (
-                  <Badge key={index} variant="outline" className="chip-mono rounded-full border-none bg-[#0071e3]/10 px-3 py-1 text-xs font-semibold text-[#0071e3]">
-                    {keyword}
-                  </Badge>
-                ))
-              ) : (
-                <p className="text-sm text-[#86868b]">No critical keywords missing.</p>
-              )}
+        <div className="grid gap-6 border-b border-[#d2cabb] py-7 md:grid-cols-2">
+          <div className="border border-[#d2cabb] bg-[#f3f0e7] p-5">
+            <p className="eyebrow">ATS / missing terms</p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              {atsAnalysis.missingKeywords.length > 0 ? atsAnalysis.missingKeywords.map((keyword, index) => (
+                <span key={index} className="border border-[#c7bfb0] bg-[#faf8f2] px-2.5 py-1.5 font-mono text-[10px] text-[#173f35]">{keyword}</span>
+              )) : <p className="text-sm text-[#72776f]">No critical keywords missing.</p>}
             </div>
           </div>
-
-          <div className="rounded-2xl border border-border/70 bg-white p-6 shadow-sm">
-            <h3 className="mb-3 text-base font-bold text-[#1d1d1f]">ATS Parsing Notes</h3>
-            <ul className="space-y-2 text-sm text-[#86868b]">
-              {atsAnalysis.issues.length > 0 ? atsAnalysis.issues.map((issue, index) => (
-                <li key={index} className="list-disc pl-1 marker:text-[#ff9500]">{issue}</li>
-              )) : <li>No major ATS formatting flags detected.</li>}
+          <div className="border border-[#d2cabb] bg-[#f3f0e7] p-5">
+            <p className="eyebrow">ATS / parsing notes</p>
+            <ul className="mt-4 space-y-2 text-sm leading-6 text-[#59615c]">
+              {[...atsAnalysis.issues, ...atsAnalysis.formatWarnings].length > 0
+                ? [...atsAnalysis.issues, ...atsAnalysis.formatWarnings].map((issue, index) => <li key={index}>— {issue}</li>)
+                : <li>No major ATS formatting flags detected.</li>}
             </ul>
           </div>
         </div>
 
-        {/* Footer Actions */}
-        <div className="border-t border-border/70 pt-6">
-          <div className="flex flex-col justify-center gap-3 sm:flex-row">
-            <Button onClick={onExport} className="apple-button h-12 px-6 text-base font-semibold">
-              <Download className="mr-2 h-5 w-5" />
-              Download PDF Report
-            </Button>
-            <Button variant="outline" onClick={onReset} className="apple-button-secondary h-12 px-6 text-base font-semibold border-none">
-              <RotateCcw className="mr-2 h-5 w-5" />
-              Analyze Another Resume
-            </Button>
+        {interviewQuestions.length > 0 && (
+          <div className="py-7">
+            <div className="grid gap-6 lg:grid-cols-[0.7fr_1.3fr]">
+              <div>
+                <p className="eyebrow">Interview handoff</p>
+                <h3 className="mt-3 text-xl font-semibold">Questions worth practising</h3>
+                <p className="mt-2 text-sm leading-6 text-[#59615c]">These are derived from gaps and evidence in this report.</p>
+              </div>
+              <ol className="border-t border-[#d2cabb]">
+                {interviewQuestions.map((question, index) => (
+                  <li key={index} className="grid grid-cols-[42px_1fr] gap-3 border-b border-[#d2cabb] py-4">
+                    <span className="font-mono text-xs text-[#b84f31]">Q{index + 1}</span>
+                    <span className="text-sm leading-6 text-[#414943]">{question}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        )}
+      </div>
+    </section>
   );
 };
 
