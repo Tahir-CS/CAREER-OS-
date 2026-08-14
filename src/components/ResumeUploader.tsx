@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { Briefcase, FileText, Upload } from 'lucide-react';
+import { FileText, Upload } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 
@@ -61,84 +61,91 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
   };
 
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-5 shadow-[0_1px_2px_rgba(0,0,0,0.03)] md:p-7">
-      <div className="mb-6 flex items-start justify-between gap-4">
-        <div>
-          <p className="text-sm font-semibold text-[#222]">New analysis</p>
-          <p className="mt-1 text-sm text-[#777]">Add your resume first. The job description is optional, but improves role-specific results.</p>
+    <div className="overflow-hidden border border-[#cfc7b7] bg-[#faf8f2]">
+      <div className="grid border-b border-[#cfc7b7] bg-[#e9e4d8] sm:grid-cols-[110px_1fr]">
+        <div className="border-b border-[#cfc7b7] p-4 sm:border-b-0 sm:border-r">
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#b84f31]">Input / 01</span>
         </div>
-        <span className="shrink-0 rounded-md bg-[#f1f1ee] px-2.5 py-1 text-xs font-medium text-[#666]">PDF / DOCX</span>
+        <div className="p-4">
+          <p className="text-sm font-semibold text-[#17201d]">Document intake</p>
+          <p className="mt-1 text-xs leading-5 text-[#59615c]">Resume required. Add the role description when you want a role-specific match.</p>
+        </div>
       </div>
 
-      <label
-        htmlFor="resume-upload"
-        className={`flex min-h-[190px] w-full cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed p-6 text-center transition ${
-          isDragging ? 'border-[#333] bg-[#f4f4f0]' : 'border-black/15 bg-[#fafaf8] hover:border-black/30 hover:bg-[#f7f7f3]'
-        }`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-      >
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-black/10 bg-white text-[#333]">
-          <Upload className="h-4 w-4" />
-        </div>
-        <input id="resume-upload" type="file" className="hidden" onChange={handleFileChange} accept=".pdf,.docx" />
-        <p className="mt-4 text-sm font-semibold text-[#222]">Drop a resume here, or choose a file</p>
-        <p className="mt-1 text-xs text-[#888]">PDF or DOCX, up to 5 MB</p>
-      </label>
+      <div className="p-5 md:p-6">
+        <label
+          htmlFor="resume-upload"
+          className={`group grid min-h-[180px] w-full cursor-pointer place-items-center border border-dashed p-6 text-center transition ${
+            isDragging
+              ? 'border-[#173f35] bg-[#e6eee9]'
+              : 'border-[#bdb5a7] bg-[#f3f0e7] hover:border-[#7b8f87] hover:bg-[#eeeae0]'
+          }`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
+          <div>
+            <div className="mx-auto flex h-10 w-10 items-center justify-center border border-[#c7beaf] bg-[#faf8f2] text-[#173f35] transition group-hover:border-[#8ea49b]">
+              <Upload className="h-4 w-4" />
+            </div>
+            <input id="resume-upload" type="file" className="hidden" onChange={handleFileChange} accept=".pdf,.docx" />
+            <p className="mt-4 text-sm font-semibold text-[#17201d]">Drop your resume here</p>
+            <p className="mt-1 text-xs text-[#72776f]">or click to choose a PDF / DOCX up to 5 MB</p>
+          </div>
+        </label>
 
-      {file && (
-        <div className="mt-4 flex items-center justify-between gap-4 rounded-xl border border-black/10 bg-[#f7f7f5] p-3.5">
-          <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-white text-[#333] ring-1 ring-black/5">
+        {file && (
+          <div className="mt-3 grid grid-cols-[auto_1fr_auto] items-center gap-3 border border-[#cfc7b7] bg-[#e9e4d8] p-3">
+            <div className="flex h-9 w-9 items-center justify-center bg-[#173f35] text-[#f8f5ed]">
               <FileText className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-[#222]">{file.name}</p>
-              <p className="mt-0.5 text-xs text-[#888]">{formatFileSize(file.size)}</p>
+              <p className="truncate text-sm font-medium text-[#17201d]">{file.name}</p>
+              <p className="font-mono text-[10px] text-[#72776f]">{formatFileSize(file.size)}</p>
             </div>
+            <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#225a4b]">Ready</span>
           </div>
-          <span className="text-xs font-medium text-[#4f6d3a]">Ready</span>
-        </div>
-      )}
+        )}
 
-      <div className="mt-6">
-        <div className="mb-2 flex items-center justify-between gap-3">
-          <label htmlFor="job-description" className="flex items-center gap-2 text-sm font-medium text-[#333]">
-            <Briefcase className="h-4 w-4 text-[#777]" />
-            Job description
-            <span className="font-normal text-[#999]">optional</span>
-          </label>
-          <span className="text-xs tabular-nums text-[#999]">{remainingCharacters} left</span>
+        <div className="mt-6 border-t border-[#d2cabb] pt-5">
+          <div className="mb-2.5 flex items-end justify-between gap-3">
+            <div>
+              <label htmlFor="job-description" className="text-sm font-semibold text-[#17201d]">Target job description</label>
+              <p className="mt-0.5 text-xs text-[#72776f]">Optional, but recommended for fit and gap analysis.</p>
+            </div>
+            <span className="font-mono text-[10px] tabular-nums text-[#85877f]">{remainingCharacters} chars</span>
+          </div>
+          <Textarea
+            id="job-description"
+            value={jobDescription}
+            onChange={(e) => setJobDescription(e.target.value.slice(0, MAX_JOB_DESCRIPTION_CHARS))}
+            placeholder="Paste the role responsibilities and requirements…"
+            className="min-h-[150px] resize-y rounded-none border-[#cfc7b7] bg-[#f7f4ec] text-sm leading-6 placeholder:text-[#96988f] focus-visible:ring-1 focus-visible:ring-[#173f35]"
+          />
         </div>
-        <Textarea
-          id="job-description"
-          value={jobDescription}
-          onChange={(e) => setJobDescription(e.target.value.slice(0, MAX_JOB_DESCRIPTION_CHARS))}
-          placeholder="Paste the role description here to compare your resume against it."
-          className="min-h-[145px] resize-y rounded-xl border-black/10 bg-[#fafaf8] text-sm leading-6 placeholder:text-[#aaa] focus-visible:ring-1 focus-visible:ring-[#333]"
-        />
+
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+          <Button
+            size="lg"
+            className="apple-button h-11 flex-1 text-sm"
+            disabled={!file || isLoading}
+            onClick={handleAnalyze}
+          >
+            {isLoading ? 'Running analysis…' : 'Run analysis'}
+          </Button>
+
+          {onUseDemo && (
+            <Button
+              variant="outline"
+              className="apple-button-secondary h-11 sm:w-auto"
+              onClick={onUseDemo}
+              disabled={isLoading}
+            >
+              Open sample
+            </Button>
+          )}
+        </div>
       </div>
-
-      <Button
-        size="lg"
-        className="apple-button mt-5 h-11 w-full text-sm"
-        disabled={!file || isLoading}
-        onClick={handleAnalyze}
-      >
-        {isLoading ? 'Analyzing…' : 'Analyze resume'}
-      </Button>
-
-      {onUseDemo && (
-        <Button
-          variant="outline"
-          className="apple-button-secondary mt-2.5 h-11 w-full text-sm"
-          onClick={onUseDemo}
-          disabled={isLoading}
-        >
-          View sample report
-        </Button>
-      )}
     </div>
   );
 };
