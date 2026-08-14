@@ -1,30 +1,32 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, Check, FileSearch, MessageSquareText, Mic2, Search, Shield, Upload } from 'lucide-react';
+import { ArrowRight, Check, CornerDownRight } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import ResumeUploader, { AnalyzePayload } from '../components/ResumeUploader';
 
-const capabilities = [
+const workflow = [
   {
     number: '01',
-    title: 'Resume and job matching',
-    text: 'Compare a resume against a target role, surface gaps, and get a relevance score based on the content of both documents.',
+    title: 'Read the role',
+    text: 'Pull the requirements, skills, and language that actually matter from the job description.',
   },
   {
     number: '02',
-    title: 'ATS review',
-    text: 'Inspect keyword coverage, formatting risks, missing skills, and other signals that can affect an applicant tracking system scan.',
+    title: 'Read your resume',
+    text: 'Check what is explicit, what is weakly evidenced, and what is missing before an ATS or recruiter sees it.',
   },
   {
     number: '03',
-    title: 'Interview preparation',
-    text: 'Generate role-aware questions, practise spoken answers, and review responses against a structured STAR-style checklist.',
+    title: 'Close the gap',
+    text: 'Turn the mismatch into specific edits, stronger bullets, and questions worth practising before the interview.',
   },
-  {
-    number: '04',
-    title: 'Progress history',
-    text: 'Keep previous analyses in one place so you can compare revisions instead of losing each result after a single session.',
-  },
+];
+
+const tools = [
+  ['Resume workspace', 'Upload a resume, add a target role, and get one working report instead of disconnected AI chats.'],
+  ['ATS scan', 'Compare keyword coverage and missing role signals without rewriting your resume into keyword soup.'],
+  ['Interview room', 'Practise role-aware questions by voice or text and review each answer against a repeatable structure.'],
+  ['Revision history', 'Keep previous runs so you can see whether the resume is actually getting better.'],
 ];
 
 const Landing = () => {
@@ -35,150 +37,77 @@ const Landing = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f7f7f5] text-[#111]">
+    <div className="min-h-screen bg-[#f3f0e7] text-[#17201d]">
       <Header />
 
       <main>
-        <section className="border-b border-black/5">
-          <div className="mx-auto grid max-w-7xl gap-14 px-5 py-16 md:px-8 md:py-24 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-            <div className="max-w-3xl">
-              <div className="mb-7 flex items-center gap-3 text-xs font-medium uppercase tracking-[0.14em] text-[#7a7a75]">
-                <span className="h-px w-8 bg-[#aaa]" />
-                Career intelligence workspace
-              </div>
-
-              <h1 className="max-w-4xl text-[48px] font-semibold leading-[0.98] tracking-[-0.055em] text-[#111] sm:text-[64px] lg:text-[78px]">
-                Make your application fit the role before you send it.
+        <section className="border-b border-[#d2cabb]">
+          <div className="mx-auto grid max-w-7xl gap-12 px-5 py-14 md:px-8 md:py-20 lg:grid-cols-[0.88fr_1.12fr] lg:items-center">
+            <div className="max-w-2xl">
+              <div className="rule-label">CareerOS / application workbench</div>
+              <h1 className="display-serif mt-7 text-[52px] leading-[0.96] text-[#17201d] sm:text-[68px] lg:text-[78px]">
+                Make the resume fit the work, not the algorithm.
               </h1>
-
-              <p className="mt-7 max-w-2xl text-lg leading-8 text-[#5d5d58] md:text-xl">
-                CareerOS brings resume analysis, job matching, ATS review, and interview preparation into one practical workspace.
+              <p className="mt-7 max-w-xl text-lg leading-8 text-[#59615c]">
+                CareerOS compares your resume with the role you want, shows the mismatch, and turns it into a practical revision and interview plan.
               </p>
 
-              <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
                 <Link
                   to="/app"
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-[#111] px-5 text-sm font-semibold text-white transition hover:bg-[#2a2a2a]"
+                  className="inline-flex h-12 items-center justify-center gap-2 rounded-md bg-[#173f35] px-5 text-sm font-semibold text-[#f8f5ed] transition hover:bg-[#225a4b]"
                 >
-                  Analyze a resume <ArrowRight className="h-4 w-4" />
+                  Start with a resume <ArrowRight className="h-4 w-4" />
                 </Link>
                 <Link
-                  to="/interview"
-                  className="inline-flex h-12 items-center justify-center rounded-lg border border-black/10 bg-white px-5 text-sm font-semibold text-[#222] transition hover:bg-[#f0f0ed]"
+                  to="/keywords"
+                  className="inline-flex h-12 items-center justify-center rounded-md border border-[#c9c1b2] bg-[#faf8f2] px-5 text-sm font-semibold text-[#17201d] transition hover:bg-[#e9e4d8]"
                 >
-                  Try interview prep
+                  Scan a job description
                 </Link>
               </div>
 
-              <div className="mt-10 grid max-w-2xl gap-3 sm:grid-cols-3">
-                {['PDF and DOCX input', 'Role-specific analysis', 'Saved analysis history'].map((item) => (
-                  <div key={item} className="flex items-center gap-2 text-sm text-[#666]">
-                    <Check className="h-4 w-4 text-[#222]" />
+              <div className="mt-9 grid gap-2.5 text-sm text-[#59615c]">
+                {['PDF and DOCX resumes', 'Role-specific analysis', 'Saved locally between revisions'].map((item) => (
+                  <div key={item} className="flex items-center gap-2.5">
+                    <span className="flex h-5 w-5 items-center justify-center rounded-full border border-[#8ea49b] bg-[#e6eee9] text-[#173f35]">
+                      <Check className="h-3 w-3" />
+                    </span>
                     {item}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="relative">
-              <div className="rounded-2xl border border-black/10 bg-[#151515] p-3 shadow-[0_24px_80px_rgba(0,0,0,0.14)]">
-                <div className="rounded-xl bg-[#fbfbf9] p-5 md:p-6">
-                  <div className="flex items-center justify-between border-b border-black/5 pb-4">
-                    <div>
-                      <p className="text-xs font-medium uppercase tracking-[0.12em] text-[#999]">Analysis / Senior frontend engineer</p>
-                      <p className="mt-1 text-sm font-semibold text-[#222]">Resume fit overview</p>
-                    </div>
-                    <span className="rounded-md border border-black/10 bg-white px-2.5 py-1 text-xs font-medium text-[#555]">Report</span>
-                  </div>
-
-                  <div className="grid gap-4 py-5 sm:grid-cols-[130px_1fr]">
-                    <div className="rounded-xl border border-black/5 bg-white p-4">
-                      <p className="text-xs text-[#888]">Match score</p>
-                      <p className="mt-2 text-4xl font-semibold tracking-[-0.05em] text-[#111]">78</p>
-                      <p className="mt-1 text-xs text-[#777]">out of 100</p>
-                    </div>
-                    <div className="rounded-xl border border-black/5 bg-white p-4">
-                      <div className="flex items-center justify-between text-xs text-[#777]">
-                        <span>Keyword coverage</span>
-                        <span>14 / 18</span>
-                      </div>
-                      <div className="mt-3 h-2 overflow-hidden rounded-full bg-[#ecece8]">
-                        <div className="h-full w-[78%] rounded-full bg-[#222]" />
-                      </div>
-                      <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-                        <span className="rounded-md bg-[#f1f1ee] px-2.5 py-2 text-[#555]">React</span>
-                        <span className="rounded-md bg-[#f1f1ee] px-2.5 py-2 text-[#555]">TypeScript</span>
-                        <span className="rounded-md bg-[#f1f1ee] px-2.5 py-2 text-[#555]">Accessibility</span>
-                        <span className="rounded-md bg-[#fff1c2] px-2.5 py-2 text-[#6b5215]">Testing gap</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-xl border border-black/5 bg-white p-4">
-                      <p className="text-xs font-medium uppercase tracking-[0.1em] text-[#999]">Strong signal</p>
-                      <p className="mt-2 text-sm font-medium text-[#222]">Relevant frontend ownership</p>
-                      <p className="mt-1 text-xs leading-5 text-[#777]">Experience maps clearly to the role's product delivery requirements.</p>
-                    </div>
-                    <div className="rounded-xl border border-black/5 bg-white p-4">
-                      <p className="text-xs font-medium uppercase tracking-[0.1em] text-[#999]">Next fix</p>
-                      <p className="mt-2 text-sm font-medium text-[#222]">Add measurable test coverage</p>
-                      <p className="mt-1 text-xs leading-5 text-[#777]">The job asks for testing depth that is not explicit in the resume.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="absolute -bottom-5 -left-5 hidden rounded-lg border border-black/10 bg-[#ffe08a] px-4 py-3 text-xs font-medium text-[#413514] shadow-sm md:block">
-                Built around the actual workflow, not AI theatre.
+            <div className="relative lg:pl-4">
+              <img
+                src="/brand/workflow-board.svg"
+                alt="CareerOS report board showing a resume, role match score, and next actions"
+                className="w-full"
+              />
+              <div className="absolute -bottom-3 right-5 hidden border border-[#b9ae9c] bg-[#f3f0e7] px-4 py-2 font-mono text-[10px] uppercase tracking-[0.1em] text-[#59615c] md:block">
+                One report · clear next move
               </div>
             </div>
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
-          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr]">
-            <div>
-              <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#8a8a84]">What it does</p>
-              <h2 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.05] tracking-[-0.045em] md:text-5xl">
-                Four tools, one application workflow.
-              </h2>
-              <p className="mt-5 max-w-md text-base leading-7 text-[#666]">
-                The product is organised around the decisions a job seeker actually makes: what to change, what is missing, and what to practise next.
-              </p>
-            </div>
-
-            <div className="border-t border-black/10">
-              {capabilities.map((item) => (
-                <div key={item.number} className="grid gap-4 border-b border-black/10 py-7 sm:grid-cols-[64px_220px_1fr] sm:items-start">
-                  <span className="font-mono text-xs text-[#999]">{item.number}</span>
-                  <h3 className="text-lg font-semibold tracking-[-0.025em] text-[#222]">{item.title}</h3>
-                  <p className="max-w-xl text-sm leading-6 text-[#666]">{item.text}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className="border-y border-black/5 bg-[#111] text-white">
-          <div className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-20">
-            <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+        <section className="border-b border-[#d2cabb] bg-[#e9e4d8]">
+          <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+            <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr]">
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-white/45">Workflow</p>
-                <h2 className="mt-4 max-w-lg text-4xl font-semibold leading-[1.05] tracking-[-0.045em] text-white md:text-5xl">
-                  From job post to better application in three steps.
+                <p className="eyebrow">How the work moves</p>
+                <h2 className="display-serif mt-4 max-w-md text-4xl leading-[1.02] md:text-5xl">
+                  Three passes. No prompt engineering required.
                 </h2>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-3">
-                {[
-                  { icon: Upload, title: 'Upload', text: 'Add a resume and, if you have one, the job description.' },
-                  { icon: Search, title: 'Review', text: 'Inspect match, ATS gaps, missing keywords, and suggested changes.' },
-                  { icon: MessageSquareText, title: 'Prepare', text: 'Use the same role context to practise likely interview questions.' },
-                ].map(({ icon: Icon, title, text }) => (
-                  <div key={title} className="rounded-xl border border-white/10 bg-white/[0.04] p-5">
-                    <Icon className="h-5 w-5 text-white/70" />
-                    <h3 className="mt-7 text-base font-semibold text-white">{title}</h3>
-                    <p className="mt-2 text-sm leading-6 text-white/55">{text}</p>
+              <div className="border-t border-[#c8c0b1]">
+                {workflow.map((item) => (
+                  <div key={item.number} className="grid gap-4 border-b border-[#c8c0b1] py-6 sm:grid-cols-[56px_180px_1fr]">
+                    <span className="font-mono text-xs text-[#b84f31]">{item.number}</span>
+                    <h3 className="text-base font-semibold tracking-[-0.02em]">{item.title}</h3>
+                    <p className="max-w-xl text-sm leading-6 text-[#59615c]">{item.text}</p>
                   </div>
                 ))}
               </div>
@@ -186,30 +115,47 @@ const Landing = () => {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 py-16 md:px-8 md:py-24">
-          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
-            <div className="lg:sticky lg:top-24">
-              <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#8a8a84]">Try it</p>
-              <h2 className="mt-4 text-4xl font-semibold leading-[1.05] tracking-[-0.045em] md:text-5xl">
-                Start with your actual resume.
-              </h2>
-              <p className="mt-5 max-w-md text-base leading-7 text-[#666]">
-                Uploading here takes you into the full workspace, where the analysis and revision tools live.
-              </p>
+        <section className="border-b border-[#d2cabb] bg-[#173f35] text-[#f8f5ed]">
+          <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
+            <div className="grid gap-12 lg:grid-cols-[0.75fr_1.25fr]">
+              <div>
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#93aaa1]">Inside the workbench</p>
+                <h2 className="display-serif mt-4 max-w-lg text-4xl leading-[1.02] text-[#f8f5ed] md:text-5xl">
+                  The product is organised by decisions, not AI features.
+                </h2>
+                <p className="mt-5 max-w-md text-sm leading-6 text-[#b9c8c2]">
+                  You should always know what page you are on, what input it needs, and what action the result is meant to support.
+                </p>
+              </div>
 
-              <div className="mt-8 grid gap-3 text-sm text-[#555]">
-                <div className="flex items-start gap-3">
-                  <FileSearch className="mt-0.5 h-4 w-4 text-[#222]" />
-                  <span>Resume parsing and role comparison</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Mic2 className="mt-0.5 h-4 w-4 text-[#222]" />
-                  <span>Browser-based voice practice</span>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Shield className="mt-0.5 h-4 w-4 text-[#222]" />
-                  <span>No fake usage counters or invented customer logos</span>
-                </div>
+              <div className="grid border-l border-t border-white/15 sm:grid-cols-2">
+                {tools.map(([title, text], index) => (
+                  <div key={title} className="min-h-[180px] border-b border-r border-white/15 p-6">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[10px] text-[#e99a7e]">0{index + 1}</span>
+                      <CornerDownRight className="h-4 w-4 text-[#78948a]" />
+                    </div>
+                    <h3 className="mt-8 text-base font-semibold text-[#f8f5ed]">{title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-[#aebfb8]">{text}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
+          <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr] lg:items-start">
+            <div className="lg:sticky lg:top-24">
+              <p className="eyebrow">Use your own material</p>
+              <h2 className="display-serif mt-4 max-w-md text-4xl leading-[1.02] md:text-5xl">
+                Start with the document you are actually sending.
+              </h2>
+              <p className="mt-5 max-w-md text-base leading-7 text-[#59615c]">
+                Add the target job description when you have it. CareerOS uses the pair to make the report role-specific instead of giving generic resume advice.
+              </p>
+              <div className="mt-8 border-l-2 border-[#e86e45] pl-4 text-sm leading-6 text-[#59615c]">
+                The landing uploader moves you into the workspace. Your analysis and revision tools live there.
               </div>
             </div>
 
@@ -217,20 +163,20 @@ const Landing = () => {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-5 pb-16 md:px-8 md:pb-24">
-          <div className="rounded-2xl border border-black/10 bg-[#ffe08a] px-6 py-8 md:px-10 md:py-10">
-            <div className="flex flex-col gap-7 md:flex-row md:items-end md:justify-between">
+        <section className="border-t border-[#d2cabb]">
+          <div className="mx-auto max-w-7xl px-5 py-12 md:px-8 md:py-16">
+            <div className="grid gap-6 bg-[#e86e45] p-7 md:grid-cols-[1fr_auto] md:items-end md:p-10">
               <div>
-                <p className="text-xs font-medium uppercase tracking-[0.14em] text-[#6f5b20]">Built for iteration</p>
-                <h2 className="mt-3 max-w-2xl text-3xl font-semibold leading-[1.08] tracking-[-0.04em] text-[#1b180f] md:text-4xl">
-                  Get a clearer answer to one question: what should I change before I apply?
+                <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#6f2f20]">The point of the product</p>
+                <h2 className="display-serif mt-3 max-w-3xl text-3xl leading-[1.04] text-[#17201d] md:text-4xl">
+                  Leave with a better application, not another chat transcript.
                 </h2>
               </div>
               <Link
                 to="/app"
-                className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-[#111] px-5 text-sm font-semibold text-white hover:bg-[#2a2a2a]"
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-[#17201d] px-5 text-sm font-semibold text-[#f8f5ed]"
               >
-                Open CareerOS <ArrowRight className="h-4 w-4" />
+                Open the workbench <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
           </div>
