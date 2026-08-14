@@ -1,0 +1,15 @@
+<svg width="620" height="320" viewBox="0 0 620 320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect x="1" y="1" width="618" height="318" rx="16" fill="#E9E4D8" stroke="#CFC7B7"/>
+  <rect x="28" y="28" width="564" height="264" rx="10" fill="#173F35"/>
+  <text x="52" y="58" fill="#9EB5AC" font-family="Arial, sans-serif" font-size="10" letter-spacing="1.3">INTERVIEW ROOM / Q03</text>
+  <rect x="52" y="82" width="516" height="66" rx="8" fill="#214B40"/>
+  <rect x="72" y="101" width="246" height="7" rx="3.5" fill="#F8F5ED"/>
+  <rect x="72" y="117" width="392" height="5" rx="2.5" fill="#AFC0B9"/>
+  <rect x="72" y="130" width="310" height="5" rx="2.5" fill="#AFC0B9"/>
+  <text x="52" y="178" fill="#9EB5AC" font-family="Arial, sans-serif" font-size="10" letter-spacing="1.3">LIVE RESPONSE</text>
+  <path d="M54 222H72L80 205L89 239L100 195L112 229L124 211L136 222H152L161 201L171 240L183 209L196 230L208 214L219 222H236L247 207L258 236L270 199L282 231L295 216L306 222H326L337 210L347 235L359 203L371 230L384 214L396 222H414L425 208L435 237L448 201L460 231L472 216L484 222H504L515 211L525 232L536 205L546 226L566 222" stroke="#E86E45" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="52" y="252" width="112" height="24" rx="12" fill="#F7E6DF"/>
+  <text x="69" y="268" fill="#A4432C" font-family="Arial, sans-serif" font-size="10" font-weight="700">RECORDING</text>
+  <rect x="446" y="252" width="122" height="24" rx="12" fill="#F8F5ED"/>
+  <text x="464" y="268" fill="#173F35" font-family="Arial, sans-serif" font-size="10" font-weight="700">SUBMIT ANSWER</text>
+</svg>
