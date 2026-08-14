@@ -1,48 +1,48 @@
 <svg width="760" height="560" viewBox="0 0 760 560" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect x="1" y="1" width="758" height="558" rx="22" fill="#E9E4D8" stroke="#CFC7B7"/>
-  <rect x="28" y="28" width="704" height="504" rx="15" fill="#F8F5ED" stroke="#D7D1C4"/>
-  <rect x="54" y="58" width="230" height="420" rx="12" fill="#FFFFFF" stroke="#D7D1C4"/>
-  <rect x="78" y="86" width="88" height="9" rx="4.5" fill="#173F35"/>
-  <rect x="78" y="108" width="160" height="6" rx="3" fill="#B9B4A9"/>
-  <rect x="78" y="134" width="58" height="6" rx="3" fill="#E86E45"/>
-  <rect x="78" y="154" width="178" height="5" rx="2.5" fill="#D4CFC4"/>
-  <rect x="78" y="168" width="166" height="5" rx="2.5" fill="#D4CFC4"/>
-  <rect x="78" y="182" width="181" height="5" rx="2.5" fill="#D4CFC4"/>
-  <rect x="78" y="216" width="68" height="6" rx="3" fill="#173F35"/>
-  <rect x="78" y="238" width="154" height="5" rx="2.5" fill="#D4CFC4"/>
-  <rect x="78" y="252" width="172" height="5" rx="2.5" fill="#D4CFC4"/>
-  <rect x="78" y="266" width="145" height="5" rx="2.5" fill="#D4CFC4"/>
-  <rect x="78" y="300" width="54" height="6" rx="3" fill="#173F35"/>
-  <rect x="78" y="322" width="102" height="24" rx="12" fill="#E9F0EC"/>
-  <rect x="88" y="331" width="47" height="6" rx="3" fill="#225A4B"/>
-  <rect x="188" y="322" width="66" height="24" rx="12" fill="#F7E6DF"/>
-  <rect x="198" y="331" width="32" height="6" rx="3" fill="#B84F31"/>
-  <rect x="78" y="370" width="140" height="5" rx="2.5" fill="#D4CFC4"/>
-  <rect x="78" y="384" width="162" height="5" rx="2.5" fill="#D4CFC4"/>
-  <rect x="78" y="398" width="128" height="5" rx="2.5" fill="#D4CFC4"/>
+  <rect x="1" y="1" width="758" height="558" rx="26" fill="#F0F0F2" stroke="#D2D2D7"/>
+  <rect x="28" y="28" width="704" height="504" rx="18" fill="#FFFFFF" stroke="#E2E2E7"/>
+  <rect x="54" y="58" width="230" height="420" rx="14" fill="#FFFFFF" stroke="#E2E2E7"/>
+  <rect x="78" y="86" width="88" height="9" rx="4.5" fill="#1D1D1F"/>
+  <rect x="78" y="108" width="160" height="6" rx="3" fill="#B8B8BD"/>
+  <rect x="78" y="134" width="58" height="6" rx="3" fill="#0071E3"/>
+  <rect x="78" y="154" width="178" height="5" rx="2.5" fill="#D7D7DB"/>
+  <rect x="78" y="168" width="166" height="5" rx="2.5" fill="#D7D7DB"/>
+  <rect x="78" y="182" width="181" height="5" rx="2.5" fill="#D7D7DB"/>
+  <rect x="78" y="216" width="68" height="6" rx="3" fill="#1D1D1F"/>
+  <rect x="78" y="238" width="154" height="5" rx="2.5" fill="#D7D7DB"/>
+  <rect x="78" y="252" width="172" height="5" rx="2.5" fill="#D7D7DB"/>
+  <rect x="78" y="266" width="145" height="5" rx="2.5" fill="#D7D7DB"/>
+  <rect x="78" y="300" width="54" height="6" rx="3" fill="#1D1D1F"/>
+  <rect x="78" y="322" width="102" height="24" rx="12" fill="#F0F0F2"/>
+  <rect x="88" y="331" width="47" height="6" rx="3" fill="#424245"/>
+  <rect x="188" y="322" width="66" height="24" rx="12" fill="#E8F2FF"/>
+  <rect x="198" y="331" width="32" height="6" rx="3" fill="#0066CC"/>
+  <rect x="78" y="370" width="140" height="5" rx="2.5" fill="#D7D7DB"/>
+  <rect x="78" y="384" width="162" height="5" rx="2.5" fill="#D7D7DB"/>
+  <rect x="78" y="398" width="128" height="5" rx="2.5" fill="#D7D7DB"/>
 
-  <path d="M306 174H342" stroke="#8E948D" stroke-width="2" stroke-dasharray="4 5"/>
-  <path d="M334 166L342 174L334 182" stroke="#8E948D" stroke-width="2"/>
+  <path d="M306 174H342" stroke="#A1A1A6" stroke-width="2" stroke-dasharray="4 5"/>
+  <path d="M334 166L342 174L334 182" stroke="#A1A1A6" stroke-width="2"/>
 
-  <rect x="362" y="58" width="318" height="176" rx="12" fill="#173F35"/>
-  <text x="388" y="90" fill="#BFD0C8" font-family="Arial, sans-serif" font-size="11" letter-spacing="1.4">ROLE MATCH</text>
-  <text x="388" y="137" fill="#F8F5ED" font-family="Arial, sans-serif" font-size="46" font-weight="700">78</text>
-  <text x="451" y="136" fill="#BFD0C8" font-family="Arial, sans-serif" font-size="13">/ 100</text>
-  <rect x="388" y="158" width="230" height="8" rx="4" fill="#31594F"/>
-  <rect x="388" y="158" width="180" height="8" rx="4" fill="#E86E45"/>
-  <text x="388" y="196" fill="#F8F5ED" font-family="Arial, sans-serif" font-size="13">14 role signals found</text>
-  <text x="558" y="196" fill="#F0B49E" font-family="Arial, sans-serif" font-size="13">4 gaps</text>
+  <rect x="362" y="58" width="318" height="176" rx="14" fill="#1D1D1F"/>
+  <text x="388" y="90" fill="#A1A1A6" font-family="-apple-system,BlinkMacSystemFont,Arial,sans-serif" font-size="11" letter-spacing="1.2">ROLE MATCH</text>
+  <text x="388" y="137" fill="#F5F5F7" font-family="-apple-system,BlinkMacSystemFont,Arial,sans-serif" font-size="46" font-weight="700">78</text>
+  <text x="451" y="136" fill="#A1A1A6" font-family="-apple-system,BlinkMacSystemFont,Arial,sans-serif" font-size="13">/ 100</text>
+  <rect x="388" y="158" width="230" height="8" rx="4" fill="#3A3A3C"/>
+  <rect x="388" y="158" width="180" height="8" rx="4" fill="#0071E3"/>
+  <text x="388" y="196" fill="#F5F5F7" font-family="-apple-system,BlinkMacSystemFont,Arial,sans-serif" font-size="13">14 role signals found</text>
+  <text x="558" y="196" fill="#7FC1FF" font-family="-apple-system,BlinkMacSystemFont,Arial,sans-serif" font-size="13">4 gaps</text>
 
-  <rect x="362" y="254" width="318" height="224" rx="12" fill="#FFFFFF" stroke="#D7D1C4"/>
-  <text x="388" y="286" fill="#73776F" font-family="Arial, sans-serif" font-size="11" letter-spacing="1.4">NEXT ACTIONS</text>
-  <rect x="388" y="310" width="266" height="42" rx="8" fill="#F3F0E7"/>
-  <rect x="401" y="322" width="8" height="18" rx="4" fill="#E86E45"/>
-  <rect x="423" y="320" width="132" height="6" rx="3" fill="#173F35"/>
-  <rect x="423" y="333" width="180" height="5" rx="2.5" fill="#B9B4A9"/>
-  <rect x="388" y="364" width="266" height="42" rx="8" fill="#F3F0E7"/>
-  <rect x="401" y="376" width="8" height="18" rx="4" fill="#225A4B"/>
-  <rect x="423" y="374" width="154" height="6" rx="3" fill="#173F35"/>
-  <rect x="423" y="387" width="166" height="5" rx="2.5" fill="#B9B4A9"/>
-  <rect x="388" y="418" width="118" height="34" rx="7" fill="#173F35"/>
-  <text x="410" y="440" fill="#F8F5ED" font-family="Arial, sans-serif" font-size="12" font-weight="700">OPEN REPORT</text>
+  <rect x="362" y="254" width="318" height="224" rx="14" fill="#FFFFFF" stroke="#E2E2E7"/>
+  <text x="388" y="286" fill="#86868B" font-family="-apple-system,BlinkMacSystemFont,Arial,sans-serif" font-size="11" letter-spacing="1.2">NEXT ACTIONS</text>
+  <rect x="388" y="310" width="266" height="42" rx="10" fill="#F5F5F7"/>
+  <rect x="401" y="322" width="8" height="18" rx="4" fill="#0071E3"/>
+  <rect x="423" y="320" width="132" height="6" rx="3" fill="#1D1D1F"/>
+  <rect x="423" y="333" width="180" height="5" rx="2.5" fill="#B8B8BD"/>
+  <rect x="388" y="364" width="266" height="42" rx="10" fill="#F5F5F7"/>
+  <rect x="401" y="376" width="8" height="18" rx="4" fill="#424245"/>
+  <rect x="423" y="374" width="154" height="6" rx="3" fill="#1D1D1F"/>
+  <rect x="423" y="387" width="166" height="5" rx="2.5" fill="#B8B8BD"/>
+  <rect x="388" y="418" width="118" height="34" rx="17" fill="#0071E3"/>
+  <text x="410" y="440" fill="#FFFFFF" font-family="-apple-system,BlinkMacSystemFont,Arial,sans-serif" font-size="12" font-weight="700">OPEN REPORT</text>
 </svg>
