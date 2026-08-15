@@ -10,7 +10,7 @@ import resumeRoutes from './routes/resume.routes.js';
 import { initSocket } from './config/socket.js';
 import { redisConnection, analysisQueue } from './config/queue.js';
 import { createBullBoard } from '@bull-board/api';
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js';
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter';
 import { ExpressAdapter } from '@bull-board/express';
 
 dotenv.config();
@@ -87,7 +87,7 @@ app.use('/api/upload-resume', limiter);
 app.use('/api', resumeRoutes);
 
 // PHASE 5: Admin Observability Dashboard
-// Mounts a stunning UI to monitor our BullMQ queues at /admin/queues
+// Mount the BullMQ dashboard at /admin/queues.
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
 
