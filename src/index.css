@@ -10,20 +10,20 @@
     --card-foreground: 240 3% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 240 3% 12%;
-    --primary: 211 100% 45%;
+    --primary: 240 3% 12%;
     --primary-foreground: 0 0% 100%;
     --secondary: 240 5% 94%;
     --secondary-foreground: 240 3% 12%;
     --muted: 240 5% 94%;
     --muted-foreground: 240 2% 45%;
-    --accent: 211 100% 40%;
+    --accent: 240 3% 12%;
     --accent-foreground: 0 0% 100%;
     --destructive: 3 72% 50%;
     --destructive-foreground: 0 0% 100%;
     --border: 240 5% 84%;
     --input: 240 5% 84%;
-    --ring: 211 100% 45%;
-    --radius: 0.9rem;
+    --ring: 240 3% 12%;
+    --radius: 1rem;
 
     --paper: #f5f5f7;
     --paper-raised: #ffffff;
@@ -33,8 +33,8 @@
     --line: #d2d2d7;
     --forest: #1d1d1f;
     --forest-soft: #424245;
-    --signal: #0066cc;
-    --signal-soft: #e8f2ff;
+    --signal: #1d1d1f;
+    --signal-soft: #ececef;
   }
 
   * {
@@ -75,7 +75,7 @@
   }
 
   ::selection {
-    background: #dbeeff;
+    background: #dedee2;
     color: var(--ink);
   }
 }
@@ -109,14 +109,14 @@
 
   .surface {
     background: var(--paper-raised);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 18px;
+    border: 1px solid rgba(0, 0, 0, 0.07);
+    border-radius: 20px;
   }
 
   .surface-muted {
     background: var(--paper-muted);
-    border: 1px solid rgba(0, 0, 0, 0.06);
-    border-radius: 18px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
   }
 
   .rule-label {
@@ -138,30 +138,30 @@
 
   .apple-card {
     background: var(--paper-raised) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-radius: 18px !important;
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-radius: 22px !important;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
     transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
   }
 
   .apple-card-hover:hover {
-    border-color: rgba(0, 0, 0, 0.14) !important;
-    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05) !important;
+    border-color: rgba(0, 0, 0, 0.12) !important;
+    box-shadow: 0 12px 34px rgba(0, 0, 0, 0.055) !important;
     transform: translateY(-1px);
   }
 
   .apple-button {
-    background: #0071e3 !important;
+    background: #1d1d1f !important;
     color: #ffffff !important;
-    border: 1px solid #0071e3 !important;
+    border: 1px solid #1d1d1f !important;
     border-radius: 999px !important;
     box-shadow: none !important;
     font-weight: 500;
-    transition: background 150ms ease, transform 150ms ease;
+    transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
   }
 
   .apple-button:hover {
-    background: #0077ed !important;
+    background: #343436 !important;
   }
 
   .apple-button:active {
@@ -169,16 +169,16 @@
   }
 
   .apple-button-secondary {
-    background: #ffffff !important;
+    background: transparent !important;
     color: var(--ink) !important;
-    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border: 1px solid rgba(0, 0, 0, 0.16) !important;
     border-radius: 999px !important;
     box-shadow: none !important;
     font-weight: 500;
   }
 
   .apple-button-secondary:hover {
-    background: #f5f5f7 !important;
+    background: rgba(0, 0, 0, 0.04) !important;
   }
 
   .chip-mono {
@@ -194,49 +194,56 @@
     align-items: center;
     justify-content: center;
     border-radius: 999px;
-    background: #e8f2ff;
-    color: #0066cc;
+    background: #ececef;
+    color: #3a3a3c;
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.7rem;
     font-weight: 600;
   }
 }
 
-/* Legacy palette normalization: keeps every screen coherent while individual pages are simplified. */
+/*
+ * Legacy palette normalization.
+ * Several screens still carry historical inline palette classes. Keep their
+ * semantics, but neutralize decorative brand color so CareerOS reads as a
+ * graphite/white product rather than a blue SaaS template.
+ */
 .text-\[\#1d1d1f\], .text-\[\#17201d\], .text-\[\#173f35\] { color: #1d1d1f !important; }
 .text-\[\#86868b\], .text-\[\#59615c\], .text-\[\#72776f\], .text-\[\#73776f\], .text-\[\#7b7d76\] { color: #6e6e73 !important; }
 .text-\[\#b9c8c2\], .text-\[\#aebfb8\], .text-\[\#9eb5ac\], .text-\[\#93aaa1\], .text-\[\#78948a\] { color: #a1a1a6 !important; }
-.text-\[\#e99a7e\], .text-\[\#b84f31\], .text-\[\#a4432c\] { color: #0066cc !important; }
+.text-\[\#e99a7e\], .text-\[\#b84f31\], .text-\[\#a4432c\] { color: #6e6e73 !important; }
 .text-\[\#f8f5ed\], .text-\[\#f3f0e7\] { color: #f5f5f7 !important; }
 
 .bg-\[\#f5f5f7\], .bg-\[\#f3f0e7\] { background-color: #f5f5f7 !important; }
 .bg-\[\#faf8f2\], .bg-\[\#f8f5ed\] { background-color: #ffffff !important; }
 .bg-\[\#e9e4d8\] { background-color: #f0f0f2 !important; }
 .bg-\[\#173f35\], .bg-\[\#17201d\] { background-color: #1d1d1f !important; }
-.bg-\[\#225a4b\] { background-color: #2c2c2e !important; }
-.bg-\[\#e86e45\] { background-color: #e8f2ff !important; }
-.bg-\[\#f7e6df\] { background-color: #eef6ff !important; }
+.bg-\[\#225a4b\] { background-color: #343436 !important; }
+.bg-\[\#e86e45\] { background-color: #ececef !important; }
+.bg-\[\#f7e6df\] { background-color: #f3f3f5 !important; }
 .bg-\[\#e6eee9\] { background-color: #f0f0f2 !important; }
 
 .border-\[\#d2cabb\], .border-\[\#c9c1b2\], .border-\[\#c8c0b1\], .border-\[\#b9ae9c\] { border-color: #d2d2d7 !important; }
 .border-\[\#173f35\] { border-color: #1d1d1f !important; }
-.border-\[\#e86e45\] { border-color: #0066cc !important; }
+.border-\[\#e86e45\] { border-color: #d2d2d7 !important; }
 
-.text-\[\#0071e3\] { color: #0066cc !important; }
-.bg-\[\#0071e3\] { background-color: #0071e3 !important; }
-.border-\[\#0071e3\] { border-color: #0071e3 !important; }
-.bg-\[\#0071e3\]\/5 { background-color: rgba(0, 113, 227, 0.05) !important; }
-.bg-\[\#0071e3\]\/10 { background-color: rgba(0, 113, 227, 0.08) !important; }
-.bg-\[\#0071e3\]\/15 { background-color: rgba(0, 113, 227, 0.12) !important; }
-.bg-\[\#0071e3\]\/20 { background-color: rgba(0, 113, 227, 0.15) !important; }
-.border-\[\#0071e3\]\/20 { border-color: rgba(0, 113, 227, 0.22) !important; }
-.border-\[\#0071e3\]\/30 { border-color: rgba(0, 113, 227, 0.3) !important; }
+/* Neutralize the old Apple-blue accent everywhere it still appears. */
+.text-\[\#0071e3\], .text-\[\#0066cc\] { color: #1d1d1f !important; }
+.bg-\[\#0071e3\], .bg-\[\#0066cc\] { background-color: #1d1d1f !important; }
+.border-\[\#0071e3\], .border-\[\#0066cc\] { border-color: #1d1d1f !important; }
+.bg-\[\#0071e3\]\/5 { background-color: rgba(0, 0, 0, 0.025) !important; }
+.bg-\[\#0071e3\]\/10 { background-color: rgba(0, 0, 0, 0.04) !important; }
+.bg-\[\#0071e3\]\/15 { background-color: rgba(0, 0, 0, 0.055) !important; }
+.bg-\[\#0071e3\]\/20 { background-color: rgba(0, 0, 0, 0.07) !important; }
+.border-\[\#0071e3\]\/20 { border-color: rgba(0, 0, 0, 0.1) !important; }
+.border-\[\#0071e3\]\/30 { border-color: rgba(0, 0, 0, 0.14) !important; }
 
+/* Keep status colors functional, but prevent them from becoming brand surfaces. */
 .text-\[\#34c759\] { color: #248a3d !important; }
-.bg-\[\#34c759\]\/5 { background-color: rgba(52, 199, 89, 0.05) !important; }
-.bg-\[\#34c759\]\/10 { background-color: rgba(52, 199, 89, 0.08) !important; }
-.bg-\[\#34c759\]\/15 { background-color: rgba(52, 199, 89, 0.12) !important; }
-.border-\[\#34c759\]\/25 { border-color: rgba(52, 199, 89, 0.24) !important; }
+.bg-\[\#34c759\]\/5 { background-color: rgba(52, 199, 89, 0.04) !important; }
+.bg-\[\#34c759\]\/10 { background-color: rgba(52, 199, 89, 0.07) !important; }
+.bg-\[\#34c759\]\/15 { background-color: rgba(52, 199, 89, 0.1) !important; }
+.border-\[\#34c759\]\/25 { border-color: rgba(52, 199, 89, 0.2) !important; }
 
 .text-\[\#af52de\], .text-\[\#ff9500\] { color: #6e6e73 !important; }
 .bg-\[\#af52de\]\/5, .bg-\[\#ff9500\]\/5 { background-color: rgba(0, 0, 0, 0.025) !important; }
