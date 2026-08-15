@@ -1,7 +1,7 @@
 {
-  "name": "ai-resume-analyzer-backend",
+  "name": "careeros-backend",
   "version": "1.0.0",
-  "description": "Backend for AI Resume Analyzer using Express and Google's Gemini API",
+  "description": "CareerOS API and background worker for resume analysis and live job discovery",
   "main": "src/index.js",
   "type": "module",
   "scripts": {
@@ -10,10 +10,10 @@
     "worker": "nodemon src/worker.js"
   },
   "keywords": [
+    "careeros",
     "resume",
-    "ai",
-    "analysis",
-    "gemini"
+    "jobs",
+    "matching"
   ],
   "author": "",
   "license": "ISC",
