@@ -1,82 +1,105 @@
 import { Link, useLocation } from 'react-router-dom';
-import { BadgeCheck, FileText, Sparkles, LayoutDashboard, History, Mic, Search, Settings, Info, LifeBuoy, Rocket } from 'lucide-react';
-import { Badge } from './ui/badge';
-import { Button } from './ui/button';
+import { Menu, X } from 'lucide-react';
+import { useState } from 'react';
 
 const Header = () => {
   const location = useLocation();
+  const [open, setOpen] = useState(false);
 
   const navItems = [
-    { path: '/', label: 'Home', icon: Sparkles },
-    { path: '/app', label: 'Workspace', icon: LayoutDashboard },
-    { path: '/interview', label: 'Mock Interview', icon: Mic },
-    { path: '/keywords', label: 'ATS Scanner', icon: Search },
-    { path: '/history', label: 'History', icon: History },
-    { path: '/about', label: 'About', icon: Info },
-    { path: '/support', label: 'Support', icon: LifeBuoy },
+    { path: '/app', label: 'Workspace' },
+    { path: '/keywords', label: 'ATS' },
+    { path: '/interview', label: 'Interview' },
+    { path: '/history', label: 'History' },
+    { path: '/about', label: 'About' },
   ];
 
   return (
-    <header className="container mx-auto px-4 py-4 md:py-6">
-      <nav className="apple-card px-5 py-4 md:px-8">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          
-          {/* Logo & Title */}
-          <div className="flex items-center justify-between">
-            <Link to="/" className="flex items-center gap-3.5 transition-opacity hover:opacity-90">
-              <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-[#0071e3] text-white shadow-md shadow-[#0071e3]/25">
-                <FileText className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="chip-mono text-[9px] uppercase font-bold tracking-widest text-[#86868b]">Career Intelligence Platform</p>
-                <p className="text-xl font-bold tracking-tight text-[#1d1d1f]">CareerOS</p>
-              </div>
-            </Link>
+    <header className="sticky top-0 z-50 border-b border-black/[0.06] bg-[#fbfbfd]/80 text-[#1d1d1f] backdrop-blur-2xl supports-[backdrop-filter]:bg-[#fbfbfd]/72">
+      <div className="mx-auto flex h-12 max-w-[1080px] items-center px-5 md:px-6">
+        <Link
+          to="/"
+          className="shrink-0 text-[15px] font-semibold tracking-[-0.025em] text-[#1d1d1f] transition-opacity hover:opacity-70"
+          aria-label="CareerOS home"
+        >
+          CareerOS
+        </Link>
 
-            {/* Launch App Button for mobile */}
-            <Link to="/app" className="lg:hidden">
-              <Button size="sm" className="apple-button px-4 text-xs">
-                Launch App
-              </Button>
-            </Link>
-          </div>
+        <nav className="hidden flex-1 items-center justify-center gap-7 md:flex" aria-label="Primary navigation">
+          {navItems.map((item) => {
+            const active = location.pathname === item.path;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`text-[12px] font-normal tracking-[-0.01em] transition-colors ${
+                  active ? 'text-[#1d1d1f]' : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                }`}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
 
-          {/* Navigation Links */}
-          <div className="flex flex-wrap items-center gap-1 rounded-2xl bg-[#f5f5f7] p-1.5 border border-border/60">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all duration-200 ${
-                    isActive
-                      ? 'bg-white text-[#0071e3] shadow-sm'
-                      : 'text-[#86868b] hover:text-[#1d1d1f] hover:bg-white/50'
-                  }`}
-                >
-                  <Icon className={`h-3.5 w-3.5 ${isActive ? 'text-[#0071e3]' : 'text-[#86868b]'}`} />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </div>
-
-          {/* Right Action CTA */}
-          <div className="hidden items-center gap-3 lg:flex">
-            <Link to="/settings" className="text-xs font-semibold text-[#86868b] hover:text-[#1d1d1f]">
-              <Settings className="h-4 w-4" />
-            </Link>
-            <Link to="/app">
-              <Button className="apple-button h-10 px-5 text-xs font-semibold">
-                <Rocket className="mr-1.5 h-3.5 w-3.5" /> Launch Workspace
-              </Button>
-            </Link>
-          </div>
-
+        <div className="ml-auto hidden items-center gap-5 md:flex">
+          <Link
+            to="/settings"
+            className={`text-[12px] transition-colors ${
+              location.pathname === '/settings' ? 'text-[#1d1d1f]' : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+            }`}
+          >
+            Settings
+          </Link>
+          <Link
+            to="/app"
+            className="inline-flex h-7 items-center rounded-full bg-[#0071e3] px-3.5 text-[12px] font-medium text-white transition hover:bg-[#0077ed]"
+          >
+            Analyze
+          </Link>
         </div>
-      </nav>
+
+        <button
+          type="button"
+          onClick={() => setOpen((value) => !value)}
+          className="ml-auto inline-flex h-8 w-8 items-center justify-center text-[#1d1d1f] md:hidden"
+          aria-label="Toggle navigation"
+          aria-expanded={open}
+        >
+          {open ? <X className="h-[18px] w-[18px]" /> : <Menu className="h-[18px] w-[18px]" />}
+        </button>
+      </div>
+
+      {open && (
+        <div className="border-t border-black/[0.05] bg-[#fbfbfd] px-5 pb-7 pt-4 md:hidden">
+          <nav className="mx-auto max-w-[1080px]" aria-label="Mobile navigation">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setOpen(false)}
+                className="block border-b border-black/[0.06] py-3 text-[20px] font-semibold tracking-[-0.03em] text-[#1d1d1f]"
+              >
+                {item.label}
+              </Link>
+            ))}
+            <Link
+              to="/settings"
+              onClick={() => setOpen(false)}
+              className="block border-b border-black/[0.06] py-3 text-[20px] font-semibold tracking-[-0.03em] text-[#1d1d1f]"
+            >
+              Settings
+            </Link>
+            <Link
+              to="/app"
+              onClick={() => setOpen(false)}
+              className="mt-5 inline-flex h-9 items-center rounded-full bg-[#0071e3] px-4 text-[13px] font-medium text-white"
+            >
+              Analyze a resume
+            </Link>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };

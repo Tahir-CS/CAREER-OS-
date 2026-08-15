@@ -1,105 +1,246 @@
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  :root, .dark {
-    --background: 240 11% 96%;     /* #f5f5f7 Apple light background */
-    --foreground: 240 5% 12%;      /* #1d1d1f Apple main dark text */
-
-    --card: 0 0% 100%;            /* #ffffff Pure white cards */
-    --card-foreground: 240 5% 12%;
-
+  :root {
+    --background: 240 11% 96%;
+    --foreground: 240 3% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 3% 12%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 5% 12%;
-
-    --primary: 211 100% 45%;       /* #0071e3 Apple SF Blue */
+    --popover-foreground: 240 3% 12%;
+    --primary: 211 100% 45%;
     --primary-foreground: 0 0% 100%;
-
-    --secondary: 240 5% 94%;       /* #e8e8ed Apple secondary gray */
-    --secondary-foreground: 240 5% 12%;
-
-    --muted: 240 5% 92%;
-    --muted-foreground: 240 2% 54%; /* #86868b Apple muted text */
-
-    --accent: 142 58% 49%;          /* #34c759 Apple SF Emerald */
+    --secondary: 240 5% 94%;
+    --secondary-foreground: 240 3% 12%;
+    --muted: 240 5% 94%;
+    --muted-foreground: 240 2% 45%;
+    --accent: 211 100% 40%;
     --accent-foreground: 0 0% 100%;
-
-    --destructive: 358 100% 60%;    /* #ff3b30 Apple SF Red */
+    --destructive: 3 72% 50%;
     --destructive-foreground: 0 0% 100%;
-
-    --border: 240 6% 90%;          /* Subtle Apple border */
-    --input: 240 6% 90%;
+    --border: 240 5% 84%;
+    --input: 240 5% 84%;
     --ring: 211 100% 45%;
+    --radius: 0.9rem;
 
-    --radius: 1.125rem;            /* Apple 18px rounded corners */
+    --paper: #f5f5f7;
+    --paper-raised: #ffffff;
+    --paper-muted: #f0f0f2;
+    --ink: #1d1d1f;
+    --ink-soft: #6e6e73;
+    --line: #d2d2d7;
+    --forest: #1d1d1f;
+    --forest-soft: #424245;
+    --signal: #0066cc;
+    --signal-soft: #e8f2ff;
   }
-}
 
-@layer base {
   * {
     @apply border-border;
   }
 
-  body {
-    background-color: #f5f5f7 !important;
-    color: #1d1d1f !important;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", sans-serif;
+  html {
+    scroll-behavior: smooth;
+    background: var(--paper);
   }
 
-  h1, h2, h3, h4 {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-    letter-spacing: -0.025em;
-    font-weight: 700;
-    color: #1d1d1f;
+  body {
+    margin: 0;
+    min-width: 320px;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+    letter-spacing: -0.035em;
+    font-weight: 600;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+
+  ::selection {
+    background: #dbeeff;
+    color: var(--ink);
   }
 }
 
 @layer components {
-  .apple-card {
-    background-color: #ffffff !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-radius: 20px !important;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04) !important;
-    transition: all 300ms ease;
+  .display-serif {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700;
+    letter-spacing: -0.055em;
   }
 
-  .apple-card-hover {
-    @apply hover:shadow-[0_8px_32px_rgba(0,0,0,0.08)] hover:-translate-y-0.5;
+  .eyebrow {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--ink-soft);
+  }
+
+  .page-frame {
+    width: min(1080px, calc(100% - 2rem));
+    margin-inline: auto;
+  }
+
+  .page-intro {
+    display: grid;
+    gap: 0.9rem;
+    padding: 3rem 0 2.2rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .surface {
+    background: var(--paper-raised);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 18px;
+  }
+
+  .surface-muted {
+    background: var(--paper-muted);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 18px;
+  }
+
+  .rule-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: var(--ink-soft);
+  }
+
+  .rule-label::before {
+    content: '';
+    width: 18px;
+    height: 1px;
+    background: #8e8e93;
+  }
+
+  .apple-card {
+    background: var(--paper-raised) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  }
+
+  .apple-card-hover:hover {
+    border-color: rgba(0, 0, 0, 0.14) !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.05) !important;
+    transform: translateY(-1px);
   }
 
   .apple-button {
-    background-color: #0071e3 !important;
+    background: #0071e3 !important;
     color: #ffffff !important;
-    font-weight: 600;
-    border-radius: 9999px !important;
-    box-shadow: 0 2px 10px rgba(0, 113, 227, 0.3) !important;
-    transition: all 200ms ease;
+    border: 1px solid #0071e3 !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+    font-weight: 500;
+    transition: background 150ms ease, transform 150ms ease;
   }
 
   .apple-button:hover {
-    background-color: #0077ed !important;
+    background: #0077ed !important;
+  }
+
+  .apple-button:active {
+    transform: translateY(1px);
   }
 
   .apple-button-secondary {
-    background-color: #e8e8ed !important;
-    color: #1d1d1f !important;
-    font-weight: 600;
-    border-radius: 9999px !important;
-    transition: all 200ms ease;
+    background: #ffffff !important;
+    color: var(--ink) !important;
+    border: 1px solid rgba(0, 0, 0, 0.12) !important;
+    border-radius: 999px !important;
+    box-shadow: none !important;
+    font-weight: 500;
   }
 
   .apple-button-secondary:hover {
-    background-color: #dfdfe4 !important;
+    background: #f5f5f7 !important;
   }
 
   .chip-mono {
-    font-family: 'Fira Code', monospace;
-    letter-spacing: 0.02em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 0;
+    font-weight: 500;
+  }
+
+  .brand-index {
+    display: inline-flex;
+    min-width: 2rem;
+    height: 2rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: #e8f2ff;
+    color: #0066cc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.7rem;
     font-weight: 600;
   }
 }
+
+/* Legacy palette normalization: keeps every screen coherent while individual pages are simplified. */
+.text-\[\#1d1d1f\], .text-\[\#17201d\], .text-\[\#173f35\] { color: #1d1d1f !important; }
+.text-\[\#86868b\], .text-\[\#59615c\], .text-\[\#72776f\], .text-\[\#73776f\], .text-\[\#7b7d76\] { color: #6e6e73 !important; }
+.text-\[\#b9c8c2\], .text-\[\#aebfb8\], .text-\[\#9eb5ac\], .text-\[\#93aaa1\], .text-\[\#78948a\] { color: #a1a1a6 !important; }
+.text-\[\#e99a7e\], .text-\[\#b84f31\], .text-\[\#a4432c\] { color: #0066cc !important; }
+.text-\[\#f8f5ed\], .text-\[\#f3f0e7\] { color: #f5f5f7 !important; }
+
+.bg-\[\#f5f5f7\], .bg-\[\#f3f0e7\] { background-color: #f5f5f7 !important; }
+.bg-\[\#faf8f2\], .bg-\[\#f8f5ed\] { background-color: #ffffff !important; }
+.bg-\[\#e9e4d8\] { background-color: #f0f0f2 !important; }
+.bg-\[\#173f35\], .bg-\[\#17201d\] { background-color: #1d1d1f !important; }
+.bg-\[\#225a4b\] { background-color: #2c2c2e !important; }
+.bg-\[\#e86e45\] { background-color: #e8f2ff !important; }
+.bg-\[\#f7e6df\] { background-color: #eef6ff !important; }
+.bg-\[\#e6eee9\] { background-color: #f0f0f2 !important; }
+
+.border-\[\#d2cabb\], .border-\[\#c9c1b2\], .border-\[\#c8c0b1\], .border-\[\#b9ae9c\] { border-color: #d2d2d7 !important; }
+.border-\[\#173f35\] { border-color: #1d1d1f !important; }
+.border-\[\#e86e45\] { border-color: #0066cc !important; }
+
+.text-\[\#0071e3\] { color: #0066cc !important; }
+.bg-\[\#0071e3\] { background-color: #0071e3 !important; }
+.border-\[\#0071e3\] { border-color: #0071e3 !important; }
+.bg-\[\#0071e3\]\/5 { background-color: rgba(0, 113, 227, 0.05) !important; }
+.bg-\[\#0071e3\]\/10 { background-color: rgba(0, 113, 227, 0.08) !important; }
+.bg-\[\#0071e3\]\/15 { background-color: rgba(0, 113, 227, 0.12) !important; }
+.bg-\[\#0071e3\]\/20 { background-color: rgba(0, 113, 227, 0.15) !important; }
+.border-\[\#0071e3\]\/20 { border-color: rgba(0, 113, 227, 0.22) !important; }
+.border-\[\#0071e3\]\/30 { border-color: rgba(0, 113, 227, 0.3) !important; }
+
+.text-\[\#34c759\] { color: #248a3d !important; }
+.bg-\[\#34c759\]\/5 { background-color: rgba(52, 199, 89, 0.05) !important; }
+.bg-\[\#34c759\]\/10 { background-color: rgba(52, 199, 89, 0.08) !important; }
+.bg-\[\#34c759\]\/15 { background-color: rgba(52, 199, 89, 0.12) !important; }
+.border-\[\#34c759\]\/25 { border-color: rgba(52, 199, 89, 0.24) !important; }
+
+.text-\[\#af52de\], .text-\[\#ff9500\] { color: #6e6e73 !important; }
+.bg-\[\#af52de\]\/5, .bg-\[\#ff9500\]\/5 { background-color: rgba(0, 0, 0, 0.025) !important; }
+.bg-\[\#af52de\]\/10, .bg-\[\#ff9500\]\/15 { background-color: rgba(0, 0, 0, 0.04) !important; }
+.border-\[\#ff9500\]\/30 { border-color: rgba(0, 0, 0, 0.1) !important; }
+.text-\[\#ff3b30\] { color: #d70015 !important; }
+.bg-\[\#ff3b30\]\/10, .bg-\[\#ff3b30\]\/15 { background-color: rgba(215, 0, 21, 0.06) !important; }
