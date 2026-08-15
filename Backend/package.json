@@ -1,5 +1,5 @@
 {
-  "name": "careeros-backend",
+  "name": "ai-resume-analyzer-backend",
   "version": "1.0.0",
   "description": "CareerOS API and background worker for resume analysis and live job discovery",
   "main": "src/index.js",
