@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import { redisConnection, QUEUE_NAME } from './config/queue.js';
 import { s3Client, BUCKET_NAME } from './config/s3.js';
 import { GetObjectCommand } from '@aws-sdk/client-s3';
-import { extractTextFromDOCXBuffer } from './utils/fileExtractor.js';
+import { extractTextFromResumeBuffer } from './utils/fileExtractor.js';
 import { generateJson, embedText } from './utils/gemini.js';
 import dotenv from 'dotenv';
 import crypto from 'crypto';
@@ -122,7 +122,7 @@ const worker = new Worker(QUEUE_NAME, async (job) => {
     const command = new GetObjectCommand({ Bucket: BUCKET_NAME, Key: `resumes/${s3Key}` });
     const s3Response = await s3Client.send(command);
     const fileBuffer = Buffer.from(await s3Response.Body.transformToByteArray());
-    const resumeText = await extractTextFromDOCXBuffer(fileBuffer);
+    const resumeText = await extractTextFromResumeBuffer(fileBuffer);
 
     if (!resumeText || resumeText.trim().length < 40) {
       throw new Error('The uploaded resume did not contain enough readable text to analyze.');
