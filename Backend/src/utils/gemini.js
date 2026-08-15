@@ -17,7 +17,7 @@ const readGeminiError = async (response) => {
 
 export const generateJson = async (prompt) => {
   const apiKey = getApiKey();
-  const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+  const model = process.env.GEMINI_MODEL || 'gemini-3.6-flash';
   const response = await fetch(`${API_ROOT}/${model}:generateContent`, {
     method: 'POST',
     headers: {
@@ -28,7 +28,6 @@ export const generateJson = async (prompt) => {
       contents: [{ parts: [{ text: prompt }] }],
       generationConfig: {
         responseMimeType: 'application/json',
-        temperature: 0.2,
       },
     }),
     signal: AbortSignal.timeout(60_000),
