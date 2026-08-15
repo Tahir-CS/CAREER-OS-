@@ -74,3 +74,5 @@ jobs:
           fi
           git commit -m "Restore Bull Board backend dependencies"
           git push origin HEAD:fix/prisma7-backend-ci
+
+# One-shot helper; removed before the PR is merged.
