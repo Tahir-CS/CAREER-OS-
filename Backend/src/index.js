@@ -1,5 +1,5 @@
 import express from 'express';
-import { createServer } from 'http'; // Step 1: Import Node's built-in HTTP module
+import { createServer } from 'http';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
@@ -7,6 +7,7 @@ import RedisStore from 'rate-limit-redis';
 import * as Sentry from '@sentry/node';
 import { nodeProfilingIntegration } from '@sentry/profiling-node';
 import resumeRoutes from './routes/resume.routes.js';
+import jobsRoutes from './routes/jobs.routes.js';
 import { initSocket } from './config/socket.js';
 import { redisConnection, analysisQueue } from './config/queue.js';
 import { createBullBoard } from '@bull-board/api';
@@ -15,89 +16,71 @@ import { ExpressAdapter } from '@bull-board/express';
 
 dotenv.config();
 
-// PHASE 6: Initialize Sentry for Distributed Tracing & Error Tracking
 Sentry.init({
-  dsn: process.env.SENTRY_DSN || '', // Placeholder until user creates Sentry account
-  integrations: [
-    nodeProfilingIntegration(),
-  ],
-  tracesSampleRate: 1.0, // Capture 100% of transactions for performance monitoring
-  profilesSampleRate: 1.0, // Capture 100% of profiles
-  environment: process.env.NODE_ENV || 'development'
+  dsn: process.env.SENTRY_DSN || '',
+  integrations: [nodeProfilingIntegration()],
+  tracesSampleRate: 1.0,
+  profilesSampleRate: 1.0,
+  environment: process.env.NODE_ENV || 'development',
 });
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const httpServer = createServer(app);
 
-// -------------------------------------------------------------------------
-// CRITICAL ARCHITECTURAL CHANGE:
-// OLD: app.listen(PORT) → Express creates a hidden internal HTTP server.
-//      Socket.io cannot access it. WebSockets are impossible.
-//
-// NEW: We create our OWN HTTP server by wrapping Express inside it.
-//      This gives us a direct reference to the server object.
-//      Both Express routes AND Socket.io WebSockets now share port 3001.
-// -------------------------------------------------------------------------
-const httpServer = createServer(app); // Step 2: Wrap Express in a raw HTTP server
-
-// Allowed CORS origins (same list used for both Express and Socket.io)
 const allowedOrigins = process.env.ALLOWED_ORIGINS
-  ? process.env.ALLOWED_ORIGINS.split(',')
+  ? process.env.ALLOWED_ORIGINS.split(',').map((origin) => origin.trim()).filter(Boolean)
   : ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'];
 
-// Step 3: Attach Socket.io to the HTTP server and pass the origins for its own CORS
-// After this line, the 'io' instance is alive and ready. The Worker process
-// can import getIO() from socket.js to emit real-time events to the frontend.
 initSocket(httpServer, allowedOrigins);
 
-// Standard Express middleware
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'), false);
-    }
+  origin(origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'), false);
   },
-  credentials: true
+  credentials: true,
 }));
-app.use(express.json());
+app.use(express.json({ limit: '256kb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// PHASE 4: Redis-Backed Rate Limiting (Abuse Control)
-// We use our existing Redis container to track IPs across multiple servers.
-const limiter = rateLimit({
-  windowMs: 60 * 60 * 1000, // 1 hour window
-  max: 10, // Limit each IP to 10 requests per hour
+const analysisLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
   standardHeaders: true,
   legacyHeaders: false,
   store: new RedisStore({
-    // ioredis needs to be bridged using the sendCommand method
     sendCommand: (...args) => redisConnection.call(...args),
   }),
-  message: { success: false, message: 'Too many analyses requested from this IP. Please try again after an hour.' }
+  message: { success: false, message: 'Too many analyses requested from this IP. Please try again after an hour.' },
 });
 
-// Apply the strict rate limiter ONLY to the analysis endpoint, 
-// so polling the status endpoint doesn't get blocked!
-app.use('/api/upload-resume', limiter);
+const discoveryLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  store: new RedisStore({
+    sendCommand: (...args) => redisConnection.call(...args),
+    prefix: 'career_os_job_discovery_rl:',
+  }),
+  message: { success: false, message: 'Too many job searches. Please try again shortly.' },
+});
 
-// REST API Routes
+app.use('/api/upload-resume', analysisLimiter);
+app.use('/api/jobs', discoveryLimiter);
+
 app.use('/api', resumeRoutes);
+app.use('/api', jobsRoutes);
 
-// PHASE 5: Admin Observability Dashboard
-// Mount the BullMQ dashboard at /admin/queues.
 const serverAdapter = new ExpressAdapter();
 serverAdapter.setBasePath('/admin/queues');
-
 createBullBoard({
   queues: [new BullMQAdapter(analysisQueue)],
-  serverAdapter: serverAdapter,
+  serverAdapter,
 });
 app.use('/admin/queues', serverAdapter.getRouter());
 
-// Global Express error handler
 app.use((err, req, res, next) => {
   if (err.code === 'LIMIT_FILE_SIZE') {
     return res.status(413).json({ success: false, message: 'File too large. Max size is 5MB.' });
@@ -106,20 +89,15 @@ app.use((err, req, res, next) => {
     return res.status(400).json({ success: false, message: err.message });
   }
 
-  // PHASE 6: Sentry Error Tracking
-  // Automatically capture all 500-level crashes and push them to the dashboard
   Sentry.captureException(err);
-
   console.error('[Global Error Handler]', err.stack);
-  res.status(500).json({
+  return res.status(500).json({
     success: false,
     message: 'Internal Server Error',
-    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined,
   });
 });
 
-// Step 4: Listen on the HTTP server, NOT on app.
-// Listening on 'app' would bypass our Socket.io setup completely.
 httpServer.listen(PORT, () => {
   console.log(`[Server] CareerOS API running on port ${PORT}`);
   console.log(`[Server] WebSocket server ready on ws://localhost:${PORT}`);
