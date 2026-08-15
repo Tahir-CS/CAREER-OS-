@@ -4,7 +4,7 @@ import { Button } from './ui/button';
 
 export interface Analysis {
   score: number;
-  matchScore?: number;
+  matchScore?: number | null;
   summary: string;
   strengths: string[];
   weaknesses: string[];
@@ -46,7 +46,7 @@ const ScoreRow = ({ label, score, note }: { label: string; score: number; note: 
       <div className="h-full bg-[#173f35]" style={{ width: `${Math.max(0, Math.min(score, 100))}%` }} />
     </div>
     <div className="flex items-baseline gap-1 sm:justify-end">
-      <span className="font-mono text-lg font-semibold text-[#17201d]">{score}</span>
+      <span className="font-mono text-lg font-semibold text-[#17201d]">{Math.round(score)}</span>
       <span className="font-mono text-[10px] text-[#85877f]">/100</span>
     </div>
   </div>
@@ -56,7 +56,7 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
   const [copied, setCopied] = useState(false);
   const {
     score = 0,
-    matchScore = 0,
+    matchScore,
     summary = '',
     strengths = [],
     weaknesses = [],
@@ -65,6 +65,7 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
     bulletPointRewrites = [],
     atsAnalysis = { score: 0, issues: [], missingKeywords: [], formatWarnings: [] },
   } = analysis;
+  const hasRoleMatch = typeof matchScore === 'number' && Number.isFinite(matchScore);
 
   const copySummary = async () => {
     try {
@@ -114,12 +115,14 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
           <div>
             <p className="eyebrow">Score board</p>
             <h3 className="mt-3 text-xl font-semibold">How the application reads</h3>
-            <p className="mt-2 text-sm leading-6 text-[#59615c]">Three signals separate document quality from role alignment.</p>
+            <p className="mt-2 text-sm leading-6 text-[#59615c]">
+              Document quality and ATS coverage are always shown. Role match appears only when CareerOS has actually compared this resume with a target role.
+            </p>
           </div>
           <div className="border-t border-[#d2cabb]">
             <ScoreRow label="Resume quality" score={score} note="Clarity and evidence" />
-            <ScoreRow label="ATS coverage" score={atsAnalysis.score} note="Parsing and keywords" />
-            <ScoreRow label="Role match" score={matchScore || Math.round(score * 0.9)} note="Resume ↔ job fit" />
+            <ScoreRow label="ATS coverage" score={atsAnalysis.score} note="Parsing and structure" />
+            {hasRoleMatch && <ScoreRow label="Role match" score={matchScore} note="Resume ↔ job similarity" />}
           </div>
         </div>
 
@@ -198,7 +201,7 @@ const AnalysisDisplay = ({ analysis, onReset, onExport }: AnalysisDisplayProps) 
             <div className="mt-4 flex flex-wrap gap-2">
               {atsAnalysis.missingKeywords.length > 0 ? atsAnalysis.missingKeywords.map((keyword, index) => (
                 <span key={index} className="border border-[#c7bfb0] bg-[#faf8f2] px-2.5 py-1.5 font-mono text-[10px] text-[#173f35]">{keyword}</span>
-              )) : <p className="text-sm text-[#72776f]">No critical keywords missing.</p>}
+              )) : <p className="text-sm text-[#72776f]">No role-specific missing terms were returned.</p>}
             </div>
           </div>
           <div className="border border-[#d2cabb] bg-[#f3f0e7] p-5">

@@ -38,6 +38,10 @@ jobs:
         DATABASE_URL: postgresql://ci:ci@localhost:5432/careeros?schema=public
       run: npx prisma generate
 
+    - name: Validate Resume Parser Imports
+      working-directory: ./Backend
+      run: node -e "import('./src/utils/fileExtractor.js').then((module) => { if (typeof module.extractTextFromResumeBuffer !== 'function') process.exit(1); })"
+
     - name: Start Redis for Backend Smoke Test
       run: docker run -d --name careeros-ci-redis -p 6379:6379 redis:alpine
 
