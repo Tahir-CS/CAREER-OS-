@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useToast } from '../components/ui/use-toast';
 import Header from '../components/Header';
 import ResumeUploader, { AnalyzePayload } from '../components/ResumeUploader';
@@ -28,14 +29,21 @@ const readApiErrorMessage = async (response: Response, defaultMessage: string) =
 };
 
 const statusCopy: Record<string, { title: string; detail: string }> = {
-  UPLOADING: { title: 'Uploading document', detail: 'Sending the resume to secure object storage.' },
-  PENDING: { title: 'Queued for analysis', detail: 'The document is waiting for an available worker.' },
-  PARSING: { title: 'Reading the resume', detail: 'Extracting structured text and preparing the document for comparison.' },
-  ANALYZING: { title: 'Building the report', detail: 'Comparing evidence, role signals, ATS coverage, and revision opportunities.' },
+  UPLOADING: { title: 'Uploading resume', detail: 'Storing the document before analysis starts.' },
+  PENDING: { title: 'Queued', detail: 'Your resume is waiting for an available worker.' },
+  PARSING: { title: 'Reading your experience', detail: 'Extracting the resume text and identifying usable evidence.' },
+  ANALYZING: { title: 'Building your career profile', detail: 'Identifying realistic roles, skills, seniority, and application evidence.' },
 };
+
+interface InitialRouteState {
+  initialUpload?: AnalyzePayload;
+}
 
 const Index = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [analysis, setAnalysis] = useState<any>(null);
   const [feedbackId, setFeedbackId] = useState<string | null>(null);
@@ -44,6 +52,9 @@ const Index = () => {
   const [jobStatus, setJobStatus] = useState('');
   const [sessionId, setSessionId] = useState('');
   const [currentFilename, setCurrentFilename] = useState('Uploaded-Resume.pdf');
+  const discoverAfterAnalysisRef = useRef(false);
+  const completedJobRef = useRef<string | null>(null);
+  const initialUploadHandledRef = useRef(false);
 
   useEffect(() => {
     let sid = localStorage.getItem('career_os_session_id');
@@ -60,33 +71,46 @@ const Index = () => {
     return () => newSocket.close();
   }, []);
 
+  const finishJob = useCallback((jobId: string, feedback: unknown) => {
+    if (completedJobRef.current === jobId) return;
+    completedJobRef.current = jobId;
+    setAnalysis(feedback);
+    saveReportToHistory(currentFilename, feedback);
+    setIsLoading(false);
+    setJobStatus('COMPLETED');
+
+    if (discoverAfterAnalysisRef.current) {
+      navigate(`/jobs?analysisId=${encodeURIComponent(jobId)}`, { replace: true });
+      return;
+    }
+
+    toast({ title: 'Application report ready', description: 'The role-specific analysis has been saved to your history.' });
+  }, [currentFilename, navigate, toast]);
+
+  const fetchFeedback = useCallback(async (jobId: string) => {
+    const response = await fetch(`${API_BASE_URL}/feedback/${jobId}`);
+    if (!response.ok) throw new Error('Failed to fetch analysis status.');
+    const result = await response.json();
+    if (result.status) setJobStatus(result.status);
+    if (result.status === 'COMPLETED' && result.feedback) finishJob(jobId, result.feedback);
+    if (result.status === 'FAILED') throw new Error('The analysis worker could not complete this resume.');
+    return result;
+  }, [finishJob]);
+
   useEffect(() => {
     if (!socket || !feedbackId) return;
 
     socket.emit('subscribe-to-job', feedbackId);
-    socket.on('job-update', async (data) => {
+    const handleUpdate = async (data: { status: string; error?: string }) => {
       setJobStatus(data.status);
-
       if (data.status === 'COMPLETED') {
         try {
-          const response = await fetch(`${API_BASE_URL}/feedback/${feedbackId}`);
-          if (!response.ok) throw new Error('Failed to fetch final results');
-          const result = await response.json();
-
-          if (result.success && result.feedback) {
-            setAnalysis(result.feedback);
-            saveReportToHistory(currentFilename, result.feedback);
-            setIsLoading(false);
-            toast({ title: 'Report ready', description: 'The analysis has been saved to your history.' });
-          } else {
-            throw new Error('The analysis completed without a report payload.');
-          }
+          await fetchFeedback(feedbackId);
         } catch (error) {
-          console.error('Error fetching final feedback:', error);
           setIsLoading(false);
           toast({
-            title: 'Could not load report',
-            description: error instanceof Error ? error.message : 'Please try the analysis again.',
+            title: 'Could not load result',
+            description: error instanceof Error ? error.message : 'Please try again.',
             variant: 'destructive',
           });
         }
@@ -98,16 +122,31 @@ const Index = () => {
           variant: 'destructive',
         });
       }
-    });
+    };
 
-    return () => socket.off('job-update');
-  }, [socket, feedbackId, toast, currentFilename]);
+    socket.on('job-update', handleUpdate);
+    return () => {
+      socket.off('job-update', handleUpdate);
+    };
+  }, [socket, feedbackId, fetchFeedback, toast]);
 
-  const handleAnalyze = async ({ file, jobDescription }: AnalyzePayload) => {
+  useEffect(() => {
+    if (!feedbackId || !isLoading) return;
+    const timer = window.setInterval(() => {
+      fetchFeedback(feedbackId).catch((error) => {
+        console.error('Polling analysis status failed:', error);
+      });
+    }, 2500);
+    return () => window.clearInterval(timer);
+  }, [feedbackId, isLoading, fetchFeedback]);
+
+  const handleAnalyze = useCallback(async ({ file, jobDescription }: AnalyzePayload) => {
     setCurrentFilename(file.name);
     setIsLoading(true);
     setAnalysis(null);
     setJobStatus('UPLOADING');
+    completedJobRef.current = null;
+    discoverAfterAnalysisRef.current = !jobDescription;
 
     try {
       const formData = new FormData();
@@ -126,7 +165,7 @@ const Index = () => {
       }
 
       const data = await response.json();
-      if (!data.success) throw new Error(data.message || 'Failed to queue resume');
+      if (!data.success || !data.jobId) throw new Error(data.message || 'Failed to queue resume');
 
       setFeedbackId(data.jobId);
       setJobStatus(data.status || 'PENDING');
@@ -140,21 +179,47 @@ const Index = () => {
         variant: 'destructive',
       });
     }
-  };
+  }, [sessionId, toast]);
+
+  useEffect(() => {
+    const preparedJobId = searchParams.get('jobId');
+    if (!preparedJobId) return;
+    completedJobRef.current = null;
+    discoverAfterAnalysisRef.current = false;
+    setFeedbackId(preparedJobId);
+    setIsLoading(true);
+    setAnalysis(null);
+    setJobStatus('PENDING');
+    fetchFeedback(preparedJobId).catch((error) => {
+      setIsLoading(false);
+      toast({
+        title: 'Could not open application',
+        description: error instanceof Error ? error.message : 'Please try again.',
+        variant: 'destructive',
+      });
+    });
+  }, [searchParams, fetchFeedback, toast]);
+
+  useEffect(() => {
+    const routeState = location.state as InitialRouteState | null;
+    if (!routeState?.initialUpload || initialUploadHandledRef.current || !sessionId) return;
+    initialUploadHandledRef.current = true;
+    handleAnalyze(routeState.initialUpload);
+    navigate('/app', { replace: true, state: null });
+  }, [location.state, sessionId, handleAnalyze, navigate]);
 
   const handleReset = () => {
     setAnalysis(null);
     setFeedbackId(null);
     setJobStatus('');
+    discoverAfterAnalysisRef.current = false;
+    completedJobRef.current = null;
+    navigate('/app', { replace: true });
   };
 
   const handleExport = async () => {
     if (!analysis || !feedbackId) {
-      toast({
-        title: 'Export unavailable',
-        description: 'No feedback ID was found. Please re-analyze your resume.',
-        variant: 'destructive',
-      });
+      toast({ title: 'Export unavailable', description: 'No feedback ID was found.', variant: 'destructive' });
       return;
     }
 
@@ -164,15 +229,14 @@ const Index = () => {
         const message = await readApiErrorMessage(response, 'Could not export PDF. Please try again.');
         throw new Error(message);
       }
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `Resume-Feedback-${feedbackId}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `CareerOS-${feedbackId}.pdf`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
       window.URL.revokeObjectURL(url);
     } catch (error) {
       toast({
@@ -183,68 +247,65 @@ const Index = () => {
     }
   };
 
-  const status = statusCopy[jobStatus] || { title: 'Processing document', detail: 'Preparing your report.' };
+  const status = statusCopy[jobStatus] || { title: 'Processing resume', detail: 'Preparing the next step.' };
   const statuses = ['UPLOADING', 'PENDING', 'PARSING', 'ANALYZING'];
   const activeIndex = Math.max(statuses.indexOf(jobStatus), 0);
+  const prepared = searchParams.get('prepared') === '1';
 
   return (
-    <div className="min-h-screen bg-[#f3f0e7] text-[#17201d]">
+    <div className="min-h-screen bg-[#f5f5f7] text-[#1d1d1f]">
       <Header />
 
-      <main className="mx-auto max-w-7xl px-5 pb-16 md:px-8">
-        <div className="grid gap-8 border-b border-[#d2cabb] py-9 md:grid-cols-[1fr_auto] md:items-end md:py-12">
-          <div>
-            <p className="rule-label">Workspace / 01</p>
-            <h1 className="display-serif mt-4 max-w-3xl text-4xl leading-[1] md:text-6xl">Resume workbench</h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-[#59615c]">
-              Put the resume and the role in the same place. CareerOS turns the comparison into a report you can revise against.
-            </p>
-          </div>
-          <div className="hidden min-w-[220px] border-l border-[#d2cabb] pl-5 md:block">
-            <p className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#878981]">Current workflow</p>
-            <p className="mt-2 text-sm font-medium">Input → compare → revise</p>
-          </div>
+      <main className="mx-auto max-w-[1080px] px-5 pb-20 pt-10 md:px-8 md:pt-16">
+        <div className="mx-auto max-w-[820px] text-center">
+          <p className="text-[13px] font-semibold text-[#6e6e73]">{prepared ? 'Application workspace' : 'Job discovery'}</p>
+          <h1 className="mt-3 text-[46px] font-semibold leading-[0.98] tracking-[-0.055em] sm:text-[58px] md:text-[72px]">
+            {prepared ? 'Prepare for this role.' : 'Upload your resume. Find your next role.'}
+          </h1>
+          <p className="mx-auto mt-5 max-w-[680px] text-[18px] leading-7 tracking-[-0.02em] text-[#6e6e73]">
+            {prepared
+              ? 'CareerOS is comparing the selected live job with the same resume you already uploaded.'
+              : 'We turn your real experience into a career profile, search live openings, and show the jobs your resume can support.'}
+          </p>
         </div>
 
-        <div className="mx-auto mt-9 max-w-4xl">
+        <div className="mx-auto mt-10 max-w-[860px]">
           {!analysis && !isLoading && <ResumeUploader onAnalyze={handleAnalyze} />}
 
           {isLoading && (
-            <div className="border border-[#cfc7b7] bg-[#faf8f2]">
-              <div className="grid border-b border-[#cfc7b7] bg-[#e9e4d8] sm:grid-cols-[110px_1fr]">
-                <div className="border-b border-[#cfc7b7] p-4 sm:border-b-0 sm:border-r">
-                  <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#b84f31]">Process / 02</span>
-                </div>
-                <div className="p-4">
-                  <p className="text-sm font-semibold">{status.title}</p>
-                  <p className="mt-1 text-xs text-[#59615c]">{status.detail}</p>
-                </div>
+            <section className="overflow-hidden rounded-[28px] bg-white ring-1 ring-black/[0.05]">
+              <div className="border-b border-black/[0.06] px-6 py-5 md:px-8">
+                <p className="text-sm font-semibold">{status.title}</p>
+                <p className="mt-1 text-sm leading-6 text-[#6e6e73]">{status.detail}</p>
               </div>
-
               <div className="p-6 md:p-8">
-                <div className="grid gap-2 sm:grid-cols-4">
-                  {['Upload', 'Queue', 'Read', 'Report'].map((label, index) => {
+                <div className="grid gap-3 sm:grid-cols-4">
+                  {['Upload', 'Queue', 'Read', prepared ? 'Compare' : 'Profile'].map((label, index) => {
                     const done = index < activeIndex;
                     const active = index === activeIndex;
                     return (
                       <div key={label}>
-                        <div className={`h-1.5 w-full ${done || active ? 'bg-[#173f35]' : 'bg-[#ddd6c9]'}`} />
+                        <div className={`h-1.5 w-full rounded-full ${done || active ? 'bg-[#1d1d1f]' : 'bg-[#e5e5e7]'}`} />
                         <div className="mt-2 flex items-center justify-between">
-                          <span className={`font-mono text-[10px] uppercase ${active ? 'text-[#17201d]' : 'text-[#85877f]'}`}>{label}</span>
-                          {active && <span className="h-2 w-2 animate-pulse rounded-full bg-[#e86e45]" />}
+                          <span className={`text-[11px] font-medium ${active ? 'text-[#1d1d1f]' : 'text-[#86868b]'}`}>{label}</span>
+                          {active && <span className="h-2 w-2 animate-pulse rounded-full bg-[#1d1d1f]" />}
                         </div>
                       </div>
                     );
                   })}
                 </div>
-                <p className="mt-8 border-l-2 border-[#e86e45] pl-4 text-sm leading-6 text-[#59615c]">
-                  Keep this page open. The report updates when the background worker finishes the analysis.
+                <p className="mt-8 text-sm leading-6 text-[#6e6e73]">
+                  {discoverAfterAnalysisRef.current
+                    ? 'When the career profile is ready, CareerOS will move directly into live job matches.'
+                    : 'When the comparison finishes, the role-specific application report will appear here.'}
                 </p>
               </div>
-            </div>
+            </section>
           )}
 
-          {analysis && <AnalysisDisplay analysis={analysis} onReset={handleReset} onExport={handleExport} />}
+          {analysis && !discoverAfterAnalysisRef.current && (
+            <AnalysisDisplay analysis={analysis} onReset={handleReset} onExport={handleExport} />
+          )}
         </div>
       </main>
     </div>
