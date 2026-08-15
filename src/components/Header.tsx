@@ -7,7 +7,7 @@ const Header = () => {
   const [open, setOpen] = useState(false);
 
   const navItems = [
-    { path: '/app', label: 'Workspace' },
+    { path: '/app', label: 'Find jobs' },
     { path: '/keywords', label: 'ATS' },
     { path: '/interview', label: 'Interview' },
     { path: '/history', label: 'History' },
@@ -27,7 +27,7 @@ const Header = () => {
 
         <nav className="hidden flex-1 items-center justify-center gap-8 md:flex" aria-label="Primary navigation">
           {navItems.map((item) => {
-            const active = location.pathname === item.path;
+            const active = location.pathname === item.path || (item.path === '/app' && location.pathname === '/jobs');
             return (
               <Link
                 key={item.path}
@@ -55,7 +55,7 @@ const Header = () => {
             to="/app"
             className="inline-flex h-7 items-center rounded-full bg-[#1d1d1f] px-3.5 text-[12px] font-medium text-white transition hover:bg-[#343436]"
           >
-            Open app
+            Find jobs
           </Link>
         </div>
 
@@ -95,7 +95,7 @@ const Header = () => {
               onClick={() => setOpen(false)}
               className="mt-5 inline-flex h-9 items-center rounded-full bg-[#1d1d1f] px-4 text-[13px] font-medium text-white"
             >
-              Open app
+              Find matching jobs
             </Link>
           </nav>
         </div>
