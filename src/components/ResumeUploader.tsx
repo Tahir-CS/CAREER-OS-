@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
-import { FileText, Upload } from 'lucide-react';
+import { BriefcaseBusiness, ChevronDown, FileText, Upload } from 'lucide-react';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
 
@@ -26,6 +26,7 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
   const [file, setFile] = useState<File | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [jobDescription, setJobDescription] = useState('');
+  const [showTargetRole, setShowTargetRole] = useState(false);
 
   const remainingCharacters = useMemo(
     () => MAX_JOB_DESCRIPTION_CHARS - jobDescription.length,
@@ -60,84 +61,102 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
     onAnalyze({ file, jobDescription: jobDescription.trim() });
   };
 
+  const hasTargetRole = jobDescription.trim().length > 0;
+
   return (
-    <div className="overflow-hidden border border-[#cfc7b7] bg-[#faf8f2]">
-      <div className="grid border-b border-[#cfc7b7] bg-[#e9e4d8] sm:grid-cols-[110px_1fr]">
-        <div className="border-b border-[#cfc7b7] p-4 sm:border-b-0 sm:border-r">
-          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-[#b84f31]">Input / 01</span>
-        </div>
-        <div className="p-4">
-          <p className="text-sm font-semibold text-[#17201d]">Document intake</p>
-          <p className="mt-1 text-xs leading-5 text-[#59615c]">Resume required. Add the role description when you want a role-specific match.</p>
-        </div>
+    <div className="overflow-hidden rounded-[26px] bg-white ring-1 ring-black/[0.06]">
+      <div className="border-b border-black/[0.06] px-6 py-5 md:px-8">
+        <p className="text-[13px] font-semibold text-[#1d1d1f]">Start with your resume</p>
+        <p className="mt-1 text-sm leading-6 text-[#6e6e73]">
+          CareerOS reads your experience and skills first. If you do not have a role yet, it can use that profile to find live openings.
+        </p>
       </div>
 
-      <div className="p-5 md:p-6">
+      <div className="p-5 md:p-8">
         <label
           htmlFor="resume-upload"
-          className={`group grid min-h-[180px] w-full cursor-pointer place-items-center border border-dashed p-6 text-center transition ${
+          className={`group grid min-h-[210px] w-full cursor-pointer place-items-center rounded-[22px] border border-dashed p-6 text-center transition ${
             isDragging
-              ? 'border-[#173f35] bg-[#e6eee9]'
-              : 'border-[#bdb5a7] bg-[#f3f0e7] hover:border-[#7b8f87] hover:bg-[#eeeae0]'
+              ? 'border-[#1d1d1f] bg-[#f5f5f7]'
+              : 'border-black/[0.16] bg-[#fbfbfd] hover:border-black/[0.28] hover:bg-[#f5f5f7]'
           }`}
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
         >
           <div>
-            <div className="mx-auto flex h-10 w-10 items-center justify-center border border-[#c7beaf] bg-[#faf8f2] text-[#173f35] transition group-hover:border-[#8ea49b]">
+            <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-[#1d1d1f] text-white">
               <Upload className="h-4 w-4" />
             </div>
             <input id="resume-upload" type="file" className="hidden" onChange={handleFileChange} accept=".pdf,.docx" />
-            <p className="mt-4 text-sm font-semibold text-[#17201d]">Drop your resume here</p>
-            <p className="mt-1 text-xs text-[#72776f]">or click to choose a PDF / DOCX up to 5 MB</p>
+            <p className="mt-4 text-base font-semibold tracking-[-0.02em] text-[#1d1d1f]">Drop your resume here</p>
+            <p className="mt-1 text-sm text-[#86868b]">or choose a PDF / DOCX up to 5 MB</p>
           </div>
         </label>
 
         {file && (
-          <div className="mt-3 grid grid-cols-[auto_1fr_auto] items-center gap-3 border border-[#cfc7b7] bg-[#e9e4d8] p-3">
-            <div className="flex h-9 w-9 items-center justify-center bg-[#173f35] text-[#f8f5ed]">
+          <div className="mt-3 grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[18px] bg-[#f5f5f7] p-3.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-[#1d1d1f] ring-1 ring-black/[0.05]">
               <FileText className="h-4 w-4" />
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-[#17201d]">{file.name}</p>
-              <p className="font-mono text-[10px] text-[#72776f]">{formatFileSize(file.size)}</p>
+              <p className="truncate text-sm font-medium text-[#1d1d1f]">{file.name}</p>
+              <p className="mt-0.5 text-xs text-[#86868b]">{formatFileSize(file.size)}</p>
             </div>
-            <span className="font-mono text-[10px] uppercase tracking-[0.08em] text-[#225a4b]">Ready</span>
+            <span className="text-xs font-medium text-[#6e6e73]">Ready</span>
           </div>
         )}
 
-        <div className="mt-6 border-t border-[#d2cabb] pt-5">
-          <div className="mb-2.5 flex items-end justify-between gap-3">
-            <div>
-              <label htmlFor="job-description" className="text-sm font-semibold text-[#17201d]">Target job description</label>
-              <p className="mt-0.5 text-xs text-[#72776f]">Optional, but recommended for fit and gap analysis.</p>
+        <div className="mt-5 border-t border-black/[0.06] pt-5">
+          <button
+            type="button"
+            onClick={() => setShowTargetRole((value) => !value)}
+            className="flex w-full items-center justify-between gap-4 text-left"
+            aria-expanded={showTargetRole}
+          >
+            <span className="flex items-center gap-3">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#f5f5f7]">
+                <BriefcaseBusiness className="h-4 w-4" />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-[#1d1d1f]">Already found a job?</span>
+                <span className="mt-0.5 block text-xs text-[#86868b]">Paste it only if you want to analyze that specific role.</span>
+              </span>
+            </span>
+            <ChevronDown className={`h-4 w-4 shrink-0 text-[#86868b] transition-transform ${showTargetRole ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showTargetRole && (
+            <div className="mt-4">
+              <div className="mb-2 flex items-center justify-between gap-3">
+                <label htmlFor="job-description" className="text-xs font-medium text-[#6e6e73]">Target job description</label>
+                <span className="text-[11px] tabular-nums text-[#86868b]">{remainingCharacters} chars</span>
+              </div>
+              <Textarea
+                id="job-description"
+                value={jobDescription}
+                onChange={(e) => setJobDescription(e.target.value.slice(0, MAX_JOB_DESCRIPTION_CHARS))}
+                placeholder="Paste the role responsibilities and requirements…"
+                className="min-h-[150px] resize-y rounded-[18px] border-black/[0.1] bg-[#fbfbfd] text-sm leading-6 placeholder:text-[#a1a1a6] focus-visible:ring-2 focus-visible:ring-black/10"
+              />
             </div>
-            <span className="font-mono text-[10px] tabular-nums text-[#85877f]">{remainingCharacters} chars</span>
-          </div>
-          <Textarea
-            id="job-description"
-            value={jobDescription}
-            onChange={(e) => setJobDescription(e.target.value.slice(0, MAX_JOB_DESCRIPTION_CHARS))}
-            placeholder="Paste the role responsibilities and requirements…"
-            className="min-h-[150px] resize-y rounded-none border-[#cfc7b7] bg-[#f7f4ec] text-sm leading-6 placeholder:text-[#96988f] focus-visible:ring-1 focus-visible:ring-[#173f35]"
-          />
+          )}
         </div>
 
-        <div className="mt-5 flex flex-col gap-2 sm:flex-row">
+        <div className="mt-6 flex flex-col gap-2 sm:flex-row">
           <Button
             size="lg"
-            className="apple-button h-11 flex-1 text-sm"
+            className="apple-button h-11 flex-1 rounded-full text-sm"
             disabled={!file || isLoading}
             onClick={handleAnalyze}
           >
-            {isLoading ? 'Running analysis…' : 'Run analysis'}
+            {isLoading ? 'Reading resume…' : hasTargetRole ? 'Analyze this role' : 'Find matching jobs'}
           </Button>
 
           {onUseDemo && (
             <Button
               variant="outline"
-              className="apple-button-secondary h-11 sm:w-auto"
+              className="apple-button-secondary h-11 rounded-full sm:w-auto"
               onClick={onUseDemo}
               disabled={isLoading}
             >
@@ -145,6 +164,12 @@ const ResumeUploader = ({ onAnalyze, isLoading = false, onUseDemo }: ResumeUploa
             </Button>
           )}
         </div>
+
+        {!hasTargetRole && (
+          <p className="mt-3 text-center text-xs leading-5 text-[#86868b]">
+            No job description required. CareerOS will build a search profile from the resume and look for live roles.
+          </p>
+        )}
       </div>
     </div>
   );
