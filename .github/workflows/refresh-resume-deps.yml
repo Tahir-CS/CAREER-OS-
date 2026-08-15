@@ -1,0 +1,37 @@
+name: Refresh resume parsing dependencies
+
+on:
+  push:
+    branches: ["feature/resume-to-job-matches"]
+    paths: [".github/workflows/refresh-resume-deps.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/resume-to-job-matches
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: Backend/package-lock.json
+      - name: Refresh backend dependencies
+        working-directory: Backend
+        run: |
+          npm ci
+          npm install --save-exact pdf-parse@2.4.5
+          npm uninstall @google/generative-ai
+          npm ci
+      - name: Commit lockfile refresh
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Backend/package.json Backend/package-lock.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Refresh resume parsing dependencies"
+          git push origin HEAD:feature/resume-to-job-matches
