@@ -29,6 +29,12 @@ const clampScore = (value) => {
   return Math.max(0, Math.min(100, Math.round(number)));
 };
 
+const optionalNumber = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
+
 const normalizeFeedback = (feedback) => ({
   score: clampScore(feedback?.score),
   summary: typeof feedback?.summary === 'string' ? feedback.summary : '',
@@ -52,9 +58,7 @@ const normalizeFeedback = (feedback) => ({
     targetRoles: Array.isArray(feedback?.careerProfile?.targetRoles) ? feedback.careerProfile.targetRoles.slice(0, 5) : [],
     skills: Array.isArray(feedback?.careerProfile?.skills) ? feedback.careerProfile.skills.slice(0, 40) : [],
     seniority: typeof feedback?.careerProfile?.seniority === 'string' ? feedback.careerProfile.seniority : '',
-    yearsExperience: Number.isFinite(Number(feedback?.careerProfile?.yearsExperience))
-      ? Number(feedback.careerProfile.yearsExperience)
-      : null,
+    yearsExperience: optionalNumber(feedback?.careerProfile?.yearsExperience),
     location: typeof feedback?.careerProfile?.location === 'string' ? feedback.careerProfile.location : '',
   },
 });
