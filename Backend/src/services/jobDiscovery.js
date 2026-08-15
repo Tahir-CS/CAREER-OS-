@@ -20,6 +20,15 @@ const cleanText = (value = '') => String(value).replace(/<[^>]*>/g, ' ').replace
 const normalize = (value = '') => cleanText(value).toLowerCase();
 const canonicalSkill = (skill) => aliases.get(normalize(skill)) || normalize(skill);
 const unique = (values) => [...new Set(values.filter(Boolean))];
+const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+const containsTerm = (text, term) => {
+  const haystack = normalize(text);
+  const needle = normalize(term);
+  if (!needle) return false;
+  const tokenBoundary = '[a-z0-9+#.]';
+  return new RegExp(`(^|[^${tokenBoundary.slice(1, -1)}])${escapeRegex(needle)}($|[^${tokenBoundary.slice(1, -1)}])`, 'i').test(haystack);
+};
 
 const toOptionalNumber = (value) => {
   if (value === null || value === undefined || value === '') return null;
@@ -57,10 +66,9 @@ const getCareerProfile = (feedback = {}) => {
   };
 };
 
-const extractJobSkills = (jobText) => {
-  const text = normalize(jobText);
-  return unique(SKILL_TERMS.filter((term) => text.includes(term)).map(canonicalSkill));
-};
+const extractJobSkills = (jobText) => unique(
+  SKILL_TERMS.filter((term) => containsTerm(jobText, term)).map(canonicalSkill)
+);
 
 const roleTokens = (profile) => {
   const role = normalize(profile.targetRoles[0] || profile.headline);
@@ -71,10 +79,10 @@ const roleTokens = (profile) => {
 };
 
 const scoreJob = (job, profile) => {
-  const haystack = normalize(`${job.title} ${job.description}`);
+  const haystack = `${job.title} ${job.description}`;
   const title = normalize(job.title);
   const targetTokens = roleTokens(profile);
-  const titleHits = targetTokens.filter((token) => title.includes(token));
+  const titleHits = targetTokens.filter((token) => containsTerm(title, token));
   const jobSkills = extractJobSkills(haystack);
   const profileSkillSet = new Set(profile.skills.map(canonicalSkill));
   const matchedSkills = jobSkills.filter((skill) => profileSkillSet.has(skill));
@@ -110,13 +118,9 @@ const fetchJson = async (url, options = {}) => {
 };
 
 const searchAdzuna = async ({ query, country, location, limit }) => {
-  const appId = process.env.ADZUNA_APP_ID;
-  const appKey = process.env.ADZUNA_APP_KEY;
-  if (!appId || !appKey) return [];
-
   const params = new URLSearchParams({
-    app_id: appId,
-    app_key: appKey,
+    app_id: process.env.ADZUNA_APP_ID,
+    app_key: process.env.ADZUNA_APP_KEY,
     results_per_page: String(Math.min(Math.max(limit, 10), 50)),
     what: query,
     'content-type': 'application/json',
@@ -142,8 +146,6 @@ const searchAdzuna = async ({ query, country, location, limit }) => {
 
 const searchGreenhouse = async () => {
   const boards = parseConfiguredSources(process.env.GREENHOUSE_JOB_BOARDS);
-  if (boards.length === 0) return [];
-
   const results = await Promise.allSettled(boards.slice(0, 20).map(async ({ company, token }) => {
     const payload = await fetchJson(`https://boards-api.greenhouse.io/v1/boards/${encodeURIComponent(token)}/jobs?content=true`);
     return (payload.jobs || []).map((job) => ({
@@ -161,13 +163,13 @@ const searchGreenhouse = async () => {
     }));
   }));
 
-  return results.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
+  const fulfilled = results.filter((result) => result.status === 'fulfilled');
+  if (boards.length > 0 && fulfilled.length === 0) throw new Error('All configured Greenhouse boards failed');
+  return fulfilled.flatMap((result) => result.value);
 };
 
 const searchLever = async () => {
   const sites = parseConfiguredSources(process.env.LEVER_JOB_SITES);
-  if (sites.length === 0) return [];
-
   const results = await Promise.allSettled(sites.slice(0, 20).map(async ({ company, token }) => {
     const payload = await fetchJson(`https://api.lever.co/v0/postings/${encodeURIComponent(token)}?mode=json`);
     return (Array.isArray(payload) ? payload : []).map((job) => ({
@@ -187,15 +189,15 @@ const searchLever = async () => {
     }));
   }));
 
-  return results.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
+  const fulfilled = results.filter((result) => result.status === 'fulfilled');
+  if (sites.length > 0 && fulfilled.length === 0) throw new Error('All configured Lever sites failed');
+  return fulfilled.flatMap((result) => result.value);
 };
 
 const isRelevant = (job, profile) => {
-  const title = normalize(job.title);
-  const text = normalize(`${job.title} ${job.description}`);
   const targets = roleTokens(profile);
-  const targetHit = targets.some((token) => title.includes(token));
-  const skillHits = profile.skills.filter((skill) => text.includes(skill)).length;
+  const targetHit = targets.some((token) => containsTerm(job.title, token));
+  const skillHits = profile.skills.filter((skill) => containsTerm(`${job.title} ${job.description}`, skill)).length;
   return targetHit || skillHits >= 2 || targets.length === 0;
 };
 
@@ -218,24 +220,28 @@ export const discoverJobs = async ({ feedback, country, location = '', limit = 2
     throw error;
   }
 
-  const hasProvider = Boolean(
-    (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) ||
-    process.env.GREENHOUSE_JOB_BOARDS ||
-    process.env.LEVER_JOB_SITES
-  );
-  if (!hasProvider) {
+  const providers = [];
+  if (process.env.ADZUNA_APP_ID && process.env.ADZUNA_APP_KEY) {
+    providers.push(searchAdzuna({ query, country, location, limit }));
+  }
+  if (process.env.GREENHOUSE_JOB_BOARDS) providers.push(searchGreenhouse());
+  if (process.env.LEVER_JOB_SITES) providers.push(searchLever());
+
+  if (providers.length === 0) {
     const error = new Error('No live job source is configured');
     error.code = 'JOB_PROVIDER_NOT_CONFIGURED';
     throw error;
   }
 
-  const providerResults = await Promise.allSettled([
-    searchAdzuna({ query, country, location, limit }),
-    searchGreenhouse(),
-    searchLever(),
-  ]);
+  const providerResults = await Promise.allSettled(providers);
+  const successfulProviders = providerResults.filter((result) => result.status === 'fulfilled');
+  if (successfulProviders.length === 0) {
+    const error = new Error('Every configured live job source failed');
+    error.code = 'JOB_SOURCE_UNAVAILABLE';
+    throw error;
+  }
 
-  const jobs = providerResults.flatMap((result) => result.status === 'fulfilled' ? result.value : []);
+  const jobs = successfulProviders.flatMap((result) => result.value);
   const ranked = dedupeJobs(jobs)
     .filter((job) => isRelevant(job, profile))
     .map((job) => scoreJob(job, profile))
