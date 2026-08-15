@@ -19,8 +19,13 @@ const aliases = new Map([
 const cleanText = (value = '') => String(value).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 const normalize = (value = '') => cleanText(value).toLowerCase();
 const canonicalSkill = (skill) => aliases.get(normalize(skill)) || normalize(skill);
-
 const unique = (values) => [...new Set(values.filter(Boolean))];
+
+const toOptionalNumber = (value) => {
+  if (value === null || value === undefined || value === '') return null;
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+};
 
 const parseConfiguredSources = (raw) => {
   if (!raw) return [];
@@ -47,18 +52,14 @@ const getCareerProfile = (feedback = {}) => {
     targetRoles,
     skills,
     seniority: cleanText(profile.seniority || ''),
-    yearsExperience: Number.isFinite(Number(profile.yearsExperience)) ? Number(profile.yearsExperience) : null,
+    yearsExperience: toOptionalNumber(profile.yearsExperience),
     location: cleanText(profile.location || ''),
   };
 };
 
 const extractJobSkills = (jobText) => {
   const text = normalize(jobText);
-  return unique(
-    SKILL_TERMS
-      .filter((term) => text.includes(term))
-      .map(canonicalSkill)
-  );
+  return unique(SKILL_TERMS.filter((term) => text.includes(term)).map(canonicalSkill));
 };
 
 const roleTokens = (profile) => {
@@ -133,8 +134,8 @@ const searchAdzuna = async ({ query, country, location, limit }) => {
     url: job.redirect_url,
     createdAt: job.created || null,
     source: 'Adzuna',
-    salaryMin: Number.isFinite(job.salary_min) ? job.salary_min : null,
-    salaryMax: Number.isFinite(job.salary_max) ? job.salary_max : null,
+    salaryMin: toOptionalNumber(job.salary_min),
+    salaryMax: toOptionalNumber(job.salary_max),
     salaryCurrency: job.salary_currency || null,
   }));
 };
@@ -179,8 +180,8 @@ const searchLever = async () => {
       applyUrl: job.applyUrl,
       createdAt: null,
       source: 'Lever',
-      salaryMin: Number.isFinite(job.salaryRange?.min) ? job.salaryRange.min : null,
-      salaryMax: Number.isFinite(job.salaryRange?.max) ? job.salaryRange.max : null,
+      salaryMin: toOptionalNumber(job.salaryRange?.min),
+      salaryMax: toOptionalNumber(job.salaryRange?.max),
       salaryCurrency: job.salaryRange?.currency || null,
       workplaceType: job.workplaceType || null,
     }));
