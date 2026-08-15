@@ -34,4 +34,5 @@ jobs:
           git add Backend/package.json Backend/package-lock.json
           git diff --cached --quiet && exit 0
           git commit -m "Refresh resume parsing dependencies"
+          git pull --rebase origin feature/resume-to-job-matches
           git push origin HEAD:feature/resume-to-job-matches
