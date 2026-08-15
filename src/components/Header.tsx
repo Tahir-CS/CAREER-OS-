@@ -15,25 +15,25 @@ const Header = () => {
   ];
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/[0.06] bg-[#fbfbfd]/80 text-[#1d1d1f] backdrop-blur-2xl supports-[backdrop-filter]:bg-[#fbfbfd]/72">
-      <div className="mx-auto flex h-12 max-w-[1080px] items-center px-5 md:px-6">
+    <header className="sticky top-0 z-50 bg-[#fbfbfd]/78 text-[#1d1d1f] backdrop-blur-2xl supports-[backdrop-filter]:bg-[#fbfbfd]/72">
+      <div className="mx-auto flex h-11 max-w-[1024px] items-center px-5 md:px-6">
         <Link
           to="/"
-          className="shrink-0 text-[15px] font-semibold tracking-[-0.025em] text-[#1d1d1f] transition-opacity hover:opacity-70"
+          className="shrink-0 text-[14px] font-semibold tracking-[-0.025em] text-[#1d1d1f] transition-opacity hover:opacity-60"
           aria-label="CareerOS home"
         >
           CareerOS
         </Link>
 
-        <nav className="hidden flex-1 items-center justify-center gap-7 md:flex" aria-label="Primary navigation">
+        <nav className="hidden flex-1 items-center justify-center gap-8 md:flex" aria-label="Primary navigation">
           {navItems.map((item) => {
             const active = location.pathname === item.path;
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`text-[12px] font-normal tracking-[-0.01em] transition-colors ${
-                  active ? 'text-[#1d1d1f]' : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+                className={`text-[12px] tracking-[-0.01em] transition-colors ${
+                  active ? 'font-medium text-[#1d1d1f]' : 'font-normal text-[#6e6e73] hover:text-[#1d1d1f]'
                 }`}
               >
                 {item.label}
@@ -46,16 +46,16 @@ const Header = () => {
           <Link
             to="/settings"
             className={`text-[12px] transition-colors ${
-              location.pathname === '/settings' ? 'text-[#1d1d1f]' : 'text-[#6e6e73] hover:text-[#1d1d1f]'
+              location.pathname === '/settings' ? 'font-medium text-[#1d1d1f]' : 'text-[#6e6e73] hover:text-[#1d1d1f]'
             }`}
           >
             Settings
           </Link>
           <Link
             to="/app"
-            className="inline-flex h-7 items-center rounded-full bg-[#0071e3] px-3.5 text-[12px] font-medium text-white transition hover:bg-[#0077ed]"
+            className="inline-flex h-7 items-center rounded-full bg-[#1d1d1f] px-3.5 text-[12px] font-medium text-white transition hover:bg-[#343436]"
           >
-            Analyze
+            Open app
           </Link>
         </div>
 
@@ -72,7 +72,7 @@ const Header = () => {
 
       {open && (
         <div className="border-t border-black/[0.05] bg-[#fbfbfd] px-5 pb-7 pt-4 md:hidden">
-          <nav className="mx-auto max-w-[1080px]" aria-label="Mobile navigation">
+          <nav className="mx-auto max-w-[1024px]" aria-label="Mobile navigation">
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -93,9 +93,9 @@ const Header = () => {
             <Link
               to="/app"
               onClick={() => setOpen(false)}
-              className="mt-5 inline-flex h-9 items-center rounded-full bg-[#0071e3] px-4 text-[13px] font-medium text-white"
+              className="mt-5 inline-flex h-9 items-center rounded-full bg-[#1d1d1f] px-4 text-[13px] font-medium text-white"
             >
-              Analyze a resume
+              Open app
             </Link>
           </nav>
         </div>
