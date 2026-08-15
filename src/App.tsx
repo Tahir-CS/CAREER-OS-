@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Landing from "./pages/Landing";
 import Index from "./pages/Index";
+import Jobs from "./pages/Jobs";
 import About from "./pages/About";
 import Support from "./pages/Support";
 import History from "./pages/History";
@@ -22,21 +23,15 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          {/* Landing Marketing Page */}
           <Route path="/" element={<Landing />} />
-          
-          {/* Dedicated Resume Analyzer Workspace */}
           <Route path="/app" element={<Index />} />
-          
-          {/* Platform Information & Tools */}
+          <Route path="/jobs" element={<Jobs />} />
           <Route path="/about" element={<About />} />
           <Route path="/support" element={<Support />} />
           <Route path="/history" element={<History />} />
           <Route path="/interview" element={<InterviewPrep />} />
           <Route path="/keywords" element={<ATSKeywords />} />
           <Route path="/settings" element={<Settings />} />
-
-          {/* Catch-all 404 Route */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
