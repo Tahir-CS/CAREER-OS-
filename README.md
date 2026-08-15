@@ -65,7 +65,7 @@ npm run build
 
 ## Backend and local infrastructure
 
-The intended local stack is defined in `docker-compose.yml` and includes PostgreSQL/pgvector, Redis, MinIO, the Express API, a BullMQ worker, and the frontend.
+The local stack is defined in `docker-compose.yml` and includes PostgreSQL/pgvector, Redis, MinIO, the Express API, a BullMQ worker, and the frontend.
 
 Set the required model key before bringing up the stack:
 
@@ -79,11 +79,21 @@ Then build and start the services:
 docker compose up --build
 ```
 
-### Current backend tooling note
+For backend-only development, copy the documented environment template first:
 
-The frontend production build passes. The backend dependency set has already moved to Prisma 7, while the Prisma schema/client setup still contains Prisma 6-style configuration. As a result, the current CI run fails at `npx prisma generate`, and the backend Docker image hits the same blocker.
+```sh
+cd Backend
+cp .env.example .env
+npm ci
+npx prisma generate
+npm start
+```
 
-That migration should be completed as a backend change rather than hidden inside a UI redesign. Until it is fixed, treat the full-stack Docker command above as the intended topology rather than a verified one-command setup.
+### Prisma compatibility
+
+The backend is intentionally pinned to Prisma `6.19.0`. Its current schema and runtime use the Prisma 6 `prisma-client-js` configuration and construct `PrismaClient` without a driver adapter. Moving to Prisma 7 should therefore be handled as an explicit migration rather than an automatic dependency bump.
+
+CI verifies the frontend production build, backend dependency install, Prisma client generation, an API startup smoke test against Redis, and the Docker Compose build.
 
 ## Useful routes
 
